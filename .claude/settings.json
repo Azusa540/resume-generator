@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -s -w '\\\\nHTTP_STATUS:%{http_code}\\\\n' -X POST https://api.devora21.com/jobs/scrape -H 'Authorization: Bearer dv21_9d96a647270c41dc647855714d895352b6e34fef7bcf813686d94e4d60c86a0e' -H 'Content-Type: application/json' -d '{\"url\":\"https://tetratech.referrals.selectminds.com/jobs/electronics-technician-journeyman-55927\"}')"
+    ]
+  }
+}
