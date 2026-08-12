@@ -7,3 +7,4 @@
 | 00:28 | generate-from-link ? B2 + JSON response | storage.ts, generate-from-link/route.ts, download route, env | company/jobTitle/resumeDownloadLink contract live | ~6k |
 | 00:31 | Confirmed B2 creds via .env.local | .env.local | Names match storage.ts; file gitignored | ~1k |
 | 00:39 | Diagnosed B2 403 InvalidAccessKeyId | .env.local, storage.ts | Wrong region us-west-004 vs us-east-005; upload OK after fix | ~4k |
+| 00:42 | Renamed app metadata to Resume Builder | layout.tsx | title/description no longer Create Next App | ~0.5k |
