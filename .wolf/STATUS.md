@@ -8,51 +8,60 @@
 
 ## ✅ Done
 
-<!-- Move items here from "🚀 Next phase" when finished. Group by area. -->
-
-- (nothing yet — fill in as work completes)
+- Full Next.js App Router app scaffolded with auth, profiles, resume generation, review, and downloads
+- MongoDB models: User, Profile, Resume
+- AI generation via OpenAI/Anthropic with large prompt system (`src/lib/prompts.ts`)
+- Job-link scrape → tailored resume (`/api/resume/generate-from-link`)
+- DOCX templates (docxtemplater) + PDF via Puppeteer / client html2canvas+jspdf
+- Admin user management (`/admin/users`)
+- Docker Compose (app + MongoDB)
 
 ---
 
 ## 🚀 Next phase
 
-**Goal:** _<what we're building next, in 1 sentence>_
+**Goal:** _Awaiting user direction — codebase inventory complete; no next quest chosen yet._
 
 ### Acceptance criteria
-1. _<concrete user-visible outcome>_
-2. _<...>_
+1. User specifies what to build / fix / improve next
 
 ### Files to create / edit
 | Type | File | Content |
 |---|---|---|
-| new | `path/to/file.ts` | _what it does_ |
+| — | — | — |
 
 ### Closed decisions
-- _<choice + reasoning>_
+- Stack is Next.js 16 + React 19 + MongoDB/Mongoose + Tailwind 4
 
 ### Open decisions
-- _<question to ask the user before coding>_
+- What to work on next (features, bugs, UX, deploy, etc.)
 
 ---
 
 ## 📁 Active architecture
 
-- **Stack:** _<frameworks, libraries, runtime>_
-- **Key tables / modules:** _<list>_
-- **Patterns:** _<conventions enforced project-wide>_
+- **Stack:** Next.js 16 (App Router), React 19, TypeScript, Tailwind 4, Mongoose/MongoDB, JWT+cookie auth, bcrypt, OpenAI + Anthropic SDKs, docxtemplater/PizZip, Puppeteer, html2canvas/jspdf
+- **Key modules:**
+  - `src/models/` — User, Profile, Resume
+  - `src/lib/` — auth, session, mongodb, prompts, jobScraper, docxBuilder, storage
+  - `src/app/api/` — auth, profiles, resume generate/download/pdf, admin
+  - Pages: login, dashboard, profiles CRUD, resume-generator + review, admin/users
+- **Patterns:** JWT sessions in cookies; profiles owned by `userId`; generated resume staged in localStorage for review; optional per-profile DOCX template upload; `profileType` software vs other drives prompts
 
 ---
 
 ## ⚠️ External blockers (don't block coding)
 
-- _<env vars, secrets, external accounts, manual steps>_
+- Needs env: `MONGODB_URI`, `JWT_SECRET`, `OPENAI_API_KEY` and/or `ANTHROPIC_API_KEY`, optional `DEVORA21_*` scrape API, `CHROMIUM_PATH`
 
 ---
 
 ## 🔧 Useful commands
 
 ```bash
-# add the most-used commands here so the next session has them ready
+npm run dev          # Next.js (webpack)
+npm run build
+docker compose up -d # Mongo + app
 ```
 
 ---
