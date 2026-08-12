@@ -19,7 +19,8 @@
 - **Exports:** docxtemplater for DOCX; Puppeteer HTML→PDF + client html2canvas/jspdf; resumes stored with `s3Key` via `storage.ts`.
 - **Admin:** `/admin/users` + `/api/admin/users` for user CRUD.
 - **Infra:** `docker-compose.yml` runs mongo:7 + app; uploads volume for DOCX templates; generated PDFs in Backblaze B2.
-- **API `POST /api/resume/generate-from-link`:** body `{ userId, profileId, jobLink }` → `{ company, jobTitle, resumeDownloadLink }` (presigned B2 URL, 15m). Scraped `companyName`/`jobTitle` mapped to response fields.
+- **API `POST /api/resume/generate-from-link`:** header `X-API-Key` (or `Authorization: Bearer`) + body `{ profileId, jobLink }` → `{ company, jobTitle, resumeDownloadLink }`. User resolved from API key hash, not body userId.
+- **API keys:** per-user, stored as SHA-256 hash on User; regenerate via `POST /api/auth/api-key` (self) or `POST /api/admin/users/api-key` (admin).
 
 ## Do-Not-Repeat
 

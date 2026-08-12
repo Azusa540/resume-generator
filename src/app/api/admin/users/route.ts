@@ -17,7 +17,14 @@ export async function GET(req: NextRequest) {
   if (auth instanceof NextResponse) return auth;
   await connectDB();
   const users = await User.find({}, { password: 0 }).sort({ createdAt: -1 });
-  return NextResponse.json(users);
+  const withKeyStatus = users.map((u) => ({
+    _id: u._id,
+    username: u.username,
+    is_admin: u.is_admin,
+    createdAt: u.createdAt,
+    hasApiKey: Boolean(u.apiKeyHash),
+  }));
+  return NextResponse.json(withKeyStatus);
 }
 
 // POST — create user

@@ -7,6 +7,7 @@ import Resume from '@/models/Resume';
 import { buildSystemPrompt, buildSystemPromptNonSoftware, buildUserPrompt } from '@/lib/prompts';
 import { scrapeJobLink, JobScrapeError } from '@/lib/jobScraper';
 import { resumeKey, uploadResume, getSignedDownloadUrl } from '@/lib/storage';
+import { extractApiKey, findUserByApiKey } from '@/lib/apiKey';
 import type { GeneratedResume, SkillCategories } from '@/types/resume';
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
@@ -15,10 +16,25 @@ const MAX_CONCURRENT = 3;
 let active = 0;
 
 export async function POST(req: NextRequest) {
-  const { userId, profileId, jobLink } = await req.json();
-  if (!userId || !profileId || !jobLink) {
-    return NextResponse.json({ message: 'Missing required fields: userId, profileId, jobLink.' }, { status: 400 });
+  const apiKey = extractApiKey(req);
+  if (!apiKey) {
+    return NextResponse.json(
+      { message: 'Missing API key. Send X-API-Key header or Authorization: Bearer <key>.' },
+      { status: 401 }
+    );
   }
+
+  const { profileId, jobLink } = await req.json();
+  if (!profileId || !jobLink) {
+    return NextResponse.json({ message: 'Missing required fields: profileId, jobLink.' }, { status: 400 });
+  }
+
+  await connectDB();
+  const user = await findUserByApiKey(apiKey);
+  if (!user) {
+    return NextResponse.json({ message: 'Invalid API key.' }, { status: 401 });
+  }
+  const userId = String(user._id);
 
   let scraped;
   try {
@@ -30,7 +46,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ message: 'Failed to scrape the job link.' }, { status: 502 });
   }
 
-  await connectDB();
   const profile = await Profile.findOne({ _id: profileId, userId });
   if (!profile) return NextResponse.json({ message: 'Profile not found.' }, { status: 404 });
 

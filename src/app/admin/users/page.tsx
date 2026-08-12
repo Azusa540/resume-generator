@@ -10,6 +10,7 @@ interface UserRow {
   username: string;
   is_admin: boolean;
   createdAt: string;
+  hasApiKey?: boolean;
 }
 
 export default function AdminUsersPage() {
@@ -32,6 +33,10 @@ export default function AdminUsersPage() {
   const [editIsAdmin, setEditIsAdmin] = useState(false);
   const [saving, setSaving] = useState(false);
   const [showEditPassword, setShowEditPassword] = useState(false);
+
+  // API key modal
+  const [generatedKey, setGeneratedKey] = useState<string | null>(null);
+  const [generatingFor, setGeneratingFor] = useState<string | null>(null);
 
   useEffect(() => {
     const session = getSession();
@@ -90,6 +95,29 @@ export default function AdminUsersPage() {
       body: JSON.stringify({ id }),
     });
     fetchUsers();
+  }
+
+  async function handleGenerateApiKey(userId: string, username: string) {
+    if (!confirm(`Generate a new API key for "${username}"? Any existing key will stop working.`)) return;
+    setGeneratingFor(userId);
+    const res = await fetch('/api/admin/users/api-key', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId }),
+    });
+    const data = await res.json();
+    setGeneratingFor(null);
+    if (res.ok) {
+      setGeneratedKey(data.apiKey);
+      fetchUsers();
+    } else {
+      alert(data.message || 'Failed to generate API key.');
+    }
+  }
+
+  async function copyApiKey() {
+    if (!generatedKey) return;
+    await navigator.clipboard.writeText(generatedKey);
   }
 
   const inputCls = 'w-full border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500';
@@ -157,6 +185,7 @@ export default function AdminUsersPage() {
                 <tr>
                   <th className="px-6 py-3 text-left">Username</th>
                   <th className="px-6 py-3 text-left">Role</th>
+                  <th className="px-6 py-3 text-left">API Key</th>
                   <th className="px-6 py-3 text-left">Created</th>
                   <th className="px-6 py-3 text-right">Actions</th>
                 </tr>
@@ -177,6 +206,7 @@ export default function AdminUsersPage() {
                             <span className="text-xs text-gray-600">Admin</span>
                           </label>
                         </td>
+                        <td className="px-6 py-3 text-gray-500">—</td>
                         <td className="px-6 py-3">
                           <div className="relative w-52">
                             <input
@@ -215,6 +245,22 @@ export default function AdminUsersPage() {
                             <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">User</span>
                           )}
                         </td>
+                        <td className="px-6 py-3">
+                          <div className="flex items-center gap-2">
+                            {u.hasApiKey ? (
+                              <span className="text-xs text-green-700 bg-green-50 px-2 py-0.5 rounded-full">Active</span>
+                            ) : (
+                              <span className="text-xs text-gray-500 bg-gray-50 px-2 py-0.5 rounded-full">None</span>
+                            )}
+                            <button
+                              onClick={() => handleGenerateApiKey(u._id, u.username)}
+                              disabled={generatingFor === u._id}
+                              className="text-xs text-blue-600 hover:text-blue-800 font-medium disabled:opacity-50"
+                            >
+                              {generatingFor === u._id ? 'Generating…' : u.hasApiKey ? 'Regenerate' : 'Generate'}
+                            </button>
+                          </div>
+                        </td>
                         <td className="px-6 py-3 text-gray-500">
                           {new Date(u.createdAt).toLocaleDateString()}
                         </td>
@@ -234,6 +280,36 @@ export default function AdminUsersPage() {
             </table>
           )}
         </section>
+
+        {generatedKey && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+            <div className="bg-white rounded-2xl shadow-xl max-w-lg w-full p-6 space-y-4">
+              <h3 className="text-lg font-semibold text-gray-900">API Key Generated</h3>
+              <p className="text-sm text-gray-600">
+                Copy this key now. It will not be shown again. Send it as{' '}
+                <code className="text-xs bg-gray-100 px-1 rounded">X-API-Key</code> on{' '}
+                <code className="text-xs bg-gray-100 px-1 rounded">POST /api/resume/generate-from-link</code>.
+              </p>
+              <code className="block text-xs bg-gray-50 border border-gray-200 rounded-lg p-3 break-all text-gray-800">
+                {generatedKey}
+              </code>
+              <div className="flex justify-end gap-2">
+                <button
+                  onClick={copyApiKey}
+                  className="px-4 py-2 text-sm font-medium text-blue-600 border border-blue-200 rounded-lg hover:bg-blue-50"
+                >
+                  Copy
+                </button>
+                <button
+                  onClick={() => setGeneratedKey(null)}
+                  className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700"
+                >
+                  Done
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

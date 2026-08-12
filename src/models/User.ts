@@ -5,6 +5,7 @@ export interface IUser extends Document {
   username: string;
   password: string;
   is_admin: boolean;
+  apiKeyHash?: string;
   comparePassword(candidate: string): Promise<boolean>;
 }
 
@@ -17,6 +18,7 @@ const UserSchema = new Schema<IUser>(
     username: { type: String, required: true, unique: true, trim: true },
     password: { type: String, required: true },
     is_admin: { type: Boolean, default: false },
+    apiKeyHash: { type: String, sparse: true, index: true },
   },
   { timestamps: true }
 );
