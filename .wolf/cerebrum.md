@@ -18,7 +18,8 @@
 - **Generation:** Large prompts in `src/lib/prompts.ts`; job scrape via `jobScraper.ts` / Devora21 API; endpoints under `/api/resume/*`.
 - **Exports:** docxtemplater for DOCX; Puppeteer HTML→PDF + client html2canvas/jspdf; resumes stored with `s3Key` via `storage.ts`.
 - **Admin:** `/admin/users` + `/api/admin/users` for user CRUD.
-- **Infra:** `docker-compose.yml` runs mongo:7 + app; uploads volume mounted.
+- **Infra:** `docker-compose.yml` runs mongo:7 + app; uploads volume for DOCX templates; generated PDFs in Backblaze B2.
+- **API `POST /api/resume/generate-from-link`:** body `{ userId, profileId, jobLink }` → `{ company, jobTitle, resumeDownloadLink }` (presigned B2 URL, 15m). Scraped `companyName`/`jobTitle` mapped to response fields.
 
 ## Do-Not-Repeat
 
@@ -27,4 +28,8 @@
 
 ## Decision Log
 
-<!-- Significant technical decisions with rationale. Why X was chosen over Y. -->
+- **[2026-08-12] Resume PDF storage → Backblaze B2 (S3 API)**
+  - DOCX templates stay on local disk (`uploads/templates`); only generated PDFs go to B2.
+  - Downloads via **presigned B2 URLs** (private bucket), not server-proxy streaming.
+  - Persist `Resume` docs (`s3Key`) for **backup/audit only** — no past-resumes history UI.
+  - Store **PDF only** in B2; generated DOCX stays on-the-fly from template.

@@ -29,6 +29,11 @@ services:
       DEVORA21_API_KEY: ${DEVORA21_API_KEY}
       DEVORA21_SCRAPE_URL: ${DEVORA21_SCRAPE_URL:-https://api.devora21.com/jobs/scrape}
       CHROMIUM_PATH: ${CHROMIUM_PATH:-}
+      B2_BUCKET: ${B2_BUCKET}
+      B2_ENDPOINT: ${B2_ENDPOINT}
+      B2_REGION: ${B2_REGION}
+      B2_KEY_ID: ${B2_KEY_ID}
+      B2_APP_KEY: ${B2_APP_KEY}
     depends_on:
       mongodb:
         condition: service_healthy

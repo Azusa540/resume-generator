@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth';
 import { connectDB } from '@/lib/mongodb';
 import Resume from '@/models/Resume';
-import { downloadResume } from '@/lib/storage';
+import { getSignedDownloadUrl } from '@/lib/storage';
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const user = getUser(req);
@@ -14,19 +14,11 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   const resume = await Resume.findOne({ _id: id, userId: user.id });
   if (!resume) return NextResponse.json({ message: 'Resume not found.' }, { status: 404 });
 
-  let pdf: Buffer;
   try {
-    pdf = await downloadResume(resume.s3Key);
+    const url = await getSignedDownloadUrl(resume.s3Key);
+    return NextResponse.json({ url });
   } catch (err) {
-    const msg = err instanceof Error ? err.message : 'Failed to fetch resume from storage';
+    const msg = err instanceof Error ? err.message : 'Failed to create download link';
     return NextResponse.json({ message: msg }, { status: 502 });
   }
-
-  return new NextResponse(pdf.buffer as ArrayBuffer, {
-    status: 200,
-    headers: {
-      'Content-Type': 'application/pdf',
-      'Content-Disposition': `attachment; filename="${resume.fileName}.pdf"`,
-    },
-  });
 }

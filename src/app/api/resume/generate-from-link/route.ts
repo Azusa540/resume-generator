@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
 import puppeteer from 'puppeteer';
-import fs from 'fs/promises';
-import path from 'path';
 import { connectDB } from '@/lib/mongodb';
 import Profile from '@/models/Profile';
+import Resume from '@/models/Resume';
 import { buildSystemPrompt, buildSystemPromptNonSoftware, buildUserPrompt } from '@/lib/prompts';
 import { scrapeJobLink, JobScrapeError } from '@/lib/jobScraper';
+import { resumeKey, uploadResume, getSignedDownloadUrl } from '@/lib/storage';
 import type { GeneratedResume, SkillCategories } from '@/types/resume';
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
@@ -123,16 +123,22 @@ export async function POST(req: NextRequest) {
       margin: { top: '20mm', right: '0', bottom: '20mm', left: '0' },
     });
 
-    const dir = path.join(process.cwd(), 'uploads', 'resumes', userId, profileId);
-    await fs.mkdir(dir, { recursive: true });
-    await fs.writeFile(path.join(dir, `${fileName}.pdf`), pdf);
+    const pdfBuffer = Buffer.from(pdf);
+    const key = resumeKey(userId, profileId, fileName);
+    await uploadResume(key, pdfBuffer);
+    await Resume.create({
+      userId,
+      profileId,
+      fileName,
+      s3Key: key,
+    });
 
-    return new NextResponse(pdf.buffer as ArrayBuffer, {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/pdf',
-        'Content-Disposition': `attachment; filename="${fileName}.pdf"`,
-      },
+    const resumeDownloadLink = await getSignedDownloadUrl(key);
+
+    return NextResponse.json({
+      company: scraped.companyName,
+      jobTitle: scraped.jobTitle,
+      resumeDownloadLink,
     });
   } catch (err) {
     const msg = err instanceof Error ? err.message : 'PDF generation failed';

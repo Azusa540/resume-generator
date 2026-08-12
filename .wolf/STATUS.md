@@ -15,44 +15,49 @@
 - DOCX templates (docxtemplater) + PDF via Puppeteer / client html2canvas+jspdf
 - Admin user management (`/admin/users`)
 - Docker Compose (app + MongoDB)
+- **B2 storage for generate-from-link:** upload PDF → `Resume` backup row → JSON `{ company, jobTitle, resumeDownloadLink }` (presigned, 15m)
+- `storage.ts`: env-validated S3 client, `uploadResume`, `getSignedDownloadUrl`
+- `/api/resume/[id]/download` returns `{ url }` presigned link
+- `@aws-sdk/client-s3` + `@aws-sdk/s3-request-presigner`; `B2_*` in `.env.example` + docker-compose
 
 ---
 
 ## 🚀 Next phase
 
-**Goal:** _Awaiting user direction — codebase inventory complete; no next quest chosen yet._
+**Goal:** Optional — migrate `/api/resume/pdf` local disk writes to B2 the same way (UI PDF path still uses `uploads/resumes`).
 
 ### Acceptance criteria
-1. User specifies what to build / fix / improve next
+1. `/api/resume/pdf` uploads to B2 + creates Resume row (parity with generate-from-link)
 
 ### Files to create / edit
 | Type | File | Content |
 |---|---|---|
-| — | — | — |
+| edit | `src/app/api/resume/pdf/route.ts` | uploadResume + Resume.create; drop local fs write |
 
 ### Closed decisions
-- Stack is Next.js 16 + React 19 + MongoDB/Mongoose + Tailwind 4
+- Templates on disk; PDF-only in B2; backup-only Resume rows; presigned downloads (15 min TTL)
+- `generate-from-link` API contract: body `{ userId, profileId, jobLink }` → `{ company, jobTitle, resumeDownloadLink }`
 
 ### Open decisions
-- What to work on next (features, bugs, UX, deploy, etc.)
+- None for generate-from-link
 
 ---
 
 ## 📁 Active architecture
 
-- **Stack:** Next.js 16 (App Router), React 19, TypeScript, Tailwind 4, Mongoose/MongoDB, JWT+cookie auth, bcrypt, OpenAI + Anthropic SDKs, docxtemplater/PizZip, Puppeteer, html2canvas/jspdf
+- **Stack:** Next.js 16 (App Router), React 19, TypeScript, Tailwind 4, Mongoose/MongoDB, JWT+cookie auth, bcrypt, OpenAI + Anthropic SDKs, docxtemplater/PizZip, Puppeteer, html2canvas/jspdf, Backblaze B2 via AWS S3 SDK
 - **Key modules:**
   - `src/models/` — User, Profile, Resume
-  - `src/lib/` — auth, session, mongodb, prompts, jobScraper, docxBuilder, storage
+  - `src/lib/` — auth, session, mongodb, prompts, jobScraper, docxBuilder, storage (B2)
   - `src/app/api/` — auth, profiles, resume generate/download/pdf, admin
   - Pages: login, dashboard, profiles CRUD, resume-generator + review, admin/users
-- **Patterns:** JWT sessions in cookies; profiles owned by `userId`; generated resume staged in localStorage for review; optional per-profile DOCX template upload; `profileType` software vs other drives prompts
+- **Patterns:** JWT sessions in cookies; profiles owned by `userId`; generated resume staged in localStorage for review; optional per-profile DOCX template upload; `profileType` software vs other drives prompts; PDF backups in B2 under `resumes/{userId}/{profileId}/`
 
 ---
 
 ## ⚠️ External blockers (don't block coding)
 
-- Needs env: `MONGODB_URI`, `JWT_SECRET`, `OPENAI_API_KEY` and/or `ANTHROPIC_API_KEY`, optional `DEVORA21_*` scrape API, `CHROMIUM_PATH`
+- Needs env: `MONGODB_URI`, `JWT_SECRET`, `ANTHROPIC_API_KEY`, `DEVORA21_*`, `B2_BUCKET`, `B2_ENDPOINT`, `B2_REGION`, `B2_KEY_ID`, `B2_APP_KEY`, optional `CHROMIUM_PATH`
 
 ---
 
