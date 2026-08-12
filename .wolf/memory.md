@@ -5,3 +5,5 @@
 | 00:08 | Codebase inventory for resume-builder | STATUS.md, cerebrum.md | Mapped stack, models, API routes, main UX flow | ~8k |
 | 00:19 | Locked B2 storage decisions | cerebrum.md, STATUS.md | disk templates; PDF-only B2; presigned URLs; backup-only Resume rows | ~2k |
 | 00:28 | generate-from-link ? B2 + JSON response | storage.ts, generate-from-link/route.ts, download route, env | company/jobTitle/resumeDownloadLink contract live | ~6k |
+| 00:31 | Confirmed B2 creds via .env.local | .env.local | Names match storage.ts; file gitignored | ~1k |
+| 00:39 | Diagnosed B2 403 InvalidAccessKeyId | .env.local, storage.ts | Wrong region us-west-004 vs us-east-005; upload OK after fix | ~4k |

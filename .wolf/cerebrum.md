@@ -23,8 +23,8 @@
 
 ## Do-Not-Repeat
 
-<!-- Mistakes made and corrected. Each entry prevents the same mistake recurring. -->
-<!-- Format: [YYYY-MM-DD] Description of what went wrong and what to do instead. -->
+- **[2026-08-12]** Never hardcode `us-west-004` for B2. Always copy the bucket’s real S3 endpoint/region from the B2 console (or `s3ApiUrl` from `b2_authorize_account`). Wrong region surfaces as `InvalidAccessKeyId` even when the key works on the native B2 API.
+- **[2026-08-12]** For `@aws-sdk/client-s3` + B2, set `requestChecksumCalculation` and `responseChecksumValidation` to `WHEN_REQUIRED` or PutObject can fail on unsupported CRC32 headers.
 
 ## Decision Log
 

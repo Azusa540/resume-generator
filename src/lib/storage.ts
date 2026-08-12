@@ -25,7 +25,9 @@ function getClient(): S3Client {
       accessKeyId: requireEnv('B2_KEY_ID'),
       secretAccessKey: requireEnv('B2_APP_KEY'),
     },
-    forcePathStyle: true,
+    // AWS SDK v3 defaults send CRC32 checksums B2 rejects
+    requestChecksumCalculation: 'WHEN_REQUIRED',
+    responseChecksumValidation: 'WHEN_REQUIRED',
   });
   return s3;
 }
