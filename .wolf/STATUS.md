@@ -19,6 +19,8 @@
 - `storage.ts`: env-validated S3 client, `uploadResume`, `getSignedDownloadUrl`
 - `/api/resume/[id]/download` returns `{ url }` presigned link
 - `@aws-sdk/client-s3` + `@aws-sdk/s3-request-presigner`; `B2_*` in `.env.example` + docker-compose
+- API key auth for generate-from-link (`X-API-Key`); userId removed from body
+- **Full PDF parity:** shared `resumeHtml.ts` (3 templates) + `pdfFromHtml.ts`; from-link uses UI filename + profile.pdfTemplate
 
 ---
 
@@ -36,10 +38,11 @@
 
 ### Closed decisions
 - Templates on disk; PDF-only in B2; backup-only Resume rows; presigned downloads (15 min TTL)
-- `generate-from-link` API contract: body `{ userId, profileId, jobLink }` → `{ company, jobTitle, resumeDownloadLink }`
+- generate-from-link: API key auth; body `{ profileId, jobLink }` → `{ company, jobTitle, fileName, resumeDownloadLink }`
+- Full PDF parity via shared renderer + pdfFromHtml
 
 ### Open decisions
-- None for generate-from-link
+- None
 
 ---
 

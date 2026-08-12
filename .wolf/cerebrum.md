@@ -19,7 +19,8 @@
 - **Exports:** docxtemplater for DOCX; Puppeteer HTML→PDF + client html2canvas/jspdf; resumes stored with `s3Key` via `storage.ts`.
 - **Admin:** `/admin/users` + `/api/admin/users` for user CRUD.
 - **Infra:** `docker-compose.yml` runs mongo:7 + app; uploads volume for DOCX templates; generated PDFs in Backblaze B2.
-- **API `POST /api/resume/generate-from-link`:** header `X-API-Key` (or `Authorization: Bearer`) + body `{ profileId, jobLink }` → `{ company, jobTitle, fileName, resumeDownloadLink }`. User resolved from API key hash, not body userId.
+- **API `POST /api/resume/generate-from-link`:** header `X-API-Key` + body `{ profileId, jobLink }` → `{ company, jobTitle, fileName, resumeDownloadLink }`. PDF uses shared `resumeHtml` (profile `pdfTemplate`) + `pdfFromHtml` (same Tailwind/fonts pipeline as UI). Filename matches UI: `Name_Title_Company`.
+- **Shared PDF:** `src/lib/resumeHtml.ts` (3 templates) + `src/lib/pdfFromHtml.ts` used by generate-from-link and `/api/resume/pdf`.
 - **API keys:** per-user, stored as SHA-256 hash on User; regenerate via `POST /api/auth/api-key` (self) or `POST /api/admin/users/api-key` (admin).
 
 ## Do-Not-Repeat
@@ -34,3 +35,7 @@
   - Downloads via **presigned B2 URLs** (private bucket), not server-proxy streaming.
   - Persist `Resume` docs (`s3Key`) for **backup/audit only** — no past-resumes history UI.
   - Store **PDF only** in B2; generated DOCX stays on-the-fly from template.
+- **[2026-08-12] Full PDF parity for generate-from-link**
+  - Shared `resumeHtml` + `pdfFromHtml` so from-link matches UI review templates and `/api/resume/pdf` (Tailwind CDN, fonts, fonts.ready).
+  - Filename uses UI formula, not AI `resume_file_name`. Honors `profile.pdfTemplate`.
+

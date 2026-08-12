@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
-import puppeteer from 'puppeteer';
 import { connectDB } from '@/lib/mongodb';
 import Profile from '@/models/Profile';
 import Resume from '@/models/Resume';
@@ -8,12 +7,15 @@ import { buildSystemPrompt, buildSystemPromptNonSoftware, buildUserPrompt } from
 import { scrapeJobLink, JobScrapeError } from '@/lib/jobScraper';
 import { resumeKey, uploadResume, getSignedDownloadUrl } from '@/lib/storage';
 import { extractApiKey, findUserByApiKey } from '@/lib/apiKey';
-import type { GeneratedResume, SkillCategories } from '@/types/resume';
+import {
+  buildResumeDocHtml,
+  buildResumeFileName,
+  type PdfTemplate,
+} from '@/lib/resumeHtml';
+import { pdfFromHtml, PdfBusyError } from '@/lib/pdfFromHtml';
+import type { GeneratedResume } from '@/types/resume';
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-
-const MAX_CONCURRENT = 3;
-let active = 0;
 
 export async function POST(req: NextRequest) {
   const apiKey = extractApiKey(req);
@@ -108,37 +110,35 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const fileName = generated.resume_file_name.replace(/[^a-zA-Z0-9_\-() ]/g, '') || 'resume';
-  const html = wrapPage(
-    buildResumeHtml(generated, {
-      fullName: profile.fullName,
-      email: profile.email,
-      phone: profile.phone,
-      address: profile.address,
-      linkedin: profile.linkedin,
-    })
-  );
+  const profileContact = {
+    fullName: profile.fullName,
+    email: profile.email,
+    phone: profile.phone,
+    address: profile.address,
+    linkedin: profile.linkedin,
+  };
 
-  if (active >= MAX_CONCURRENT) {
-    return NextResponse.json({ message: 'Server busy, please try again in a moment.' }, { status: 503 });
-  }
-  active++;
+  const tpl = (profile.pdfTemplate ?? 'template1') as PdfTemplate;
+  const fileName = buildResumeFileName(
+    profile.fullName,
+    generated.target_job_title,
+    scraped.companyName
+  ) || 'resume';
 
-  let browser;
+  const html = buildResumeDocHtml(generated, profileContact, tpl);
+
+  let pdfBuffer: Buffer;
   try {
-    browser = await puppeteer.launch({
-      executablePath: process.env.CHROMIUM_PATH || undefined,
-      args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
-    });
-    const tab = await browser.newPage();
-    await tab.setContent(html, { waitUntil: 'domcontentloaded', timeout: 30000 });
-    const pdf = await tab.pdf({
-      format: 'A4',
-      printBackground: true,
-      margin: { top: '20mm', right: '0', bottom: '20mm', left: '0' },
-    });
+    pdfBuffer = await pdfFromHtml(html);
+  } catch (err) {
+    if (err instanceof PdfBusyError) {
+      return NextResponse.json({ message: err.message }, { status: 503 });
+    }
+    const msg = err instanceof Error ? err.message : 'PDF generation failed';
+    return NextResponse.json({ message: msg }, { status: 500 });
+  }
 
-    const pdfBuffer = Buffer.from(pdf);
+  try {
     const key = resumeKey(userId, profileId, fileName);
     await uploadResume(key, pdfBuffer);
     await Resume.create({
@@ -157,137 +157,7 @@ export async function POST(req: NextRequest) {
       resumeDownloadLink,
     });
   } catch (err) {
-    const msg = err instanceof Error ? err.message : 'PDF generation failed';
+    const msg = err instanceof Error ? err.message : 'Failed to store resume';
     return NextResponse.json({ message: msg }, { status: 500 });
-  } finally {
-    active--;
-    await browser?.close();
   }
-}
-
-// ─── HTML rendering (server-side, no browser DOM available) ─────────────────
-
-interface ProfileContact {
-  fullName: string;
-  email: string;
-  phone?: string;
-  address?: string;
-  linkedin?: string;
-}
-
-function escapeHtml(str: string): string {
-  return str
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
-}
-
-function renderBoldHtml(text: string): string {
-  return escapeHtml(text).replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-}
-
-function wrapPage(bodyHtml: string): string {
-  return `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <style>body { margin: 0; padding: 0; background: #fff; }</style>
-</head>
-<body>
-  ${bodyHtml}
-</body>
-</html>`;
-}
-
-function buildResumeHtml(generated: GeneratedResume, profile: ProfileContact): string {
-  const contacts = [profile.email, profile.phone, profile.address].filter(Boolean) as string[];
-  const contactsHtml = [
-    ...contacts.map((c) => `<span>${escapeHtml(c)}</span>`),
-    ...(profile.linkedin
-      ? [`<a href="${escapeHtml(profile.linkedin)}" style="color:#2563eb;text-decoration:none;">${escapeHtml(profile.linkedin.replace(/^https?:\/\//, ''))}</a>`]
-      : []),
-  ].join('<span style="margin:0 8px;color:#d1d5db;">&middot;</span>');
-
-  const skillsHtml = Array.isArray(generated.skills)
-    ? `<span style="font-weight:600;color:#1f2937;">${escapeHtml((generated.skills as unknown as string[]).join(', '))}</span>`
-    : Object.entries(generated.skills as SkillCategories)
-        .filter(([, items]) => Array.isArray(items) && items.length > 0)
-        .map(
-          ([category, items]) =>
-            `<div style="font-size:14px;color:#1f2937;line-height:1.4;"><strong>${escapeHtml(category)}</strong>: ${escapeHtml(items.join(', '))}</div>`
-        )
-        .join('');
-
-  const experienceHtml = generated.experience_bullets
-    .map(
-      (exp) => `
-      <div style="margin-bottom:16px;">
-        <div style="display:flex;justify-content:space-between;align-items:baseline;">
-          <span style="font-size:14px;font-weight:600;color:#111827;">${escapeHtml(exp.company)}</span>
-          ${exp.period ? `<span style="font-size:12px;color:#6b7280;margin-left:16px;">${escapeHtml(exp.period)}</span>` : ''}
-        </div>
-        <p style="font-size:14px;color:#1d4ed8;font-weight:500;margin:0 0 6px 0;">${escapeHtml(exp.job_title)}</p>
-        <ul style="margin:0;padding:0;list-style:none;">
-          ${exp.bullets
-            .map(
-              (b) =>
-                `<li style="font-size:14px;color:#374151;line-height:1.6;display:flex;gap:8px;margin-bottom:4px;"><span style="margin-top:7px;width:6px;height:6px;border-radius:50%;background:#9ca3af;flex-shrink:0;display:inline-block;"></span><span>${renderBoldHtml(b)}</span></li>`
-            )
-            .join('')}
-        </ul>
-      </div>`
-    )
-    .join('');
-
-  const educationHtml = generated.education
-    .map(
-      (edu) => `
-      <div style="margin-bottom:12px;">
-        <div style="display:flex;justify-content:space-between;align-items:baseline;">
-          <span style="font-size:14px;font-weight:600;color:#111827;">${escapeHtml(edu.university)}</span>
-          <span style="font-size:12px;color:#6b7280;margin-left:16px;">${escapeHtml(edu.period)}</span>
-        </div>
-        <p style="font-size:14px;color:#4b5563;margin:0;">${escapeHtml(edu.degree)}</p>
-      </div>`
-    )
-    .join('');
-
-  return `
-    <div style="max-width:820px;margin:0 auto;background:#fff;padding:48px 56px;font-family:Inter, sans-serif;">
-      <div style="border-bottom:2px solid #1f2937;padding-bottom:16px;margin-bottom:20px;">
-        <h1 style="font-size:30px;font-weight:700;color:#111827;margin:0;">${escapeHtml(profile.fullName)}</h1>
-        <p style="font-size:16px;font-weight:600;color:#1d4ed8;margin:2px 0 0 0;">${renderBoldHtml(generated.target_job_title)}</p>
-        <div style="margin-top:8px;font-size:14px;color:#4b5563;">${contactsHtml}</div>
-      </div>
-
-      <div style="margin-bottom:20px;break-inside:avoid;">
-        <h2 style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#6b7280;border-bottom:1px solid #e5e7eb;padding-bottom:4px;margin:0 0 8px 0;">Professional Summary</h2>
-        <p style="font-size:14px;color:#374151;line-height:1.6;">${renderBoldHtml(generated.professional_summary)}</p>
-      </div>
-
-      <div style="margin-bottom:20px;break-inside:avoid;">
-        <h2 style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#6b7280;border-bottom:1px solid #e5e7eb;padding-bottom:4px;margin:0 0 8px 0;">Skills</h2>
-        <div style="display:flex;flex-direction:column;gap:4px;">${skillsHtml}</div>
-      </div>
-
-      ${
-        generated.experience_bullets.length > 0
-          ? `<div style="margin-bottom:20px;">
-              <h2 style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#6b7280;border-bottom:1px solid #e5e7eb;padding-bottom:4px;margin:0 0 8px 0;">Experience</h2>
-              ${experienceHtml}
-            </div>`
-          : ''
-      }
-
-      ${
-        generated.education.length > 0
-          ? `<div style="margin-bottom:20px;break-inside:avoid;">
-              <h2 style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#6b7280;border-bottom:1px solid #e5e7eb;padding-bottom:4px;margin:0 0 8px 0;">Education</h2>
-              ${educationHtml}
-            </div>`
-          : ''
-      }
-    </div>`;
 }

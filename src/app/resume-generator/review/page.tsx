@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Nav from '@/components/Nav';
+import { buildResumeFileName } from '@/lib/resumeHtml';
 import type { ResumeReviewData, GeneratedExperienceBullet, GeneratedEducation } from '@/types/resume';
 
 function readReviewData(): ResumeReviewData | null {
@@ -40,9 +41,11 @@ export default function ResumeReviewPage() {
     try {
       const el = document.getElementById('resume-doc');
       if (!el) return;
-      const downloadFileName = `${data.profile.fullName}_${data.generated.target_job_title}_${data.company}`
-        .replace(/[^a-zA-Z0-9_\- ]/g, '')
-        .replace(/\s+/g, '_');
+      const downloadFileName = buildResumeFileName(
+        data.profile.fullName,
+        data.generated.target_job_title,
+        data.company
+      );
       const res = await fetch('/api/resume/pdf', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

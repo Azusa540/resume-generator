@@ -10,3 +10,4 @@
 | 00:42 | Renamed app metadata to Resume Builder | layout.tsx | title/description no longer Create Next App | ~0.5k |
 | 08:08 | API key auth for generate-from-link | User.ts, apiKey.ts, routes, admin/dashboard UI | userId removed from body; X-API-Key header | ~8k |
 | 11:38 | Add fileName to generate-from-link response | generate-from-link/route.ts | company, jobTitle, fileName, resumeDownloadLink | ~0.5k |
+| 13:35 | Full PDF parity for generate-from-link | resumeHtml.ts, pdfFromHtml.ts, generate-from-link, pdf route | Shared templates + UI filename + fonts pipeline | ~12k |
