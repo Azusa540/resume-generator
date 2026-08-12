@@ -9,3 +9,4 @@
 | 00:39 | Diagnosed B2 403 InvalidAccessKeyId | .env.local, storage.ts | Wrong region us-west-004 vs us-east-005; upload OK after fix | ~4k |
 | 00:42 | Renamed app metadata to Resume Builder | layout.tsx | title/description no longer Create Next App | ~0.5k |
 | 08:08 | API key auth for generate-from-link | User.ts, apiKey.ts, routes, admin/dashboard UI | userId removed from body; X-API-Key header | ~8k |
+| 11:38 | Add fileName to generate-from-link response | generate-from-link/route.ts | company, jobTitle, fileName, resumeDownloadLink | ~0.5k |

@@ -153,6 +153,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       company: scraped.companyName,
       jobTitle: scraped.jobTitle,
+      fileName,
       resumeDownloadLink,
     });
   } catch (err) {
