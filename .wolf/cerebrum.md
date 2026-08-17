@@ -18,7 +18,7 @@
 - **Generation:** Large prompts in `src/lib/prompts.ts`; job scrape via `jobScraper.ts` / Devora21 API; endpoints under `/api/resume/*`.
 - **Exports:** docxtemplater for DOCX; Puppeteer HTML→PDF + client html2canvas/jspdf; resumes stored with `s3Key` via `storage.ts`.
 - **Admin:** `/admin/users` + `/api/admin/users` for user CRUD.
-- **Infra:** `docker-compose.yml` runs mongo:7 + app; uploads volume for DOCX templates; generated PDFs in Backblaze B2.
+- **Infra:** Docker Compose runs **app only**; DB is **MongoDB Atlas** via `MONGODB_URI` in `.env` (gitignored). DOCX templates on `./uploads`; PDFs in Backblaze B2.
 - **API `POST /api/resume/generate-from-link`:** header `X-API-Key` + body `{ profileId, jobLink }` → `{ company, jobTitle, fileName, resumeDownloadLink }`. PDF uses shared `resumeHtml` (profile `pdfTemplate`) + `pdfFromHtml` (same Tailwind/fonts pipeline as UI). Filename matches UI: `Name_Title_Company`.
 - **Shared PDF:** `src/lib/resumeHtml.ts` (3 templates) + `src/lib/pdfFromHtml.ts` used by generate-from-link and `/api/resume/pdf`.
 - **API keys:** per-user, stored as SHA-256 hash on User; regenerate via `POST /api/auth/api-key` (self) or `POST /api/admin/users/api-key` (admin).

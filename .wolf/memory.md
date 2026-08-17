@@ -12,3 +12,4 @@
 | 11:38 | Add fileName to generate-from-link response | generate-from-link/route.ts | company, jobTitle, fileName, resumeDownloadLink | ~0.5k |
 | 13:35 | Full PDF parity for generate-from-link | resumeHtml.ts, pdfFromHtml.ts, generate-from-link, pdf route | Shared templates + UI filename + fonts pipeline | ~12k |
 | 22:48 | Phase 1 GitHub CI | ci.yml, package.json, eslint, User.ts | lint+typecheck+build workflow; local verify OK | ~6k |
+| 00:19 | Atlas-only Docker compose + .env | docker-compose.yml, .env.example, mongodb.ts | Removed local mongo service; require MONGODB_URI | ~3k |

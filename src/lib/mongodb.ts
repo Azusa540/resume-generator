@@ -1,19 +1,32 @@
 import mongoose from 'mongoose';
 
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/resume-builder';
+function getMongoUri(): string {
+  const uri = process.env.MONGODB_URI;
+  if (!uri) {
+    throw new Error('Missing MONGODB_URI. Set it in .env (MongoDB Atlas connection string).');
+  }
+  return uri;
+}
 
-let cached = (global as typeof globalThis & { mongoose?: { conn: mongoose.Connection | null; promise: Promise<mongoose.Connection> | null } }).mongoose;
+let cached = (global as typeof globalThis & {
+  mongoose?: { conn: mongoose.Connection | null; promise: Promise<mongoose.Connection> | null };
+}).mongoose;
 
 if (!cached) {
-  (global as typeof globalThis & { mongoose?: { conn: mongoose.Connection | null; promise: Promise<mongoose.Connection> | null } }).mongoose = { conn: null, promise: null };
-  cached = (global as typeof globalThis & { mongoose?: { conn: mongoose.Connection | null; promise: Promise<mongoose.Connection> | null } }).mongoose!;
+  (global as typeof globalThis & {
+    mongoose?: { conn: mongoose.Connection | null; promise: Promise<mongoose.Connection> | null };
+  }).mongoose = { conn: null, promise: null };
+  cached = (global as typeof globalThis & {
+    mongoose?: { conn: mongoose.Connection | null; promise: Promise<mongoose.Connection> | null };
+  }).mongoose!;
 }
 
 export async function connectDB() {
   if (cached!.conn) return cached!.conn;
 
   if (!cached!.promise) {
-    cached!.promise = mongoose.connect(MONGODB_URI).then((m) => m.connection);
+    const uri = getMongoUri();
+    cached!.promise = mongoose.connect(uri).then((m) => m.connection);
   }
 
   cached!.conn = await cached!.promise;
