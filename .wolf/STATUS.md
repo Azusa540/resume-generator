@@ -2,7 +2,7 @@
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
 > Update this file at the end of every work phase so the next `/clear` resumes in 1 read.
-> Last updated: 2026-08-12
+> Last updated: 2026-08-16
 
 ---
 
@@ -21,28 +21,34 @@
 - `@aws-sdk/client-s3` + `@aws-sdk/s3-request-presigner`; `B2_*` in `.env.example` + docker-compose
 - API key auth for generate-from-link (`X-API-Key`); userId removed from body
 - **Full PDF parity:** shared `resumeHtml.ts` (3 templates) + `pdfFromHtml.ts`; from-link uses UI filename + profile.pdfTemplate
+- **Phase 1 CI:** `.github/workflows/ci.yml` runs lint + typecheck + build on push/PR to `master`
 
 ---
 
 ## 🚀 Next phase
 
-**Goal:** Optional — migrate `/api/resume/pdf` local disk writes to B2 the same way (UI PDF path still uses `uploads/resumes`).
+**Goal:** Phase 2 CD — auto-deploy `master` to resume.syntra.best after CI passes (SSH + docker compose, or GHCR).
 
 ### Acceptance criteria
-1. `/api/resume/pdf` uploads to B2 + creates Resume row (parity with generate-from-link)
+1. Green CI on `master` triggers deploy to production
+2. Deploy secrets live in GitHub Secrets / on the server (not in the repo)
+3. Document rollback steps
 
 ### Files to create / edit
 | Type | File | Content |
 |---|---|---|
-| edit | `src/app/api/resume/pdf/route.ts` | uploadResume + Resume.create; drop local fs write |
+| new | `.github/workflows/deploy.yml` | Deploy job after CI |
+| edit | `README.md` | Deploy / rollback runbook |
 
 ### Closed decisions
 - Templates on disk; PDF-only in B2; backup-only Resume rows; presigned downloads (15 min TTL)
 - generate-from-link: API key auth; body `{ profileId, jobLink }` → `{ company, jobTitle, fileName, resumeDownloadLink }`
 - Full PDF parity via shared renderer + pdfFromHtml
+- CI: lint + typecheck + build; Puppeteer Chromium skipped in CI
 
 ### Open decisions
-- None
+- Deploy path: SSH + docker compose vs GHCR image pull
+- Exact host access details for resume.syntra.best
 
 ---
 

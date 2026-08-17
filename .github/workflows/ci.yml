@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Lint, typecheck, build
+    runs-on: ubuntu-latest
+
+    env:
+      # Skip downloading Chromium during npm ci (PDF path not exercised in CI)
+      PUPPETEER_SKIP_DOWNLOAD: 'true'
+      # Placeholder env so Next build can resolve modules that reference process.env
+      JWT_SECRET: ci-placeholder-jwt-secret
+      MONGODB_URI: mongodb://127.0.0.1:27017/resume-builder
+      ANTHROPIC_API_KEY: sk-ant-ci-placeholder
+      B2_BUCKET: ci-bucket
+      B2_ENDPOINT: https://s3.us-east-005.backblazeb2.com
+      B2_REGION: us-east-005
+      B2_KEY_ID: ci-key-id
+      B2_APP_KEY: ci-app-key
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Build
+        run: npm run build

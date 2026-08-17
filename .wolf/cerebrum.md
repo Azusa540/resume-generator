@@ -22,6 +22,7 @@
 - **API `POST /api/resume/generate-from-link`:** header `X-API-Key` + body `{ profileId, jobLink }` → `{ company, jobTitle, fileName, resumeDownloadLink }`. PDF uses shared `resumeHtml` (profile `pdfTemplate`) + `pdfFromHtml` (same Tailwind/fonts pipeline as UI). Filename matches UI: `Name_Title_Company`.
 - **Shared PDF:** `src/lib/resumeHtml.ts` (3 templates) + `src/lib/pdfFromHtml.ts` used by generate-from-link and `/api/resume/pdf`.
 - **API keys:** per-user, stored as SHA-256 hash on User; regenerate via `POST /api/auth/api-key` (self) or `POST /api/admin/users/api-key` (admin).
+- **CI:** GitHub Actions `.github/workflows/ci.yml` — Node 20, `npm ci`, lint, typecheck, build. `PUPPETEER_SKIP_DOWNLOAD=true`. Placeholder env for build.
 
 ## Do-Not-Repeat
 

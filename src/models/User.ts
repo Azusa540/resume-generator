@@ -6,6 +6,8 @@ export interface IUser extends Document {
   password: string;
   is_admin: boolean;
   apiKeyHash?: string;
+  createdAt: Date;
+  updatedAt: Date;
   comparePassword(candidate: string): Promise<boolean>;
 }
 
