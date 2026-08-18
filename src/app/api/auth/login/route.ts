@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
     }
 
     const token = jwt.sign(
-      { id: user._id, username: user.username, isAdmin: user.is_admin ?? false },
+      { id: user._id, username: user.username, isAdmin: user.is_admin ?? false, isPremium: user.is_premium ?? false },
       JWT_SECRET,
       { expiresIn: '7d' }
     );
@@ -35,6 +35,7 @@ export async function POST(req: NextRequest) {
       message: 'Login successful.',
       username: user.username,
       isAdmin: user.is_admin ?? false,
+      isPremium: user.is_premium ?? false,
     });
     response.cookies.set('token', token, {
       httpOnly: true,

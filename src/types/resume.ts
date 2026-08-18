@@ -24,10 +24,23 @@ export interface GeneratedResume {
   experience_bullets: GeneratedExperienceBullet[];
 }
 
+export type PdfTemplateId =
+  | 'template1'
+  | 'template2'
+  | 'template3'
+  | 'template4'
+  | 'template5'
+  | 'template6'
+  | 'template7'
+  | 'template8'
+  | 'template9'
+  | 'template10';
+
 // What we store in localStorage for the review page
 export interface ResumeReviewData {
   generated: GeneratedResume;
   profileId: string;
+  title: string;
   company: string;
   profile: {
     fullName: string;
@@ -37,5 +50,5 @@ export interface ResumeReviewData {
     linkedin?: string;
   };
   jobLink?: string;
-  pdfTemplate?: 'template1' | 'template2' | 'template3';
+  pdfTemplate?: PdfTemplateId;
 }

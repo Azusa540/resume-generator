@@ -104,6 +104,7 @@ export default function ResumeGeneratorPage() {
       const reviewData: ResumeReviewData = {
         generated: data.generated,
         profileId: form.profileId,
+        title: form.title,
         company: form.company,
         profile: data.profile,
         jobLink: form.jobLink || undefined,

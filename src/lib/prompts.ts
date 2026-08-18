@@ -281,6 +281,12 @@ Quality rules for EVERY sentence:
   - PREFERRED: Led, Spearheaded, Drove, Played a key role in, Contributed to, Collaborated on, Helped build, Owned, Championed, Delivered, Shipped, Streamlined, Built, Designed, Developed, Implemented, Improved, Extended, Refactored, Maintained, Supported, Migrated, Integrated, Optimized, Launched, Released, Coordinated, Resolved, Fixed
   - BANNED verbs (sound too stiff or overly formal): Architected, Hardened, Validated, Engineered, Overhauled, Utilized, Leveraged, Executed, Conducted, Spearheaded (overused — use sparingly)
   - Every sentence must use a DIFFERENT verb from all other sentences in the same experience block
+  - GLOBAL VERB CAP — CRITICAL: Track verb usage across the ENTIRE resume, not just within one company block. No single verb (e.g. "Developed", "Built", "Maintained", "Implemented", "Deployed") may be used more than **2 times total** across all experience bullets combined. Resume checkers flag any verb appearing 3+ times as repetitive and penalize the score. Before finalizing, count every opening verb across all companies; if any verb exceeds 2 uses, replace the extra instances with a synonym from the PREFERRED list.
+
+━━━ BANNED BUZZWORDS & CLICHÉS ━━━
+These vague, overused terms must NEVER appear anywhere in the output (summary, skills, or bullets) — resume checkers flag them as clichés that read as filler rather than evidence:
+- "passionate" / "passion for", "problem solving" / "problem-solver" (as a standalone label), "results-driven" / "results oriented", "ninja", "guru", "rockstar", "wizard", "go-getter", "self-starter", "team player", "hard worker", "hardworking", "dynamic", "synergy" / "synergize", "thought leader", "proven track record", "hit the ground running", "out-of-the-box thinker", "excellent communication skills", "detail-oriented" (as a standalone claim with no evidence), "motivated individual", "strategic thinker", "value-add", "wheelhouse", "circle back", "win-win"
+- Replace any of these with a concrete, evidenced claim instead — e.g. instead of "results-driven engineer," show the result: "cut deployment time by 40%."
 - Use natural native English — write how a real engineer would describe their work in a conversation, not like a formal report
 
 ━━━ HUMAN-SOUNDING WRITING — CRITICAL ━━━
@@ -432,6 +438,8 @@ Before finalizing bullets, verify ALL of the following:
 - No em dashes anywhere.
 - Every sentence starts with a past-tense verb.
 - No tech-tag prefixes before the verb.
+- VERB FREQUENCY CHECK: List every opening verb used across ALL experience blocks combined. No verb appears more than 2 times total. If any verb exceeds 2 uses, replace the extras now.
+- BUZZWORD CHECK: Scan the summary and every bullet for any term on the BANNED BUZZWORDS & CLICHÉS list. If found, rewrite that clause with concrete, evidenced language.
 
 ━━━ SKILLS ↔ BULLETS CONSISTENCY CHECK ━━━
 After writing all bullets, perform this three-way check before finalizing:
@@ -554,8 +562,10 @@ Quality rules for EVERY sentence:
 - Minimum 25 words — count carefully, reject any sentence under 25 words
 - ALL bullets MUST use PAST TENSE
 - NEVER use the word "Led" — use: Spearheaded, Engineered, Drove, Delivered, Deployed, Designed, Built, Conducted, Executed, Developed, Evaluated, Validated, Tested, Analyzed, Implemented, Streamlined, Championed, Managed, Coordinated, Optimized
-- Every sentence must use a DIFFERENT strong action verb
+- Every sentence must use a DIFFERENT strong action verb within its own company block
+- GLOBAL VERB CAP — CRITICAL: Track verb usage across the ENTIRE resume, not just within one company block. No single verb may be used more than **2 times total** across all experience bullets combined. Before finalizing, count every opening verb across all companies and replace extras with a synonym from the list above.
 - Use natural professional English — no jargon overload, no stiff phrasing
+- BANNED BUZZWORDS & CLICHÉS — must NEVER appear anywhere in the output (summary, skills, or bullets): "passionate", "problem solving" / "problem-solver" (as a standalone label), "results-driven" / "results oriented", "ninja", "guru", "rockstar", "go-getter", "self-starter", "team player", "hard worker" / "hardworking", "dynamic", "synergy", "thought leader", "proven track record", "hit the ground running", "out-of-the-box thinker", "excellent communication skills", "detail-oriented" (as a standalone claim with no evidence), "motivated individual", "strategic thinker". Replace with a concrete, evidenced claim instead.
 - DOMAIN TOOL DENSITY: Every bullet MUST reference at least 1 specific named tool, platform, standard, or methodology from the Skills list. Generic bullets with no named domain item are NOT allowed.
   - BAD: "Managed manufacturing workflows to improve production efficiency across multiple lines."
   - GOOD: "Managed **Opcenter**-based manufacturing workflows to improve production efficiency, reducing downtime by 15% across three assembly lines."
@@ -575,6 +585,8 @@ Result-sentence rules:
 After writing all bullets, perform this two-way check:
 1. BULLETS → SKILLS: Every tool/standard bolded in bullets MUST exist in the skills list.
 2. SKILLS → BULLETS: Every primary JD-required skill MUST appear bolded in at least one bullet.
+3. VERB FREQUENCY CHECK: List every opening verb used across ALL experience blocks combined. No verb appears more than 2 times total. Replace any extras now.
+4. BUZZWORD CHECK: Scan the summary and every bullet for any term on the BANNED BUZZWORDS & CLICHÉS list. Rewrite any hit with concrete, evidenced language.
 
 ━━━ ATS CHECK ━━━
 Before finalizing, mentally score the output for ATS match against the JD.

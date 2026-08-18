@@ -9,6 +9,7 @@ interface UserRow {
   _id: string;
   username: string;
   is_admin: boolean;
+  is_premium: boolean;
   createdAt: string;
   hasApiKey?: boolean;
 }
@@ -23,6 +24,7 @@ export default function AdminUsersPage() {
   const [newUsername, setNewUsername] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [newIsAdmin, setNewIsAdmin] = useState(false);
+  const [newIsPremium, setNewIsPremium] = useState(false);
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState('');
   const [showNewPassword, setShowNewPassword] = useState(false);
@@ -31,6 +33,7 @@ export default function AdminUsersPage() {
   const [editId, setEditId] = useState<string | null>(null);
   const [editPassword, setEditPassword] = useState('');
   const [editIsAdmin, setEditIsAdmin] = useState(false);
+  const [editIsPremium, setEditIsPremium] = useState(false);
   const [saving, setSaving] = useState(false);
   const [showEditPassword, setShowEditPassword] = useState(false);
 
@@ -58,10 +61,10 @@ export default function AdminUsersPage() {
     const res = await fetch('/api/admin/users', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username: newUsername, password: newPassword, is_admin: newIsAdmin }),
+      body: JSON.stringify({ username: newUsername, password: newPassword, is_admin: newIsAdmin, is_premium: newIsPremium }),
     });
     if (res.ok) {
-      setNewUsername(''); setNewPassword(''); setNewIsAdmin(false);
+      setNewUsername(''); setNewPassword(''); setNewIsAdmin(false); setNewIsPremium(false);
       fetchUsers();
     } else {
       const d = await res.json();
@@ -71,12 +74,12 @@ export default function AdminUsersPage() {
   }
 
   function startEdit(u: UserRow) {
-    setEditId(u._id); setEditPassword(''); setEditIsAdmin(u.is_admin);
+    setEditId(u._id); setEditPassword(''); setEditIsAdmin(u.is_admin); setEditIsPremium(u.is_premium);
   }
 
   async function handleSave(id: string) {
     setSaving(true);
-    const body: Record<string, unknown> = { id, is_admin: editIsAdmin };
+    const body: Record<string, unknown> = { id, is_admin: editIsAdmin, is_premium: editIsPremium };
     if (editPassword) body.password = editPassword;
     const res = await fetch('/api/admin/users', {
       method: 'PATCH',
@@ -159,6 +162,14 @@ export default function AdminUsersPage() {
                 />
                 Admin
               </label>
+              <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer select-none">
+                <input
+                  type="checkbox" checked={newIsPremium}
+                  onChange={(e) => setNewIsPremium(e.target.checked)}
+                  className="w-4 h-4 rounded border-gray-300 text-blue-600"
+                />
+                Premium
+              </label>
               <button
                 type="submit" disabled={creating}
                 className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
@@ -185,6 +196,7 @@ export default function AdminUsersPage() {
                 <tr>
                   <th className="px-6 py-3 text-left">Username</th>
                   <th className="px-6 py-3 text-left">Role</th>
+                  <th className="px-6 py-3 text-left">Premium</th>
                   <th className="px-6 py-3 text-left">API Key</th>
                   <th className="px-6 py-3 text-left">Created</th>
                   <th className="px-6 py-3 text-right">Actions</th>
@@ -204,6 +216,16 @@ export default function AdminUsersPage() {
                               className="w-4 h-4 rounded border-gray-300 text-blue-600"
                             />
                             <span className="text-xs text-gray-600">Admin</span>
+                          </label>
+                        </td>
+                        <td className="px-6 py-3">
+                          <label className="flex items-center gap-2 cursor-pointer">
+                            <input
+                              type="checkbox" checked={editIsPremium}
+                              onChange={(e) => setEditIsPremium(e.target.checked)}
+                              className="w-4 h-4 rounded border-gray-300 text-blue-600"
+                            />
+                            <span className="text-xs text-gray-600">Premium</span>
                           </label>
                         </td>
                         <td className="px-6 py-3 text-gray-500">—</td>
@@ -243,6 +265,13 @@ export default function AdminUsersPage() {
                             <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700">Admin</span>
                           ) : (
                             <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">User</span>
+                          )}
+                        </td>
+                        <td className="px-6 py-3">
+                          {u.is_premium ? (
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700">Premium</span>
+                          ) : (
+                            <span className="text-gray-300">—</span>
                           )}
                         </td>
                         <td className="px-6 py-3">
