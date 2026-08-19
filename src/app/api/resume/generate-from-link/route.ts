@@ -48,7 +48,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ message: 'Failed to scrape the job link.' }, { status: 502 });
   }
 
-  const profile = await Profile.findOne({ _id: profileId, userId });
+  // Any valid API key can target any profile, regardless of which account owns it.
+  const profile = await Profile.findOne({ _id: profileId });
   if (!profile) return NextResponse.json({ message: 'Profile not found.' }, { status: 404 });
 
   const systemPrompt = profile.profileType === 'other'
