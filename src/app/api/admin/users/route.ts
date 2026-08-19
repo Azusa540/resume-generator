@@ -21,6 +21,7 @@ export async function GET(req: NextRequest) {
     _id: u._id,
     username: u.username,
     is_admin: u.is_admin,
+    is_premium: u.is_premium,
     createdAt: u.createdAt,
     hasApiKey: Boolean(u.apiKeyHash),
   }));
@@ -31,27 +32,36 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const auth = adminOnly(req);
   if (auth instanceof NextResponse) return auth;
-  const { username, password, is_admin } = await req.json();
+  const { username, password, is_admin, is_premium } = await req.json();
   if (!username || !password)
     return NextResponse.json({ message: 'Username and password required.' }, { status: 400 });
   await connectDB();
   const exists = await User.findOne({ username });
   if (exists) return NextResponse.json({ message: 'Username already taken.' }, { status: 409 });
   const hashed = await bcrypt.hash(password, 12);
-  const user = await User.create({ username, password: hashed, is_admin: is_admin ?? false });
-  return NextResponse.json({ _id: user._id, username: user.username, is_admin: user.is_admin }, { status: 201 });
+  const user = await User.create({
+    username,
+    password: hashed,
+    is_admin: is_admin ?? false,
+    is_premium: is_premium ?? false,
+  });
+  return NextResponse.json(
+    { _id: user._id, username: user.username, is_admin: user.is_admin, is_premium: user.is_premium },
+    { status: 201 }
+  );
 }
 
-// PATCH — update user (password and/or is_admin)
+// PATCH — update user (password, is_admin, and/or is_premium)
 export async function PATCH(req: NextRequest) {
   const auth = adminOnly(req);
   if (auth instanceof NextResponse) return auth;
-  const { id, password, is_admin } = await req.json();
+  const { id, password, is_admin, is_premium } = await req.json();
   if (!id) return NextResponse.json({ message: 'User id required.' }, { status: 400 });
   await connectDB();
   const update: Record<string, unknown> = {};
   if (password) update.password = await bcrypt.hash(password, 12);
   if (is_admin !== undefined) update.is_admin = is_admin;
+  if (is_premium !== undefined) update.is_premium = is_premium;
   if (Object.keys(update).length === 0)
     return NextResponse.json({ message: 'Nothing to update.' }, { status: 400 });
   await User.findByIdAndUpdate(id, update);

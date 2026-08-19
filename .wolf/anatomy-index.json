@@ -1,66 +1,75 @@
 {
   "version": 1,
   "meta": {
-    "lastScanned": "2026-08-12T03:01:51.317Z",
-    "fileCount": 59,
+    "lastScanned": "2026-08-18T23:34:46.052Z",
+    "fileCount": 68,
     "hits": 0,
     "misses": 0,
-    "renderedHash": "cef210d6d7f90d12de348e27e062ccd585a3cabaf85b776f1abf1e946e663fdd",
-    "storeUpdatedAt": "2026-08-12T03:01:51.317Z"
+    "renderedHash": "85f07e830c56a62751d1fa281c58ef6b9686f803f44309647a73b94647cf456b",
+    "storeUpdatedAt": "2026-08-18T23:34:46.053Z"
   },
   "files": {
     ".claude/commands/reframe.md": {
       "description": "Mode: migrate [framework]",
-      "tokens": 551,
-      "hash": "17a75695be5d4629",
-      "size": 2221,
-      "mtimeMs": 1786503711269.7925,
-      "updatedAt": "2026-08-12T03:01:51.282Z",
+      "tokens": 561,
+      "hash": "90a8e085298ce387",
+      "size": 2262,
+      "mtimeMs": 1787025148027.4055,
+      "updatedAt": "2026-08-18T23:34:46.028Z",
       "source": "scan"
     },
     ".claude/commands/security-audit.md": {
       "description": "Layer 1 — Dependencies",
-      "tokens": 510,
-      "hash": "e6f7e0b7337c9c86",
-      "size": 2060,
-      "mtimeMs": 1786503711267.7893,
-      "updatedAt": "2026-08-12T03:01:51.282Z",
+      "tokens": 520,
+      "hash": "4ae95dbbea95b9ce",
+      "size": 2100,
+      "mtimeMs": 1787025148027.4055,
+      "updatedAt": "2026-08-18T23:34:46.028Z",
       "source": "scan"
     },
     ".claude/rules/openwolf.md": {
       "description": "",
-      "tokens": 328,
-      "hash": "6d735b2c1c54a916",
-      "size": 1323,
-      "mtimeMs": 1786503711145.462,
-      "updatedAt": "2026-08-12T03:01:51.284Z",
+      "tokens": 332,
+      "hash": "297516b6544b8d6e",
+      "size": 1339,
+      "mtimeMs": 1787025148027.4055,
+      "updatedAt": "2026-08-18T23:34:46.029Z",
       "source": "scan"
     },
     ".claude/settings.json": {
       "description": "",
-      "tokens": 627,
-      "hash": "d60f18c88e18c0eb",
-      "size": 2192,
-      "mtimeMs": 1786503711144.4563,
-      "updatedAt": "2026-08-12T03:01:51.297Z",
+      "tokens": 116,
+      "hash": "43623d700e21fa1c",
+      "size": 403,
+      "mtimeMs": 1787025148027.4055,
+      "updatedAt": "2026-08-18T23:34:46.029Z",
       "source": "scan"
     },
     ".cursor/rules/openwolf.mdc": {
       "description": "",
-      "tokens": 87,
-      "hash": "25a895da2047ef4d",
-      "size": 323,
-      "mtimeMs": 1786503711265.5945,
-      "updatedAt": "2026-08-12T03:01:51.297Z",
+      "tokens": 89,
+      "hash": "a6889406891120d9",
+      "size": 333,
+      "mtimeMs": 1787025148027.4055,
+      "updatedAt": "2026-08-18T23:34:46.030Z",
       "source": "scan"
     },
     ".dockerignore": {
       "description": "Docker ignore rules",
-      "tokens": 48,
-      "hash": "cee7c4ef765221c4",
-      "size": 178,
-      "mtimeMs": 1786332772767.9873,
-      "updatedAt": "2026-08-12T03:01:51.297Z",
+      "tokens": 54,
+      "hash": "94a28ff508fc6187",
+      "size": 199,
+      "mtimeMs": 1787025148027.4055,
+      "updatedAt": "2026-08-18T23:34:46.030Z",
+      "source": "scan"
+    },
+    ".github/workflows/ci.yml": {
+      "description": "CI: CI",
+      "tokens": 355,
+      "hash": "bd96eee16a3459b3",
+      "size": 1242,
+      "mtimeMs": 1787025148027.4055,
+      "updatedAt": "2026-08-18T23:34:46.030Z",
       "source": "scan"
     },
     ".gitignore": {
@@ -68,17 +77,17 @@
       "tokens": 616,
       "hash": "15c00ab940a014c5",
       "size": 2308,
-      "mtimeMs": 1786412798939.3743,
-      "updatedAt": "2026-08-12T03:01:51.297Z",
+      "mtimeMs": 1787025148027.4055,
+      "updatedAt": "2026-08-18T23:34:46.030Z",
       "source": "scan"
     },
     "CLAUDE.md": {
       "description": "OpenWolf",
-      "tokens": 57,
-      "hash": "b1ca356fa9d5f3a6",
-      "size": 225,
-      "mtimeMs": 1786503711146.462,
-      "updatedAt": "2026-08-12T03:01:51.298Z",
+      "tokens": 58,
+      "hash": "42dba6ff939e477d",
+      "size": 230,
+      "mtimeMs": 1787025148033.673,
+      "updatedAt": "2026-08-18T23:34:46.030Z",
       "source": "scan"
     },
     "db-run.bat": {
@@ -86,44 +95,44 @@
       "tokens": 7,
       "hash": "85f8dbf41fb60c0a",
       "size": 26,
-      "mtimeMs": 1780503535180.6223,
-      "updatedAt": "2026-08-12T03:01:51.298Z",
+      "mtimeMs": 1787025148034.188,
+      "updatedAt": "2026-08-18T23:34:46.031Z",
       "source": "scan"
     },
     "docker-compose.yml": {
       "description": "Docker Compose services",
-      "tokens": 319,
-      "hash": "132b2cf457021871",
-      "size": 1114,
-      "mtimeMs": 1786375683104.1414,
-      "updatedAt": "2026-08-12T03:01:51.299Z",
+      "tokens": 244,
+      "hash": "b51e556c99589c1a",
+      "size": 856,
+      "mtimeMs": 1787025148034.188,
+      "updatedAt": "2026-08-18T23:34:46.031Z",
       "source": "scan"
     },
     "Dockerfile": {
       "description": "Docker container definition",
-      "tokens": 157,
-      "hash": "d6f7519588c3d40d",
-      "size": 588,
-      "mtimeMs": 1786411849855.3452,
-      "updatedAt": "2026-08-12T03:01:51.299Z",
+      "tokens": 166,
+      "hash": "745531b0b9ac9c98",
+      "size": 620,
+      "mtimeMs": 1787025148033.673,
+      "updatedAt": "2026-08-18T23:34:46.031Z",
       "source": "scan"
     },
     "eslint.config.mjs": {
       "description": "ESLint flat configuration",
-      "tokens": 124,
-      "hash": "870f1adccecf3051",
-      "size": 465,
-      "mtimeMs": 1773509617000,
-      "updatedAt": "2026-08-12T03:01:51.299Z",
+      "tokens": 200,
+      "hash": "1c3fb90154e6cb33",
+      "size": 749,
+      "mtimeMs": 1787025148034.188,
+      "updatedAt": "2026-08-18T23:34:46.031Z",
       "source": "scan"
     },
     "next-env.d.ts": {
       "description": "/ <reference types=\"next\" />",
-      "tokens": 74,
-      "hash": "083e23c4c5e7761d",
-      "size": 257,
-      "mtimeMs": 1786466186589.7444,
-      "updatedAt": "2026-08-12T03:01:51.299Z",
+      "tokens": 87,
+      "hash": "b8b3a344484b959a",
+      "size": 303,
+      "mtimeMs": 1787096034344.7556,
+      "updatedAt": "2026-08-18T23:34:46.031Z",
       "source": "scan"
     },
     "next.config.ts": {
@@ -131,53 +140,53 @@
       "tokens": 66,
       "hash": "a849cd549cda146e",
       "size": 231,
-      "mtimeMs": 1786466186589.7444,
-      "updatedAt": "2026-08-12T03:01:51.299Z",
+      "mtimeMs": 1787025148034.7004,
+      "updatedAt": "2026-08-18T23:34:46.031Z",
       "source": "scan"
     },
     "package-lock.json": {
       "description": "npm lock file",
-      "tokens": 87998,
-      "hash": "1eccdec3f1f5477c",
-      "size": 307992,
-      "mtimeMs": 1786470722659.901,
-      "updatedAt": "2026-08-12T03:01:51.300Z",
+      "tokens": 90697,
+      "hash": "9c6e3450e3cb23d6",
+      "size": 317438,
+      "mtimeMs": 1787028542833.592,
+      "updatedAt": "2026-08-18T23:34:46.032Z",
       "source": "scan"
     },
     "package.json": {
       "description": "Node.js package manifest",
-      "tokens": 296,
-      "hash": "2b6b513f73628155",
-      "size": 1033,
-      "mtimeMs": 1786470722575.844,
-      "updatedAt": "2026-08-12T03:01:51.300Z",
+      "tokens": 332,
+      "hash": "f4d405962105f44e",
+      "size": 1162,
+      "mtimeMs": 1787025148035.7239,
+      "updatedAt": "2026-08-18T23:34:46.032Z",
       "source": "scan"
     },
     "postcss.config.mjs": {
       "description": "Declares config",
-      "tokens": 26,
-      "hash": "dfac7ac2d86d326a",
-      "size": 94,
-      "mtimeMs": 1773509617000,
-      "updatedAt": "2026-08-12T03:01:51.300Z",
+      "tokens": 27,
+      "hash": "7b299d3d3b16699d",
+      "size": 101,
+      "mtimeMs": 1787025148036.3076,
+      "updatedAt": "2026-08-18T23:34:46.033Z",
       "source": "scan"
     },
     "README.md": {
       "description": "Project documentation",
-      "tokens": 363,
-      "hash": "60b55ff7df79af72",
-      "size": 1450,
-      "mtimeMs": 1773509617000,
-      "updatedAt": "2026-08-12T03:01:51.301Z",
+      "tokens": 372,
+      "hash": "3b3ed71ebf50e973",
+      "size": 1486,
+      "mtimeMs": 1787025148033.673,
+      "updatedAt": "2026-08-18T23:34:46.033Z",
       "source": "scan"
     },
     "scripts/generate-sample-template.mjs": {
       "description": "Run: node scripts/generate-sample-template.mjs",
-      "tokens": 2453,
-      "hash": "9f7f3e418e323d34",
-      "size": 9687,
-      "mtimeMs": 1773639622000,
-      "updatedAt": "2026-08-12T03:01:51.302Z",
+      "tokens": 2515,
+      "hash": "6c4588f8c3414b8e",
+      "size": 9919,
+      "mtimeMs": 1787025148037.3645,
+      "updatedAt": "2026-08-18T23:34:46.034Z",
       "source": "scan",
       "symbols": [
         {
@@ -226,36 +235,45 @@
     },
     "src/app/admin/users/page.tsx": {
       "description": "AdminUsersPage — renders form, table — uses useRouter, useState, useEffect",
-      "tokens": 3532,
-      "hash": "4165b3bf2e68446a",
-      "size": 12384,
-      "mtimeMs": 1773839908000,
-      "updatedAt": "2026-08-12T03:01:51.303Z",
+      "tokens": 5138,
+      "hash": "ba5cca08d07b3904",
+      "size": 18010,
+      "mtimeMs": 1787095832304.673,
+      "updatedAt": "2026-08-18T23:34:46.034Z",
       "source": "scan",
       "symbols": [
         {
           "name": "UserRow",
           "kind": "section",
           "startLine": 8,
-          "endLine": 14,
-          "tokens": 29
+          "endLine": 16,
+          "tokens": 42
         },
         {
           "name": "AdminUsersPage",
           "kind": "fn",
-          "startLine": 15,
-          "endLine": 241,
-          "tokens": 3451
+          "startLine": 17,
+          "endLine": 346,
+          "tokens": 4945
         }
       ]
     },
+    "src/app/api/admin/users/api-key/route.ts": {
+      "description": "Next.js API route: POST",
+      "tokens": 319,
+      "hash": "2a8273f76c063175",
+      "size": 1116,
+      "mtimeMs": 1787025148038.4233,
+      "updatedAt": "2026-08-18T23:34:46.035Z",
+      "source": "scan"
+    },
     "src/app/api/admin/users/route.ts": {
       "description": "Next.js API route: GET, POST, PATCH, DELETE",
-      "tokens": 789,
-      "hash": "5c458339db50bb53",
-      "size": 2768,
-      "mtimeMs": 1773839467000,
-      "updatedAt": "2026-08-12T03:01:51.303Z",
+      "tokens": 932,
+      "hash": "b09282236049fec7",
+      "size": 3267,
+      "mtimeMs": 1787095771873.3064,
+      "updatedAt": "2026-08-18T23:34:46.035Z",
       "source": "scan",
       "symbols": [
         {
@@ -269,84 +287,118 @@
           "name": "GET",
           "kind": "fn",
           "startLine": 15,
-          "endLine": 23,
-          "tokens": 82
+          "endLine": 31,
+          "tokens": 145
         },
         {
           "name": "POST",
           "kind": "fn",
-          "startLine": 24,
-          "endLine": 38,
-          "tokens": 227
+          "startLine": 32,
+          "endLine": 54,
+          "tokens": 261
         },
         {
           "name": "PATCH",
           "kind": "fn",
-          "startLine": 39,
-          "endLine": 54,
-          "tokens": 203
+          "startLine": 55,
+          "endLine": 71,
+          "tokens": 224
         },
         {
           "name": "DELETE",
           "kind": "fn",
-          "startLine": 55,
-          "endLine": 66,
+          "startLine": 72,
+          "endLine": 83,
           "tokens": 138
         }
       ]
     },
+    "src/app/api/auth/api-key/route.ts": {
+      "description": "Next.js API route: GET, POST",
+      "tokens": 295,
+      "hash": "c9af27c628ec9aa4",
+      "size": 1033,
+      "mtimeMs": 1787025148038.4233,
+      "updatedAt": "2026-08-18T23:34:46.035Z",
+      "source": "scan"
+    },
     "src/app/api/auth/login/route.ts": {
       "description": "Next.js API route: POST",
-      "tokens": 436,
-      "hash": "dadc9b994480b9e5",
-      "size": 1523,
-      "mtimeMs": 1773839400000,
-      "updatedAt": "2026-08-12T03:01:51.303Z",
+      "tokens": 474,
+      "hash": "1608025e43745de5",
+      "size": 1656,
+      "mtimeMs": 1787095748800.645,
+      "updatedAt": "2026-08-18T23:34:46.036Z",
       "source": "scan"
     },
     "src/app/api/auth/logout/route.ts": {
       "description": "Next.js API route: POST",
-      "tokens": 65,
-      "hash": "2681bea7fd5eae8e",
-      "size": 226,
-      "mtimeMs": 1773511010000,
-      "updatedAt": "2026-08-12T03:01:51.304Z",
+      "tokens": 67,
+      "hash": "2759d9fc6ff0bfb1",
+      "size": 233,
+      "mtimeMs": 1787025148038.4233,
+      "updatedAt": "2026-08-18T23:34:46.036Z",
       "source": "scan"
     },
     "src/app/api/auth/me/route.ts": {
       "description": "Next.js API route: GET",
-      "tokens": 94,
-      "hash": "eeb120e779500c5d",
-      "size": 329,
-      "mtimeMs": 1773511241000,
-      "updatedAt": "2026-08-12T03:01:51.304Z",
+      "tokens": 97,
+      "hash": "097c8bc84343762b",
+      "size": 337,
+      "mtimeMs": 1787025148038.4233,
+      "updatedAt": "2026-08-18T23:34:46.036Z",
       "source": "scan"
     },
     "src/app/api/auth/seed/route.ts": {
       "description": "One-time endpoint to seed the admin account.",
-      "tokens": 171,
-      "hash": "6b55d1a7927264d1",
-      "size": 597,
-      "mtimeMs": 1773510226000,
-      "updatedAt": "2026-08-12T03:01:51.304Z",
+      "tokens": 176,
+      "hash": "6bdadb976fe1e992",
+      "size": 615,
+      "mtimeMs": 1787025148039.4795,
+      "updatedAt": "2026-08-18T23:34:46.036Z",
+      "source": "scan"
+    },
+    "src/app/api/bid-details/route.ts": {
+      "description": "Side-effect import: ensures the Profile model is registered for populate() below.",
+      "tokens": 370,
+      "hash": "35f875811a71c06e",
+      "size": 1294,
+      "mtimeMs": 1787095529738.5303,
+      "updatedAt": "2026-08-18T23:34:46.037Z",
       "source": "scan"
     },
     "src/app/api/profiles/[id]/route.ts": {
       "description": "Next.js API route: PUT, DELETE",
-      "tokens": 348,
-      "hash": "d56dd814c892ac5b",
-      "size": 1218,
-      "mtimeMs": 1773510988000,
-      "updatedAt": "2026-08-12T03:01:51.304Z",
-      "source": "scan"
+      "tokens": 554,
+      "hash": "ab1458b530f5abcf",
+      "size": 1941,
+      "mtimeMs": 1787095894715.0015,
+      "updatedAt": "2026-08-18T23:34:46.037Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "PUT",
+          "kind": "fn",
+          "startLine": 9,
+          "endLine": 36,
+          "tokens": 326
+        },
+        {
+          "name": "DELETE",
+          "kind": "fn",
+          "startLine": 37,
+          "endLine": 48,
+          "tokens": 134
+        }
+      ]
     },
     "src/app/api/profiles/[id]/template/route.ts": {
       "description": "Next.js API route: POST, DELETE",
-      "tokens": 726,
-      "hash": "48b8404734d617f9",
-      "size": 2545,
-      "mtimeMs": 1773517583000,
-      "updatedAt": "2026-08-12T03:01:51.304Z",
+      "tokens": 749,
+      "hash": "b5080da0423ea6f6",
+      "size": 2623,
+      "mtimeMs": 1787025148040.0125,
+      "updatedAt": "2026-08-18T23:34:46.037Z",
       "source": "scan",
       "symbols": [
         {
@@ -367,29 +419,29 @@
     },
     "src/app/api/profiles/route.ts": {
       "description": "Next.js API route: GET, POST",
-      "tokens": 238,
-      "hash": "0cdab6717526496f",
-      "size": 830,
-      "mtimeMs": 1773510980000,
-      "updatedAt": "2026-08-12T03:01:51.304Z",
+      "tokens": 322,
+      "hash": "c7e53c86dc648aad",
+      "size": 1125,
+      "mtimeMs": 1787095844325.9739,
+      "updatedAt": "2026-08-18T23:34:46.037Z",
       "source": "scan"
     },
     "src/app/api/resume/[id]/download/route.ts": {
       "description": "Next.js API route: GET",
-      "tokens": 322,
-      "hash": "f943e69f4115a884",
-      "size": 1125,
-      "mtimeMs": 1786496082838.31,
-      "updatedAt": "2026-08-12T03:01:51.305Z",
+      "tokens": 275,
+      "hash": "4863550f84a93b6e",
+      "size": 962,
+      "mtimeMs": 1787025148040.0125,
+      "updatedAt": "2026-08-18T23:34:46.037Z",
       "source": "scan"
     },
     "src/app/api/resume/download/route.ts": {
       "description": "Next.js API route: POST",
-      "tokens": 661,
-      "hash": "8efd2802bcf591dc",
-      "size": 2311,
-      "mtimeMs": 1773518540000,
-      "updatedAt": "2026-08-12T03:01:51.305Z",
+      "tokens": 681,
+      "hash": "8375733a49c3fcb5",
+      "size": 2381,
+      "mtimeMs": 1787025148040.0125,
+      "updatedAt": "2026-08-18T23:34:46.038Z",
       "source": "scan",
       "symbols": [
         {
@@ -403,11 +455,11 @@
     },
     "src/app/api/resume/generate/route.ts": {
       "description": "Next.js API route: POST",
-      "tokens": 990,
-      "hash": "ec6c112eaa7a2ec1",
-      "size": 3462,
-      "mtimeMs": 1782157218357.2522,
-      "updatedAt": "2026-08-12T03:01:51.305Z",
+      "tokens": 1015,
+      "hash": "6613e7f57b578a47",
+      "size": 3552,
+      "mtimeMs": 1787025148041.0254,
+      "updatedAt": "2026-08-18T23:34:46.038Z",
       "source": "scan",
       "symbols": [
         {
@@ -421,125 +473,120 @@
     },
     "src/app/api/resume/generate-from-link/route.ts": {
       "description": "Next.js API route: POST",
-      "tokens": 3123,
-      "hash": "da6ef33b8713ee83",
-      "size": 10969,
-      "mtimeMs": 1786492572107.6086,
-      "updatedAt": "2026-08-12T03:01:51.305Z",
+      "tokens": 1543,
+      "hash": "76177e4d195e5bb8",
+      "size": 5400,
+      "mtimeMs": 1787025148040.0125,
+      "updatedAt": "2026-08-18T23:34:46.038Z",
       "source": "scan",
       "symbols": [
         {
           "name": "POST",
           "kind": "fn",
           "startLine": 20,
-          "endLine": 158,
-          "tokens": 1327
-        },
-        {
-          "name": "ProfileContact",
-          "kind": "section",
-          "startLine": 159,
-          "endLine": 166,
-          "tokens": 36
-        },
-        {
-          "name": "escapeHtml",
-          "kind": "fn",
-          "startLine": 167,
-          "endLine": 174,
-          "tokens": 49
-        },
-        {
-          "name": "renderBoldHtml",
-          "kind": "fn",
-          "startLine": 175,
-          "endLine": 178,
-          "tokens": 36
-        },
-        {
-          "name": "wrapPage",
-          "kind": "fn",
-          "startLine": 179,
-          "endLine": 192,
-          "tokens": 90
-        },
-        {
-          "name": "buildResumeHtml",
-          "kind": "fn",
-          "startLine": 193,
-          "endLine": 283,
-          "tokens": 1368
+          "endLine": 164,
+          "tokens": 1262
         }
       ]
     },
     "src/app/api/resume/pdf/route.ts": {
-      "description": "Max simultaneous Puppeteer browser instances",
-      "tokens": 856,
-      "hash": "94b8bcb23ba03e54",
-      "size": 2995,
-      "mtimeMs": 1786483255326.6384,
-      "updatedAt": "2026-08-12T03:01:51.306Z",
+      "description": "Next.js API route: POST",
+      "tokens": 459,
+      "hash": "ee81377c573d4a6b",
+      "size": 1606,
+      "mtimeMs": 1787025148041.0254,
+      "updatedAt": "2026-08-18T23:34:46.038Z",
+      "source": "scan"
+    },
+    "src/app/bids/page.tsx": {
+      "description": "profileName — renders table — uses useState, useEffect",
+      "tokens": 1245,
+      "hash": "df8117395b728dc3",
+      "size": 4371,
+      "mtimeMs": 1787095543180.4138,
+      "updatedAt": "2026-08-18T23:34:46.038Z",
       "source": "scan",
       "symbols": [
         {
-          "name": "POST",
+          "name": "Bid",
+          "kind": "section",
+          "startLine": 7,
+          "endLine": 16,
+          "tokens": 59
+        },
+        {
+          "name": "profileName",
           "kind": "fn",
-          "startLine": 14,
-          "endLine": 85,
-          "tokens": 738
+          "startLine": 17,
+          "endLine": 21,
+          "tokens": 44
+        },
+        {
+          "name": "BidsPage",
+          "kind": "fn",
+          "startLine": 22,
+          "endLine": 84,
+          "tokens": 656
+        },
+        {
+          "name": "BidRow",
+          "kind": "fn",
+          "startLine": 85,
+          "endLine": 127,
+          "tokens": 444
         }
       ]
     },
     "src/app/dashboard/page.tsx": {
-      "description": "DashboardPage — uses useRouter",
-      "tokens": 500,
-      "hash": "abd7c7b9bc74297b",
-      "size": 1751,
-      "mtimeMs": 1773511517000,
-      "updatedAt": "2026-08-12T03:01:51.306Z",
+      "description": "DashboardPage — uses useRouter, useState, useEffect",
+      "tokens": 1530,
+      "hash": "d5c9ded25e20b701",
+      "size": 5363,
+      "mtimeMs": 1787025148041.6829,
+      "updatedAt": "2026-08-18T23:34:46.039Z",
       "source": "scan",
       "symbols": [
         {
           "name": "DashboardPage",
           "kind": "fn",
-          "startLine": 7,
-          "endLine": 35,
-          "tokens": 241
+          "startLine": 8,
+          "endLine": 111,
+          "tokens": 1219
         },
         {
           "name": "DashCard",
           "kind": "fn",
-          "startLine": 36,
-          "endLine": 65,
+          "startLine": 112,
+          "endLine": 141,
           "tokens": 217
         }
       ]
     },
     "src/app/globals.css": {
       "description": "Styles: 3 rules, 8 vars, 1 media queries",
-      "tokens": 140,
-      "hash": "769edf77bd0d101a",
-      "size": 488,
-      "mtimeMs": 1773509617000,
-      "updatedAt": "2026-08-12T03:01:51.306Z",
+      "tokens": 147,
+      "hash": "94d307fb925a3264",
+      "size": 514,
+      "mtimeMs": 1787025148042.2131,
+      "updatedAt": "2026-08-18T23:34:46.039Z",
       "source": "scan"
     },
     "src/app/layout.tsx": {
       "description": "geistSans",
-      "tokens": 197,
-      "hash": "e65025ca7842d1b3",
-      "size": 689,
-      "mtimeMs": 1773509617000,
-      "updatedAt": "2026-08-12T03:01:51.306Z",
+      "tokens": 207,
+      "hash": "bb359ec138445896",
+      "size": 722,
+      "mtimeMs": 1787025148042.2131,
+      "updatedAt": "2026-08-18T23:34:46.039Z",
       "source": "scan"
     },
     "src/app/login/page.tsx": {
       "description": "LoginPage — renders form — uses useRouter, useEffect, useState",
-      "tokens": 1352,
-      "hash": "476fd43349c2b695",
-      "size": 4733,
-      "mtimeMs": 1773839813000,
-      "updatedAt": "2026-08-12T03:01:51.307Z",
+      "tokens": 1392,
+      "hash": "456274a5af97c438",
+      "size": 4874,
+      "mtimeMs": 1787095753707.102,
+      "updatedAt": "2026-08-18T23:34:46.040Z",
       "source": "scan",
       "symbols": [
         {
@@ -547,44 +594,44 @@
           "kind": "fn",
           "startLine": 7,
           "endLine": 117,
-          "tokens": 1306
+          "tokens": 1313
         }
       ]
     },
     "src/app/new-profile/page.tsx": {
       "description": "NewProfilePage",
-      "tokens": 149,
-      "hash": "3f793b398762a76d",
-      "size": 519,
-      "mtimeMs": 1773511594000,
-      "updatedAt": "2026-08-12T03:01:51.307Z",
+      "tokens": 154,
+      "hash": "85a091982f549578",
+      "size": 539,
+      "mtimeMs": 1787025148042.2131,
+      "updatedAt": "2026-08-18T23:34:46.040Z",
       "source": "scan"
     },
     "src/app/page.tsx": {
       "description": "RootPage — uses useRouter, useEffect",
-      "tokens": 92,
-      "hash": "1086a2647331a914",
-      "size": 322,
-      "mtimeMs": 1773511732000,
-      "updatedAt": "2026-08-12T03:01:51.307Z",
+      "tokens": 97,
+      "hash": "7ad04c2ba35efcf0",
+      "size": 337,
+      "mtimeMs": 1787025148042.2131,
+      "updatedAt": "2026-08-18T23:34:46.040Z",
       "source": "scan"
     },
     "src/app/profiles/[id]/edit/page.tsx": {
       "description": "EditProfilePage — uses useRouter, useState, useEffect",
-      "tokens": 458,
-      "hash": "b40652db980b431b",
-      "size": 1605,
-      "mtimeMs": 1773511586000,
-      "updatedAt": "2026-08-12T03:01:51.307Z",
+      "tokens": 473,
+      "hash": "989cef688b3465a4",
+      "size": 1657,
+      "mtimeMs": 1787025148043.194,
+      "updatedAt": "2026-08-18T23:34:46.040Z",
       "source": "scan"
     },
     "src/app/profiles/page.tsx": {
       "description": "ProfilesPage — uses useRouter, useState, useEffect",
-      "tokens": 1259,
-      "hash": "5b8f1ca5b47e3990",
-      "size": 4412,
-      "mtimeMs": 1773840335000,
-      "updatedAt": "2026-08-12T03:01:51.307Z",
+      "tokens": 1296,
+      "hash": "9c6e5fd746e9bab9",
+      "size": 4541,
+      "mtimeMs": 1787025148043.194,
+      "updatedAt": "2026-08-18T23:34:46.040Z",
       "source": "scan",
       "symbols": [
         {
@@ -612,11 +659,11 @@
     },
     "src/app/resume-generator/page.tsx": {
       "description": "isCompleteGenerated — renders form — uses useState, useEffect",
-      "tokens": 2778,
-      "hash": "77c27df00a92a031",
-      "size": 9730,
-      "mtimeMs": 1782737968545.526,
-      "updatedAt": "2026-08-12T03:01:51.308Z",
+      "tokens": 2876,
+      "hash": "c0bf0306ea2e74dc",
+      "size": 10072,
+      "mtimeMs": 1787095557776.3452,
+      "updatedAt": "2026-08-18T23:34:46.041Z",
       "source": "scan",
       "symbols": [
         {
@@ -644,216 +691,281 @@
           "name": "ResumeGeneratorPage",
           "kind": "fn",
           "startLine": 35,
-          "endLine": 269,
-          "tokens": 2501
+          "endLine": 271,
+          "tokens": 2521
         }
       ]
     },
     "src/app/resume-generator/review/page.tsx": {
       "description": "T1 — left-aligned, contacts as horizontal dot-separated row",
-      "tokens": 3678,
-      "hash": "aafe1364301074e2",
-      "size": 13453,
-      "mtimeMs": 1782738475393.436,
-      "updatedAt": "2026-08-12T03:01:51.308Z",
+      "tokens": 6737,
+      "hash": "c9e8e063b5e5a9db",
+      "size": 24180,
+      "mtimeMs": 1787095617911.4946,
+      "updatedAt": "2026-08-18T23:34:46.041Z",
       "source": "scan",
       "symbols": [
         {
           "name": "readReviewData",
           "kind": "fn",
-          "startLine": 8,
-          "endLine": 19,
+          "startLine": 9,
+          "endLine": 20,
           "tokens": 81
         },
         {
           "name": "ResumeReviewPage",
           "kind": "fn",
-          "startLine": 20,
-          "endLine": 124,
-          "tokens": 1086
+          "startLine": 21,
+          "endLine": 169,
+          "tokens": 1486
         },
         {
           "name": "ResumeDoc",
           "kind": "fn",
-          "startLine": 125,
-          "endLine": 170,
+          "startLine": 170,
+          "endLine": 215,
           "tokens": 544
         },
         {
           "name": "Header",
           "kind": "fn",
-          "startLine": 171,
-          "endLine": 177,
-          "tokens": 119
+          "startLine": 216,
+          "endLine": 229,
+          "tokens": 289
         },
         {
           "name": "Header1",
           "kind": "fn",
-          "startLine": 178,
-          "endLine": 195,
+          "startLine": 230,
+          "endLine": 247,
           "tokens": 243
         },
         {
           "name": "Header2",
           "kind": "fn",
-          "startLine": 196,
-          "endLine": 213,
+          "startLine": 248,
+          "endLine": 265,
           "tokens": 246
         },
         {
           "name": "Header3",
           "kind": "fn",
-          "startLine": 214,
-          "endLine": 241,
-          "tokens": 316
+          "startLine": 266,
+          "endLine": 292,
+          "tokens": 311
+        },
+        {
+          "name": "Header4",
+          "kind": "fn",
+          "startLine": 293,
+          "endLine": 310,
+          "tokens": 258
+        },
+        {
+          "name": "Header5",
+          "kind": "fn",
+          "startLine": 311,
+          "endLine": 328,
+          "tokens": 244
+        },
+        {
+          "name": "Header6",
+          "kind": "fn",
+          "startLine": 329,
+          "endLine": 349,
+          "tokens": 278
+        },
+        {
+          "name": "Header7",
+          "kind": "fn",
+          "startLine": 350,
+          "endLine": 365,
+          "tokens": 217
+        },
+        {
+          "name": "Header8",
+          "kind": "fn",
+          "startLine": 366,
+          "endLine": 386,
+          "tokens": 275
+        },
+        {
+          "name": "Header9",
+          "kind": "fn",
+          "startLine": 387,
+          "endLine": 406,
+          "tokens": 260
+        },
+        {
+          "name": "Header10",
+          "kind": "fn",
+          "startLine": 407,
+          "endLine": 430,
+          "tokens": 295
+        },
+        {
+          "name": "getSectionTitle",
+          "kind": "fn",
+          "startLine": 431,
+          "endLine": 458,
+          "tokens": 662
         },
         {
           "name": "Section",
           "kind": "fn",
-          "startLine": 242,
-          "endLine": 260,
-          "tokens": 274
+          "startLine": 459,
+          "endLine": 471,
+          "tokens": 113
         },
         {
           "name": "ExpBlock",
           "kind": "fn",
-          "startLine": 261,
-          "endLine": 283,
+          "startLine": 472,
+          "endLine": 494,
           "tokens": 296
         },
         {
           "name": "EduBlock",
           "kind": "fn",
-          "startLine": 284,
-          "endLine": 297,
+          "startLine": 495,
+          "endLine": 508,
           "tokens": 155
         },
         {
           "name": "renderBold",
           "kind": "fn",
-          "startLine": 298,
-          "endLine": 302,
+          "startLine": 509,
+          "endLine": 513,
           "tokens": 54
         },
         {
           "name": "contactList",
           "kind": "fn",
-          "startLine": 303,
-          "endLine": 315,
+          "startLine": 514,
+          "endLine": 526,
           "tokens": 196
         }
       ]
     },
     "src/components/Nav.tsx": {
       "description": "Nav — uses useRouter, useState, useEffect",
-      "tokens": 596,
-      "hash": "58d6ddff813e03d0",
-      "size": 2085,
-      "mtimeMs": 1773839610000,
-      "updatedAt": "2026-08-12T03:01:51.308Z",
+      "tokens": 643,
+      "hash": "1687e8e1c6e2719b",
+      "size": 2249,
+      "mtimeMs": 1787095547686.0796,
+      "updatedAt": "2026-08-18T23:34:46.041Z",
       "source": "scan",
       "symbols": [
         {
           "name": "Nav",
           "kind": "fn",
           "startLine": 8,
-          "endLine": 66,
-          "tokens": 537
+          "endLine": 69,
+          "tokens": 564
         }
       ]
     },
     "src/components/ProfileForm.tsx": {
-      "description": "emptyEducation — renders form — uses useRouter, useState",
-      "tokens": 5159,
-      "hash": "362a4b701952c1a1",
-      "size": 18720,
-      "mtimeMs": 1773841090000,
-      "updatedAt": "2026-08-12T03:01:51.309Z",
+      "description": "emptyEducation — renders form — uses useRouter, useState, useEffect",
+      "tokens": 5636,
+      "hash": "22428ae49be72c92",
+      "size": 20405,
+      "mtimeMs": 1787095875630.9568,
+      "updatedAt": "2026-08-18T23:34:46.042Z",
       "source": "scan",
       "symbols": [
         {
           "name": "EducationEntry",
           "kind": "section",
-          "startLine": 6,
-          "endLine": 12,
+          "startLine": 7,
+          "endLine": 13,
           "tokens": 31
         },
         {
           "name": "EmploymentEntry",
           "kind": "section",
-          "startLine": 13,
-          "endLine": 20,
+          "startLine": 14,
+          "endLine": 21,
           "tokens": 36
         },
         {
           "name": "ProfileFormData",
           "kind": "section",
-          "startLine": 21,
-          "endLine": 42,
-          "tokens": 153
+          "startLine": 22,
+          "endLine": 43,
+          "tokens": 182
         },
         {
           "name": "Props",
           "kind": "section",
-          "startLine": 43,
-          "endLine": 47,
+          "startLine": 44,
+          "endLine": 48,
           "tokens": 23
         },
         {
           "name": "ProfileForm",
           "kind": "fn",
-          "startLine": 48,
-          "endLine": 369,
-          "tokens": 4208
+          "startLine": 49,
+          "endLine": 392,
+          "tokens": 4514
         },
         {
           "name": "Field",
           "kind": "fn",
-          "startLine": 370,
-          "endLine": 403,
+          "startLine": 393,
+          "endLine": 426,
           "tokens": 438
         },
         {
           "name": "PencilIcon",
           "kind": "fn",
-          "startLine": 404,
-          "endLine": 412,
+          "startLine": 427,
+          "endLine": 435,
           "tokens": 112
         },
         {
           "name": "TrashIcon",
           "kind": "fn",
-          "startLine": 413,
-          "endLine": 424,
+          "startLine": 436,
+          "endLine": 447,
           "tokens": 130
         }
       ]
     },
     "src/hooks/useSession.ts": {
       "description": "Exports useSession",
-      "tokens": 191,
-      "hash": "9bba2bcfaaeb75f0",
-      "size": 670,
-      "mtimeMs": 1782192065133.5684,
-      "updatedAt": "2026-08-12T03:01:51.309Z",
+      "tokens": 198,
+      "hash": "3fc94e30a5f333ff",
+      "size": 695,
+      "mtimeMs": 1787025148044.721,
+      "updatedAt": "2026-08-18T23:34:46.042Z",
+      "source": "scan"
+    },
+    "src/lib/apiKey.ts": {
+      "description": "API routes: GET (2 endpoints)",
+      "tokens": 268,
+      "hash": "2430b40ed7a41e7e",
+      "size": 935,
+      "mtimeMs": 1787025148044.721,
+      "updatedAt": "2026-08-18T23:34:46.043Z",
       "source": "scan"
     },
     "src/lib/auth.ts": {
       "description": "API routes: GET (1 endpoints)",
-      "tokens": 139,
-      "hash": "343e53cb1e20d1b7",
-      "size": 486,
-      "mtimeMs": 1773839387000,
-      "updatedAt": "2026-08-12T03:01:51.309Z",
+      "tokens": 152,
+      "hash": "92570a4d5418f4cc",
+      "size": 529,
+      "mtimeMs": 1787095743127.2788,
+      "updatedAt": "2026-08-18T23:34:46.043Z",
       "source": "scan"
     },
     "src/lib/docxBuilder.ts": {
       "description": "Exports buildTemplateVariables, renderDocx",
-      "tokens": 1358,
-      "hash": "1249a4116d333d2d",
-      "size": 5120,
-      "mtimeMs": 1786392086378.923,
-      "updatedAt": "2026-08-12T03:01:51.310Z",
+      "tokens": 1400,
+      "hash": "69d60a0063ee36bc",
+      "size": 5269,
+      "mtimeMs": 1787025148044.721,
+      "updatedAt": "2026-08-18T23:34:46.043Z",
       "source": "scan",
       "symbols": [
         {
@@ -895,93 +1007,278 @@
     },
     "src/lib/jobScraper.ts": {
       "description": "Exports ScrapedJob, JobScrapeError, scrapeJobLink",
-      "tokens": 360,
-      "hash": "dad7a85e45aaae67",
-      "size": 1257,
-      "mtimeMs": 1785992280111.2903,
-      "updatedAt": "2026-08-12T03:01:51.310Z",
+      "tokens": 372,
+      "hash": "b61c1c4096d9ad4a",
+      "size": 1301,
+      "mtimeMs": 1787025148045.2476,
+      "updatedAt": "2026-08-18T23:34:46.043Z",
       "source": "scan"
     },
     "src/lib/mongodb.ts": {
       "description": "Exports connectDB",
-      "tokens": 251,
-      "hash": "91b269b6e03c79c2",
-      "size": 877,
-      "mtimeMs": 1773509812000,
-      "updatedAt": "2026-08-12T03:01:51.310Z",
+      "tokens": 304,
+      "hash": "280483d4f4caa03f",
+      "size": 1061,
+      "mtimeMs": 1787025148045.2476,
+      "updatedAt": "2026-08-18T23:34:46.043Z",
+      "source": "scan"
+    },
+    "src/lib/pdfFromHtml.ts": {
+      "description": "Render resume HTML fragment to PDF using the same pipeline as /api/resume/pdf.",
+      "tokens": 350,
+      "hash": "b640f5593234072c",
+      "size": 1225,
+      "mtimeMs": 1787025148045.2476,
+      "updatedAt": "2026-08-18T23:34:46.043Z",
       "source": "scan"
     },
     "src/lib/prompts.ts": {
       "description": "Exports buildSystemPrompt",
-      "tokens": 17344,
-      "hash": "23a09a2144ba27dc",
-      "size": 61666,
-      "mtimeMs": 1776723375025.4534,
-      "updatedAt": "2026-08-12T03:01:51.311Z",
+      "tokens": 18425,
+      "hash": "8a607cabc1d60ee7",
+      "size": 65476,
+      "mtimeMs": 1787095726881.496,
+      "updatedAt": "2026-08-18T23:34:46.044Z",
       "source": "scan",
       "symbols": [
         {
           "name": "buildSystemPrompt",
           "kind": "fn",
           "startLine": 3,
-          "endLine": 448,
-          "tokens": 13146
+          "endLine": 456,
+          "tokens": 13665
         },
         {
           "name": "buildSystemPromptNonSoftware",
           "kind": "fn",
-          "startLine": 449,
-          "endLine": 583,
-          "tokens": 2998
+          "startLine": 457,
+          "endLine": 595,
+          "tokens": 3367
         },
         {
           "name": "buildUserPrompt",
           "kind": "fn",
-          "startLine": 584,
-          "endLine": 643,
+          "startLine": 596,
+          "endLine": 655,
           "tokens": 980
         },
         {
           "name": "calculateExperienceYears",
           "kind": "fn",
-          "startLine": 644,
-          "endLine": 657,
+          "startLine": 656,
+          "endLine": 669,
           "tokens": 156
         },
         {
           "name": "extractYear",
           "kind": "fn",
-          "startLine": 658,
-          "endLine": 663,
+          "startLine": 670,
+          "endLine": 675,
           "tokens": 50
+        }
+      ]
+    },
+    "src/lib/resumeHtml.ts": {
+      "description": "template1–3 are free; template4–10 require admin or premium.",
+      "tokens": 4634,
+      "hash": "117e53fea0725f9c",
+      "size": 16229,
+      "mtimeMs": 1787095659590.9539,
+      "updatedAt": "2026-08-18T23:34:46.044Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "ResumeProfileContact",
+          "kind": "section",
+          "startLine": 15,
+          "endLine": 55,
+          "tokens": 395
+        },
+        {
+          "name": "isPremiumTemplate",
+          "kind": "fn",
+          "startLine": 56,
+          "endLine": 59,
+          "tokens": 33
+        },
+        {
+          "name": "buildResumeFileName",
+          "kind": "fn",
+          "startLine": 60,
+          "endLine": 69,
+          "tokens": 67
+        },
+        {
+          "name": "escapeHtml",
+          "kind": "fn",
+          "startLine": 70,
+          "endLine": 77,
+          "tokens": 49
+        },
+        {
+          "name": "renderBoldHtml",
+          "kind": "fn",
+          "startLine": 78,
+          "endLine": 81,
+          "tokens": 36
+        },
+        {
+          "name": "contactItems",
+          "kind": "fn",
+          "startLine": 82,
+          "endLine": 96,
+          "tokens": 216
+        },
+        {
+          "name": "joinWithSep",
+          "kind": "fn",
+          "startLine": 97,
+          "endLine": 104,
+          "tokens": 63
+        },
+        {
+          "name": "headerHtml",
+          "kind": "fn",
+          "startLine": 105,
+          "endLine": 236,
+          "tokens": 1722
+        },
+        {
+          "name": "sectionTitleHtml",
+          "kind": "fn",
+          "startLine": 237,
+          "endLine": 269,
+          "tokens": 655
+        },
+        {
+          "name": "sectionHtml",
+          "kind": "fn",
+          "startLine": 270,
+          "endLine": 277,
+          "tokens": 72
+        },
+        {
+          "name": "skillsHtml",
+          "kind": "fn",
+          "startLine": 278,
+          "endLine": 293,
+          "tokens": 178
+        },
+        {
+          "name": "experienceHtml",
+          "kind": "fn",
+          "startLine": 294,
+          "endLine": 321,
+          "tokens": 313
+        },
+        {
+          "name": "educationHtml",
+          "kind": "fn",
+          "startLine": 322,
+          "endLine": 337,
+          "tokens": 181
+        },
+        {
+          "name": "buildResumeDocHtml",
+          "kind": "fn",
+          "startLine": 338,
+          "endLine": 364,
+          "tokens": 320
+        },
+        {
+          "name": "wrapResumePage",
+          "kind": "fn",
+          "startLine": 365,
+          "endLine": 382,
+          "tokens": 153
         }
       ]
     },
     "src/lib/session.ts": {
       "description": "Exports saveSession, getSession, clearSession",
-      "tokens": 242,
-      "hash": "40675efa1a309d1e",
-      "size": 847,
-      "mtimeMs": 1773839413000,
-      "updatedAt": "2026-08-12T03:01:51.311Z",
+      "tokens": 284,
+      "hash": "d4fbef6196b783bf",
+      "size": 991,
+      "mtimeMs": 1787095738858.151,
+      "updatedAt": "2026-08-18T23:34:46.045Z",
       "source": "scan"
     },
     "src/lib/storage.ts": {
-      "description": "Exports resumeKey, uploadResume, downloadResume",
-      "tokens": 323,
-      "hash": "8e31129ee9505208",
-      "size": 1129,
-      "mtimeMs": 1786473901068.081,
-      "updatedAt": "2026-08-12T03:01:51.311Z",
+      "description": "Exports resumeKey, uploadResume, getSignedDownloadUrl, downloadResume",
+      "tokens": 646,
+      "hash": "46e0b9e3f3ae1097",
+      "size": 2259,
+      "mtimeMs": 1787025148046.2832,
+      "updatedAt": "2026-08-18T23:34:46.045Z",
+      "source": "scan",
+      "symbols": [
+        {
+          "name": "requireEnv",
+          "kind": "fn",
+          "startLine": 11,
+          "endLine": 18,
+          "tokens": 57
+        },
+        {
+          "name": "getClient",
+          "kind": "fn",
+          "startLine": 19,
+          "endLine": 34,
+          "tokens": 129
+        },
+        {
+          "name": "getBucket",
+          "kind": "fn",
+          "startLine": 35,
+          "endLine": 38,
+          "tokens": 20
+        },
+        {
+          "name": "resumeKey",
+          "kind": "fn",
+          "startLine": 39,
+          "endLine": 43,
+          "tokens": 56
+        },
+        {
+          "name": "uploadResume",
+          "kind": "fn",
+          "startLine": 44,
+          "endLine": 54,
+          "tokens": 70
+        },
+        {
+          "name": "getSignedDownloadUrl",
+          "kind": "fn",
+          "startLine": 55,
+          "endLine": 66,
+          "tokens": 106
+        },
+        {
+          "name": "downloadResume",
+          "kind": "fn",
+          "startLine": 67,
+          "endLine": 78,
+          "tokens": 113
+        }
+      ]
+    },
+    "src/models/BidDetail.ts": {
+      "description": "Exports IBidDetail",
+      "tokens": 328,
+      "hash": "1fc9974497b7c4c7",
+      "size": 1148,
+      "mtimeMs": 1787095521174.0054,
+      "updatedAt": "2026-08-18T23:34:46.045Z",
       "source": "scan"
     },
     "src/models/Profile.ts": {
       "description": "Exports IEducation, IEmployment, IProfile",
-      "tokens": 660,
-      "hash": "d8acade6e8c3774a",
-      "size": 2310,
-      "mtimeMs": 1786379397606.942,
-      "updatedAt": "2026-08-12T03:01:51.311Z",
+      "tokens": 738,
+      "hash": "ebf2efd6161ddc20",
+      "size": 2583,
+      "mtimeMs": 1787095506615.882,
+      "updatedAt": "2026-08-18T23:34:46.045Z",
       "source": "scan",
       "symbols": [
         {
@@ -1003,53 +1300,53 @@
           "kind": "section",
           "startLine": 18,
           "endLine": 83,
-          "tokens": 575
+          "tokens": 629
         }
       ]
     },
     "src/models/Resume.ts": {
       "description": "Exports IResume",
-      "tokens": 237,
-      "hash": "c9116661fb8f7507",
-      "size": 828,
-      "mtimeMs": 1786479200576.788,
-      "updatedAt": "2026-08-12T03:01:51.311Z",
+      "tokens": 245,
+      "hash": "7cc309dc0a14efc2",
+      "size": 855,
+      "mtimeMs": 1787025148046.2832,
+      "updatedAt": "2026-08-18T23:34:46.045Z",
       "source": "scan"
     },
     "src/models/User.ts": {
       "description": "Exports IUser",
-      "tokens": 382,
-      "hash": "f9e9d0558333d2e0",
-      "size": 1336,
-      "mtimeMs": 1773839716000,
-      "updatedAt": "2026-08-12T03:01:51.311Z",
+      "tokens": 452,
+      "hash": "11204cf450bf4bf6",
+      "size": 1582,
+      "mtimeMs": 1787095514953.927,
+      "updatedAt": "2026-08-18T23:34:46.045Z",
       "source": "scan"
     },
     "src/types/resume.ts": {
-      "description": "Exports GeneratedEducation, GeneratedExperienceBullet, SkillCategories, GeneratedResume, ResumeReviewData",
-      "tokens": 267,
-      "hash": "370a16bce8451ee6",
-      "size": 933,
-      "mtimeMs": 1773934260000,
-      "updatedAt": "2026-08-12T03:01:51.312Z",
+      "description": "Exports GeneratedEducation, GeneratedExperienceBullet, SkillCategories, GeneratedResume + 2 more",
+      "tokens": 342,
+      "hash": "c0b6b34aa6160c48",
+      "size": 1196,
+      "mtimeMs": 1787095498596.9749,
+      "updatedAt": "2026-08-18T23:34:46.045Z",
       "source": "scan"
     },
     "tsconfig.json": {
       "description": "TypeScript configuration",
-      "tokens": 192,
-      "hash": "5c51df4c59f4510d",
-      "size": 670,
-      "mtimeMs": 1773509617000,
-      "updatedAt": "2026-08-12T03:01:51.312Z",
+      "tokens": 202,
+      "hash": "dbacf04aa5f38c1c",
+      "size": 704,
+      "mtimeMs": 1787025148046.8728,
+      "updatedAt": "2026-08-18T23:34:46.045Z",
       "source": "scan"
     },
     "tsconfig.tsbuildinfo": {
       "description": "",
-      "tokens": 84497,
-      "hash": "70d8044d907f7bbc",
-      "size": 316862,
-      "mtimeMs": 1786503690403.699,
-      "updatedAt": "2026-08-12T03:01:51.313Z",
+      "tokens": 86474,
+      "hash": "878cc048e2369c14",
+      "size": 324274,
+      "mtimeMs": 1787095911437.1538,
+      "updatedAt": "2026-08-18T23:34:46.046Z",
       "source": "scan"
     }
   }

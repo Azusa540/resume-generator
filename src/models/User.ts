@@ -5,6 +5,7 @@ export interface IUser extends Document {
   username: string;
   password: string;
   is_admin: boolean;
+  is_premium: boolean;
   apiKeyHash?: string;
   createdAt: Date;
   updatedAt: Date;
@@ -20,6 +21,7 @@ const UserSchema = new Schema<IUser>(
     username: { type: String, required: true, unique: true, trim: true },
     password: { type: String, required: true },
     is_admin: { type: Boolean, default: false },
+    is_premium: { type: Boolean, default: false },
     apiKeyHash: { type: String, sparse: true, index: true },
   },
   { timestamps: true }

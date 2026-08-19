@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { getSession } from '@/lib/session';
 
 export interface EducationEntry {
   university: string;
@@ -26,7 +27,7 @@ export interface ProfileFormData {
   linkedin: string;
   education: EducationEntry[];
   employment: EmploymentEntry[];
-  pdfTemplate?: 'template1' | 'template2' | 'template3';
+  pdfTemplate?: 'template1' | 'template2' | 'template3' | 'template4' | 'template5' | 'template6' | 'template7' | 'template8' | 'template9' | 'template10';
   profileType?: 'software' | 'other';
   customPrompt?: string;
 }
@@ -61,6 +62,12 @@ export default function ProfileForm({ initial, profileId }: Props) {
   });
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
+  const [canUsePremiumTemplates, setCanUsePremiumTemplates] = useState(false);
+
+  useEffect(() => {
+    const session = getSession();
+    setCanUsePremiumTemplates(Boolean(session?.isAdmin || session?.isPremium));
+  }, []);
 
   // ── per-entry edit state ─────────────────────────────────────────────────
   const [editingEduIdx, setEditingEduIdx] = useState<number | null>(null);
@@ -211,9 +218,25 @@ export default function ProfileForm({ initial, profileId }: Props) {
               className={inputCls}
             >
               <option value="template1">Template 1 – Clean Minimal</option>
-              <option value="template2">Template 2 – Classic Professional</option>
-              <option value="template3">Template 3 – Sidebar Layout</option>
+              <option value="template2">Template 2 – Classic Serif</option>
+              <option value="template3">Template 3 – Contemporary</option>
+              {canUsePremiumTemplates && (
+                <>
+                  <option value="template4">Template 4 – Modern Accent</option>
+                  <option value="template5">Template 5 – Executive</option>
+                  <option value="template6">Template 6 – Compact Pro</option>
+                  <option value="template7">Template 7 – Elegant Serif</option>
+                  <option value="template8">Template 8 – Bold Impact</option>
+                  <option value="template9">Template 9 – Open Professional</option>
+                  <option value="template10">Template 10 – Minimalist</option>
+                </>
+              )}
             </select>
+            {!canUsePremiumTemplates && (
+              <p className="mt-1 text-xs text-gray-400">
+                7 more templates are available on a premium account.
+              </p>
+            )}
           </Field>
           <Field label="Custom AI Prompt (optional)" className="sm:col-span-2">
             <textarea

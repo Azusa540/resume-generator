@@ -2,7 +2,7 @@
 
 > Single source of truth for resuming work. Read this FIRST when starting a session.
 > Update this file at the end of every work phase so the next `/clear` resumes in 1 read.
-> Last updated: 2026-08-16
+> Last updated: 2026-08-18
 
 ---
 
@@ -22,6 +22,7 @@
 - API key auth for generate-from-link (`X-API-Key`); userId removed from body
 - **Full PDF parity:** shared `resumeHtml.ts` (3 templates) + `pdfFromHtml.ts`; from-link uses UI filename + profile.pdfTemplate
 - **Phase 1 CI:** `.github/workflows/ci.yml` runs lint + typecheck + build on push/PR to `master`
+- **Migrated everything new from `../sample`:** 10 PDF templates (was 3) in `resumeHtml.ts` + `review/page.tsx`, gated so only admins or `User.is_premium` users get templates 4–10 (server-enforced in profiles POST/PUT, UI-hidden in `ProfileForm.tsx`); ported the Bids feature (`BidDetail` model, `POST/GET /api/bid-details`, `/bids` page, download auto-saves a bid); ported prompts.ts verb-cap + banned-buzzword rules. `is_premium` added to `User` model, JWT, and `session.ts`. typecheck/lint/build all green.
 
 ---
 
