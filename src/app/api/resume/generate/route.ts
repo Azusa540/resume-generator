@@ -3,7 +3,12 @@ import Anthropic from '@anthropic-ai/sdk';
 import { connectDB } from '@/lib/mongodb';
 import { getUser } from '@/lib/auth';
 import Profile from '@/models/Profile';
-import { buildSystemPrompt, buildSystemPromptNonSoftware, buildUserPrompt } from '@/lib/prompts';
+import {
+  buildSystemPrompt,
+  buildSystemPromptNonSoftware,
+  buildSystemPromptAdmin,
+  buildUserPrompt,
+} from '@/lib/prompts';
 import type { GeneratedResume } from '@/types/resume';
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
@@ -21,7 +26,9 @@ export async function POST(req: NextRequest) {
   const profile = await Profile.findOne({ _id: profileId, userId: user.id });
   if (!profile) return NextResponse.json({ message: 'Profile not found.' }, { status: 404 });
 
-  const systemPrompt = profile.profileType === 'other'
+  const systemPrompt = user.isAdmin
+    ? buildSystemPromptAdmin()
+    : profile.profileType === 'other'
     ? buildSystemPromptNonSoftware()
     : buildSystemPrompt();
   const userPrompt = buildUserPrompt(profile, title, company, jobDescription, profile.customPrompt, profile.profileType);

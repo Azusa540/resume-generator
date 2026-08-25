@@ -611,7 +611,24 @@ After writing all bullets, perform this check before finalizing:
 1. BULLETS → SKILLS: Every technology bolded in **double asterisks** in any bullet MUST exist in the skills list. Add missing ones.
 2. INTENTIONAL KEYWORD OFFSET: Do NOT force every JD-listed skill into the output. Deliberately leave out 1–4 of the JD's less-central keywords from both the skills list and the bullets — pick secondary or redundant ones, never the JD's top 5–6 must-have skills. The goal is a natural, imperfect match, not a checklist copy of the JD.
 3. ADDITIONAL EXPERIENCE: To balance that, add 2–5 extra skills/technologies that are NOT mentioned in the JD but plausibly belong to this candidate's real background (adjacent ecosystem tools, carryover from prior roles, broader domain tooling). Weave at least 1–2 of these into bullets naturally, same as any other skill.
-4. PRIMARY STACK DISTRIBUTION: For the JD keywords you do keep, spread each across 2–3 companies where it fits naturally. Treat this as a guideline, not a hard failure — never force a technology into a company where it wouldn't realistically belong.`
+4. PRIMARY STACK DISTRIBUTION CHECK: The JD's top 5–6 must-have skills (the PRIMARY STACK, identified in the PRIMARY TECH IDENTIFICATION step) are NOT eligible for the offset in step 2 above. Count how many different bullets and companies each PRIMARY STACK technology is bolded in — if any appears in fewer than 2–3 bullets, or in only 1 company, that is a HARD FAILURE. Revise bullets in position 1 (and position 2 if possible) before outputting.`
+    )
+    .replace(
+      `STEP 1: Extract the TOP 3–5 must-have technologies from the JD. These are the PRIMARY STACK.`,
+      `STEP 1: Extract the TOP 5–6 must-have technologies from the JD. These are the PRIMARY STACK — the technologies this specific role exists for. If the JD is built around a named platform or ecosystem (e.g. Shopify, Salesforce, AWS), that platform's core APIs/tools belong in the PRIMARY STACK even when the candidate's real work history predates it or doesn't already literally include it — see the blending guidance in DISTRIBUTION RULES below.`
+    )
+    .replace(
+      `DISTRIBUTION RULES:
+- Each PRIMARY STACK technology MUST appear bolded in at least 2 companies, ideally 3 (positions 0 and 1 are mandatory; position 2 whenever it fits naturally).
+- If a PRIMARY STACK technology feels out of place in an older company, find a plausible angle: a related project, a tool they evaluated, a system they integrated with, or a methodology they applied. Do NOT skip position 1.
+- Do NOT concentrate PRIMARY STACK tech only in position 0. A resume where key skills only appear in the latest company looks like a surface-level match to both ATS and human reviewers.
+- Secondary JD technologies (nice-to-have, preferred) must appear in at least 1–2 companies.`,
+      `DISTRIBUTION RULES:
+- Each PRIMARY STACK technology MUST appear bolded in at least 2–3 bullets, spread across at least 2 companies (positions 0 and 1 are mandatory; position 2 whenever it fits naturally). This is a hard requirement, not a suggestion — the PRIMARY STACK is never part of the intentional keyword offset described elsewhere in this prompt.
+- BLEND, DON'T BOLT ON: when a PRIMARY STACK technology doesn't literally match a company's historical domain, integrate it as a believable extension of that company's real product, not a random insertion. A logistics/delivery platform can plausibly have grown a merchant-facing storefront or order-management piece built on the JD's platform; an e-commerce platform can plausibly have adopted the JD's tooling for a checkout or catalog project. Adapt the existing company's real context — never invent an unrelated employer just to justify a keyword.
+- If a PRIMARY STACK technology feels out of place in an older company, find a plausible angle: a related project, a tool they evaluated, a system they integrated with, or a migration they led. Do NOT skip position 1.
+- Do NOT concentrate PRIMARY STACK tech only in position 0. A resume where key skills only appear in the latest company looks like a surface-level match to both ATS and human reviewers.
+- Secondary JD technologies (nice-to-have, preferred) must appear in at least 1–2 companies.`
     )
     .replace(
       `━━━ ATS CHECK & FINAL REORDER ━━━
