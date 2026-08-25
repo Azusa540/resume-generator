@@ -3,7 +3,13 @@ import Anthropic from '@anthropic-ai/sdk';
 import { connectDB } from '@/lib/mongodb';
 import Profile from '@/models/Profile';
 import Resume from '@/models/Resume';
-import { buildSystemPrompt, buildSystemPromptNonSoftware, buildUserPrompt } from '@/lib/prompts';
+import User from '@/models/User';
+import {
+  buildSystemPrompt,
+  buildSystemPromptNonSoftware,
+  buildSystemPromptAdmin,
+  buildUserPrompt,
+} from '@/lib/prompts';
 import { scrapeJobLink, JobScrapeError } from '@/lib/jobScraper';
 import { resumeKey, uploadResume, getSignedDownloadUrl } from '@/lib/storage';
 import { extractApiKey, findUserByApiKey } from '@/lib/apiKey';
@@ -52,7 +58,11 @@ export async function POST(req: NextRequest) {
   const profile = await Profile.findOne({ _id: profileId });
   if (!profile) return NextResponse.json({ message: 'Profile not found.' }, { status: 404 });
 
-  const systemPrompt = profile.profileType === 'other'
+  // Admin-owned profiles get a dedicated prompt, overriding the software/other split.
+  const profileOwner = await User.findById(profile.userId, { is_admin: 1 });
+  const systemPrompt = profileOwner?.is_admin
+    ? buildSystemPromptAdmin()
+    : profile.profileType === 'other'
     ? buildSystemPromptNonSoftware()
     : buildSystemPrompt();
   const userPrompt = buildUserPrompt(

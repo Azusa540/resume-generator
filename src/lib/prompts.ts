@@ -593,6 +593,40 @@ Before finalizing, mentally score the output for ATS match against the JD.
 If score < 95%, revise until it exceeds 95%. Only output content that passes 95%+.`;
 }
 
+// Used only when the profile's owner is an admin account, overriding the
+// software/other profileType split. Same base rules as buildSystemPrompt(),
+// except it deliberately breaks a perfect JD keyword match: some JD keywords
+// are intentionally left out, and extra skills beyond the JD are added, so
+// the resume doesn't read as reverse-engineered from the job description.
+export function buildSystemPromptAdmin(): string {
+  return buildSystemPrompt()
+    .replace(
+      `━━━ SKILLS ↔ BULLETS CONSISTENCY CHECK ━━━
+After writing all bullets, perform this three-way check before finalizing:
+1. BULLETS → SKILLS: Every technology bolded in **double asterisks** in any bullet MUST exist in the skills list. Add missing ones.
+2. SKILLS → BULLETS: Every primary JD-required skill MUST appear bolded in at least one bullet. If a required skill has no bullet mention, revise or add a bullet that uses it.
+3. PRIMARY STACK DISTRIBUTION CHECK: For each PRIMARY STACK technology, count how many different company sections it is bolded in. If any appears in only 1 company, it is a HARD FAILURE — revise bullets in position 1 (and position 2 if possible) before outputting. Target is 2–3 companies per primary tech. This check applies to all JD-required technologies, not just specific named ones.`,
+      `━━━ SKILLS ↔ BULLETS CONSISTENCY CHECK ━━━
+After writing all bullets, perform this check before finalizing:
+1. BULLETS → SKILLS: Every technology bolded in **double asterisks** in any bullet MUST exist in the skills list. Add missing ones.
+2. INTENTIONAL KEYWORD OFFSET: Do NOT force every JD-listed skill into the output. Deliberately leave out 1–4 of the JD's less-central keywords from both the skills list and the bullets — pick secondary or redundant ones, never the JD's top 5–6 must-have skills. The goal is a natural, imperfect match, not a checklist copy of the JD.
+3. ADDITIONAL EXPERIENCE: To balance that, add 2–5 extra skills/technologies that are NOT mentioned in the JD but plausibly belong to this candidate's real background (adjacent ecosystem tools, carryover from prior roles, broader domain tooling). Weave at least 1–2 of these into bullets naturally, same as any other skill.
+4. PRIMARY STACK DISTRIBUTION: For the JD keywords you do keep, spread each across 2–3 companies where it fits naturally. Treat this as a guideline, not a hard failure — never force a technology into a company where it wouldn't realistically belong.`
+    )
+    .replace(
+      `━━━ ATS CHECK & FINAL REORDER ━━━
+STEP 1 — ATS SCORE: Score the output against the JD. If score < 97%, revise bullets and skills until it reaches 97%+. Repeat until passing.
+STEP 2 — REORDER (MANDATORY — do NOT skip): Once ATS score is 97%+, reorder the bullets within each experience block so the strongest, most JD-relevant bullets appear first. Do not change the content — only the order.
+STEP 3 — OUTPUT: After the JSON, append a brief plain-text note confirming: (a) ATS score achieved, (b) that reordering was performed.
+Example note: "ATS Score: 98% | Bullets reordered within each experience block for maximum JD relevance."`,
+      `━━━ ATS CHECK & FINAL REORDER ━━━
+STEP 1 — INTENTIONAL COVERAGE: Do not target a perfect or near-perfect ATS match. Aim for natural coverage in the ~85–93% range: some JD keywords genuinely absent (per the INTENTIONAL KEYWORD OFFSET rule above), some extra ecosystem keywords present that the JD never asked for. The result should read like it was written before this specific JD existed, not reverse-engineered from it.
+STEP 2 — REORDER (MANDATORY — do NOT skip): Reorder the bullets within each experience block so the strongest, most relevant bullets appear first. Do not change the content — only the order.
+STEP 3 — OUTPUT: After the JSON, append a brief plain-text note listing: (a) which JD keywords were intentionally left out, (b) which extra keywords were added beyond the JD, (c) that reordering was performed.
+Example note: "Intentionally omitted: Kubernetes, GraphQL | Added beyond JD: Redis, Terraform | Bullets reordered within each experience block."`
+    );
+}
+
 export function buildUserPrompt(
   profile: IProfile,
   jobTitle: string,
