@@ -57,6 +57,20 @@ export function isPremiumTemplate(tpl: string): boolean {
   return !(FREE_TEMPLATES as string[]).includes(tpl);
 }
 
+/** Per-template accent color, applied to the job title and the LinkedIn link. */
+const ACCENT_COLORS: Record<PdfTemplate, string> = {
+  template1: '#1d4ed8',
+  template2: '#7c2d12',
+  template3: '#0f766e',
+  template4: '#2563eb',
+  template5: '#92400e',
+  template6: '#4338ca',
+  template7: '#9d174d',
+  template8: '#b91c1c',
+  template9: '#0369a1',
+  template10: '#475569',
+};
+
 export function buildResumeFileName(
   fullName: string,
   targetJobTitle: string,
@@ -79,7 +93,7 @@ function renderBoldHtml(text: string): string {
   return escapeHtml(text).replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
 }
 
-function contactItems(profile: ResumeProfileContact): { key: string; html: string }[] {
+function contactItems(profile: ResumeProfileContact, accentColor: string): { key: string; html: string }[] {
   const out: { key: string; html: string }[] = [];
   if (profile.email) out.push({ key: 'email', html: `<span>${escapeHtml(profile.email)}</span>` });
   if (profile.phone) out.push({ key: 'phone', html: `<span>${escapeHtml(profile.phone)}</span>` });
@@ -88,7 +102,7 @@ function contactItems(profile: ResumeProfileContact): { key: string; html: strin
     const label = profile.linkedin.replace(/^https?:\/\//, '');
     out.push({
       key: 'li',
-      html: `<a href="${escapeHtml(profile.linkedin)}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">${escapeHtml(label)}</a>`,
+      html: `<a href="${escapeHtml(profile.linkedin)}" target="_blank" rel="noopener noreferrer" class="hover:underline" style="color:${accentColor}">${escapeHtml(label)}</a>`,
     });
   }
   return out;
@@ -103,13 +117,14 @@ function joinWithSep(items: { key: string; html: string }[], sepHtml: string): s
 }
 
 function headerHtml(profile: ResumeProfileContact, jobTitle: string, tpl: PdfTemplate): string {
-  const items = contactItems(profile);
+  const accent = ACCENT_COLORS[tpl];
+  const items = contactItems(profile, accent);
 
   if (tpl === 'template2') {
     return `
       <div class="border-b border-gray-400 pb-4 mb-5 text-center">
         <h1 class="text-3xl font-bold text-gray-900 tracking-wide">${escapeHtml(profile.fullName)}</h1>
-        <p class="text-base text-gray-600 mt-1 italic">${escapeHtml(jobTitle)}</p>
+        <p class="text-base mt-1 italic" style="color:${accent}">${escapeHtml(jobTitle)}</p>
         <div class="flex flex-wrap justify-center items-center gap-y-0.5 mt-2 text-sm text-gray-500">
           ${joinWithSep(items, '<span class="mx-2 text-gray-300">|</span>')}
         </div>
@@ -124,7 +139,7 @@ function headerHtml(profile: ResumeProfileContact, jobTitle: string, tpl: PdfTem
       <div class="border-b-2 border-gray-700 pb-4 mb-5">
         <div class="flex items-baseline justify-between">
           <h1 class="text-3xl font-bold text-gray-900">${escapeHtml(profile.fullName)}</h1>
-          <p class="text-sm font-semibold text-gray-600 tracking-wide uppercase">${escapeHtml(jobTitle)}</p>
+          <p class="text-sm font-semibold tracking-wide uppercase" style="color:${accent}">${escapeHtml(jobTitle)}</p>
         </div>
         <div class="mt-2 text-sm text-gray-500 space-y-0.5">
           <div class="flex flex-wrap gap-x-6">${row1.map((i) => i.html).join('')}</div>
@@ -139,9 +154,9 @@ function headerHtml(profile: ResumeProfileContact, jobTitle: string, tpl: PdfTem
 
   if (tpl === 'template4') {
     return `
-      <div style="border-left:4px solid #2563eb;padding-left:16px;margin-bottom:24px">
+      <div style="border-left:4px solid ${accent};padding-left:16px;margin-bottom:24px">
         <h1 class="text-3xl font-bold text-gray-900">${escapeHtml(profile.fullName)}</h1>
-        <p class="text-sm font-semibold uppercase tracking-widest mt-1" style="color:#2563eb">${escapeHtml(jobTitle)}</p>
+        <p class="text-sm font-semibold uppercase tracking-widest mt-1" style="color:${accent}">${escapeHtml(jobTitle)}</p>
         <div class="flex flex-wrap items-center gap-y-0.5 mt-2 text-sm text-gray-500">
           ${joinWithSep(items, '<span style="color:#93c5fd;margin:0 8px">›</span>')}
         </div>
@@ -154,7 +169,7 @@ function headerHtml(profile: ResumeProfileContact, jobTitle: string, tpl: PdfTem
         <div style="border-top:2.5px solid #1a1a1a;border-bottom:1px solid #1a1a1a;padding:8px 0 6px">
           <h1 style="font-size:1.75rem;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:#1a1a1a;margin:0">${escapeHtml(profile.fullName)}</h1>
         </div>
-        <p class="text-sm italic text-gray-600 mt-2">${escapeHtml(jobTitle)}</p>
+        <p class="text-sm italic mt-2" style="color:${accent}">${escapeHtml(jobTitle)}</p>
         <div class="flex flex-wrap justify-center items-center gap-x-4 gap-y-0.5 mt-1.5 text-sm text-gray-500">
           ${items.map((i) => i.html).join('')}
         </div>
@@ -167,7 +182,7 @@ function headerHtml(profile: ResumeProfileContact, jobTitle: string, tpl: PdfTem
         <div class="flex items-baseline gap-3 flex-wrap">
           <h1 class="text-2xl font-bold text-gray-900">${escapeHtml(profile.fullName)}</h1>
           <span class="text-gray-300 text-xl select-none">|</span>
-          <span class="text-sm font-medium text-gray-600">${escapeHtml(jobTitle)}</span>
+          <span class="text-sm font-medium" style="color:${accent}">${escapeHtml(jobTitle)}</span>
         </div>
         <div class="flex flex-wrap items-center gap-y-0.5 mt-1.5 text-xs text-gray-500">
           ${joinWithSep(items, '<span class="mx-2 text-gray-300">•</span>')}
@@ -179,7 +194,7 @@ function headerHtml(profile: ResumeProfileContact, jobTitle: string, tpl: PdfTem
     return `
       <div class="text-center mb-6">
         <h1 style="font-size:2.25rem;font-weight:700;color:#1f2937;letter-spacing:-0.01em;margin:0">${escapeHtml(profile.fullName)}</h1>
-        <p style="font-size:1rem;font-style:italic;color:#6b7280;margin-top:4px">${escapeHtml(jobTitle)}</p>
+        <p style="font-size:1rem;font-style:italic;color:${accent};margin-top:4px">${escapeHtml(jobTitle)}</p>
         <div class="flex flex-wrap justify-center items-center gap-x-4 gap-y-0.5 mt-2 text-sm text-gray-500">
           ${items.map((i) => i.html).join('')}
         </div>
@@ -190,7 +205,7 @@ function headerHtml(profile: ResumeProfileContact, jobTitle: string, tpl: PdfTem
     return `
       <div class="mb-6">
         <h1 style="font-size:2.75rem;font-weight:800;color:#111827;line-height:1.1;margin:0">${escapeHtml(profile.fullName)}</h1>
-        <p class="text-xs font-semibold uppercase tracking-widest text-gray-500 mt-2">${escapeHtml(jobTitle)}</p>
+        <p class="text-xs font-semibold uppercase tracking-widest mt-2" style="color:${accent}">${escapeHtml(jobTitle)}</p>
         <div style="height:3px;background:#111827;margin:8px 0;width:56px"></div>
         <div class="flex flex-wrap items-center gap-y-0.5 text-sm text-gray-500">
           ${joinWithSep(items, '<span class="mx-2 text-gray-300">—</span>')}
@@ -203,7 +218,7 @@ function headerHtml(profile: ResumeProfileContact, jobTitle: string, tpl: PdfTem
       <div class="mb-5">
         <div style="border-bottom:3px double #374151;padding-bottom:10px">
           <h1 class="text-2xl font-bold text-gray-800">${escapeHtml(profile.fullName)}</h1>
-          <p class="text-sm font-semibold text-gray-600 mt-0.5">${escapeHtml(jobTitle)}</p>
+          <p class="text-sm font-semibold mt-0.5" style="color:${accent}">${escapeHtml(jobTitle)}</p>
           <div class="flex flex-wrap items-center gap-y-0.5 mt-2 text-xs text-gray-500">
             ${joinWithSep(items, '<span class="mx-2 text-gray-300">·</span>')}
           </div>
@@ -215,7 +230,7 @@ function headerHtml(profile: ResumeProfileContact, jobTitle: string, tpl: PdfTem
     return `
       <div class="mb-8">
         <h1 style="font-size:2rem;font-weight:300;color:#111827;letter-spacing:0.02em;margin:0">${escapeHtml(profile.fullName)}</h1>
-        <p style="font-size:0.875rem;color:#6b7280;font-weight:400;margin-top:3px;letter-spacing:0.04em">${escapeHtml(jobTitle)}</p>
+        <p style="font-size:0.875rem;color:${accent};font-weight:400;margin-top:3px;letter-spacing:0.04em">${escapeHtml(jobTitle)}</p>
         <div style="width:100%;height:1px;background:#e5e7eb;margin:10px 0 8px"></div>
         <div class="flex flex-wrap items-center gap-y-0.5 text-xs text-gray-400">
           ${joinWithSep(items, '<span class="mx-3 text-gray-200">·</span>')}
@@ -227,7 +242,7 @@ function headerHtml(profile: ResumeProfileContact, jobTitle: string, tpl: PdfTem
   return `
     <div class="border-b-2 border-gray-800 pb-4 mb-5">
       <h1 class="text-3xl font-bold text-gray-900 tracking-tight">${escapeHtml(profile.fullName)}</h1>
-      <p class="text-base font-semibold text-blue-700 mt-0.5">${renderBoldHtml(jobTitle)}</p>
+      <p class="text-base font-semibold mt-0.5" style="color:${accent}">${renderBoldHtml(jobTitle)}</p>
       <div class="flex flex-wrap items-center gap-y-0.5 mt-2 text-sm text-gray-600">
         ${joinWithSep(items, '<span class="mx-2 text-gray-300">·</span>')}
       </div>
