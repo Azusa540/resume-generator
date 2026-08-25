@@ -9,6 +9,7 @@ import {
   buildSystemPromptAdmin,
   buildUserPrompt,
 } from '@/lib/prompts';
+import { repairPrimaryStackCoverage } from '@/lib/resumeRepair';
 import type { GeneratedResume } from '@/types/resume';
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
@@ -82,6 +83,8 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
   }
+
+  generated = await repairPrimaryStackCoverage(client, systemPrompt, userPrompt, raw, generated);
 
   return NextResponse.json({
     generated,

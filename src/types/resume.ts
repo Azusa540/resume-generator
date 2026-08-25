@@ -22,6 +22,8 @@ export interface GeneratedResume {
   skills: SkillCategories;
   education: GeneratedEducation[];
   experience_bullets: GeneratedExperienceBullet[];
+  /** Admin prompt only: the 5-6 JD must-have technologies it identified, for coverage verification. */
+  primary_stack?: string[];
 }
 
 export type PdfTemplateId =

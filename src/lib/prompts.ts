@@ -641,7 +641,11 @@ STEP 1 — INTENTIONAL COVERAGE: Do not target a perfect or near-perfect ATS mat
 STEP 2 — REORDER (MANDATORY — do NOT skip): Reorder the bullets within each experience block so the strongest, most relevant bullets appear first. Do not change the content — only the order.
 STEP 3 — OUTPUT: After the JSON, append a brief plain-text note listing: (a) which JD keywords were intentionally left out, (b) which extra keywords were added beyond the JD, (c) that reordering was performed.
 Example note: "Intentionally omitted: Kubernetes, GraphQL | Added beyond JD: Redis, Terraform | Bullets reordered within each experience block."`
-    );
+    )
+    .concat(`
+
+━━━ VERIFICATION FIELD (REQUIRED — do not omit) ━━━
+Add one more top-level key to the JSON object, alongside "experience_bullets": "primary_stack" — an array of exactly the 5–6 PRIMARY STACK technology names you identified in the PRIMARY TECH IDENTIFICATION step. Write each name in the exact casing/spelling you used when bolding it in the bullets (e.g. "Shopify Storefront API", not "shopify storefront api"). This field is used for automated verification of your own PRIMARY STACK DISTRIBUTION CHECK — it must always be present and must never be empty.`);
 }
 
 export function buildUserPrompt(

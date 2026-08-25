@@ -11,6 +11,7 @@ import {
   buildUserPrompt,
 } from '@/lib/prompts';
 import { scrapeJobLink, JobScrapeError } from '@/lib/jobScraper';
+import { repairPrimaryStackCoverage } from '@/lib/resumeRepair';
 import { resumeKey, uploadResume, getSignedDownloadUrl } from '@/lib/storage';
 import { extractApiKey, findUserByApiKey } from '@/lib/apiKey';
 import {
@@ -120,6 +121,8 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
   }
+
+  generated = await repairPrimaryStackCoverage(client, systemPrompt, userPrompt, raw, generated);
 
   const profileContact = {
     fullName: profile.fullName,

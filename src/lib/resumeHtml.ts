@@ -306,7 +306,8 @@ function skillsHtml(skills: GeneratedResume['skills']): string {
     .join('');
 }
 
-function experienceHtml(generated: GeneratedResume): string {
+function experienceHtml(generated: GeneratedResume, tpl: PdfTemplate): string {
+  const accent = ACCENT_COLORS[tpl];
   return generated.experience_bullets
     .map(
       (exp) => `
@@ -316,7 +317,7 @@ function experienceHtml(generated: GeneratedResume): string {
             <span class="text-sm font-semibold text-gray-900">${escapeHtml(exp.company)}</span>
             ${exp.period ? `<span class="text-xs text-gray-500 shrink-0 ml-4">${escapeHtml(exp.period)}</span>` : ''}
           </div>
-          <p class="text-sm text-blue-700 font-medium mb-1.5">${escapeHtml(exp.job_title)}</p>
+          <p class="text-sm font-medium mb-1.5" style="color:${accent}">${escapeHtml(exp.job_title)}</p>
         </div>
         <ul class="space-y-1">
           ${exp.bullets
@@ -365,7 +366,7 @@ export function buildResumeDocHtml(
       ${sectionHtml('Skills', skillsBody, tpl, true)}
       ${
         generated.experience_bullets.length > 0
-          ? sectionHtml('Experience', experienceHtml(generated), tpl)
+          ? sectionHtml('Experience', experienceHtml(generated, tpl), tpl)
           : ''
       }
       ${
