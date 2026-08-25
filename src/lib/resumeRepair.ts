@@ -15,7 +15,12 @@ export async function repairPrimaryStackCoverage(
   rawAssistantJson: string,
   generated: GeneratedResume
 ): Promise<GeneratedResume> {
-  const missing = findMissingPrimaryStack(generated);
+  let missing: string[];
+  try {
+    missing = findMissingPrimaryStack(generated);
+  } catch {
+    return generated;
+  }
   if (missing.length === 0) return generated;
 
   try {
