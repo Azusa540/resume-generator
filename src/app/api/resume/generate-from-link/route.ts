@@ -8,6 +8,7 @@ import { buildSystemPrompt, buildSystemPromptNonSoftware, buildUserPrompt } from
 import { buildSystemPromptAdmin } from '@/lib/adminPrompt';
 import { scrapeJobLink, JobScrapeError } from '@/lib/jobScraper';
 import { repairPrimaryStackCoverage } from '@/lib/resumeRepair';
+import { reviewAuthenticity } from '@/lib/authenticityReview';
 import { resumeKey, uploadResume, getSignedDownloadUrl } from '@/lib/storage';
 import { extractApiKey, findUserByApiKey } from '@/lib/apiKey';
 import {
@@ -119,6 +120,7 @@ export async function POST(req: NextRequest) {
   }
 
   generated = await repairPrimaryStackCoverage(client, systemPrompt, userPrompt, raw, generated);
+  generated = await reviewAuthenticity(client, systemPrompt, userPrompt, JSON.stringify(generated), generated);
 
   const profileContact = {
     fullName: profile.fullName,

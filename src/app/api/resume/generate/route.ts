@@ -6,6 +6,7 @@ import Profile from '@/models/Profile';
 import { buildSystemPrompt, buildSystemPromptNonSoftware, buildUserPrompt } from '@/lib/prompts';
 import { buildSystemPromptAdmin } from '@/lib/adminPrompt';
 import { repairPrimaryStackCoverage } from '@/lib/resumeRepair';
+import { reviewAuthenticity } from '@/lib/authenticityReview';
 import type { GeneratedResume } from '@/types/resume';
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
@@ -81,6 +82,7 @@ export async function POST(req: NextRequest) {
   }
 
   generated = await repairPrimaryStackCoverage(client, systemPrompt, userPrompt, raw, generated);
+  generated = await reviewAuthenticity(client, systemPrompt, userPrompt, JSON.stringify(generated), generated);
 
   return NextResponse.json({
     generated,

@@ -24,6 +24,8 @@ export interface GeneratedResume {
   experience_bullets: GeneratedExperienceBullet[];
   /** Admin prompt only: the 5-6 JD must-have technologies it identified, for coverage verification. */
   primary_stack?: string[];
+  /** Admin prompt only: how closely the candidate's real background overlaps the JD's domain. */
+  domain_overlap?: 'same' | 'adjacent' | 'distant';
 }
 
 export type PdfTemplateId =
