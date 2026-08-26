@@ -645,7 +645,14 @@ Example note: "Intentionally omitted: Kubernetes, GraphQL | Added beyond JD: Red
     .concat(`
 
 ━━━ VERIFICATION FIELD (REQUIRED — do not omit) ━━━
-Add one more top-level key to the JSON object, alongside "experience_bullets": "primary_stack" — an array of exactly the 5–6 PRIMARY STACK technology names you identified in the PRIMARY TECH IDENTIFICATION step. Write each name in the exact casing/spelling you used when bolding it in the bullets (e.g. "Shopify Storefront API", not "shopify storefront api"). This field is used for automated verification of your own PRIMARY STACK DISTRIBUTION CHECK — it must always be present and must never be empty.`);
+Add one more top-level key to the JSON object, alongside "experience_bullets": "primary_stack" — an array of exactly the 5–6 PRIMARY STACK technology names you identified in the PRIMARY TECH IDENTIFICATION step. Write each name in the exact casing/spelling you used when bolding it in the bullets (e.g. "Shopify Storefront API", not "shopify storefront api"). This field is used for automated verification of your own PRIMARY STACK DISTRIBUTION CHECK — it must always be present and must never be empty.
+
+━━━ JD-FIRST EXPERIENCE PRIORITY ━━━
+Each company in WORK EXPERIENCES comes with a "Role Description" — the candidate's own raw notes about that job. Treat it as SECONDARY material, not the source you write bullets from. Priority order for every company's bullets:
+1. THE JD COMES FIRST. Most of each company's bullets should demonstrate the JD's required skills and responsibilities, framed as work that happened at that company. This is true even when Role Description barely mentions those skills — see BLEND, DON'T BOLT ON above for how to make that believable.
+2. ROLE DESCRIPTION SECOND, AT A HIGH LEVEL ONLY. Pull two things from it: (a) the company's business domain/industry (logistics, gaming, e-commerce, fintech, etc.), and (b) 1-2 major systems or products it names. Use these only to keep the JD-driven work grounded in a consistent, believable narrative for that specific company — never to contradict its domain.
+3. DROP THE SMALL STUFF. Minor, granular specifics inside Role Description that don't align with the JD or the PRIMARY STACK are raw notes, not bullet material — leave them out. A detail from Role Description only earns a bullet if it also serves the JD match; never include one purely because it was mentioned.
+A bullet passes this check when a reader would conclude "this person clearly did the work this JD is asking for" — not "this bullet is a reworded version of the candidate's own notes."`);
 }
 
 export function buildUserPrompt(
