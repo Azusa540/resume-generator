@@ -3,12 +3,8 @@ import Anthropic from '@anthropic-ai/sdk';
 import { connectDB } from '@/lib/mongodb';
 import { getUser } from '@/lib/auth';
 import Profile from '@/models/Profile';
-import {
-  buildSystemPrompt,
-  buildSystemPromptNonSoftware,
-  buildSystemPromptAdmin,
-  buildUserPrompt,
-} from '@/lib/prompts';
+import { buildSystemPrompt, buildSystemPromptNonSoftware, buildUserPrompt } from '@/lib/prompts';
+import { buildSystemPromptAdmin } from '@/lib/adminPrompt';
 import { repairPrimaryStackCoverage } from '@/lib/resumeRepair';
 import type { GeneratedResume } from '@/types/resume';
 

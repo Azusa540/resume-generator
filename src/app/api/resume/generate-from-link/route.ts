@@ -4,12 +4,8 @@ import { connectDB } from '@/lib/mongodb';
 import Profile from '@/models/Profile';
 import Resume from '@/models/Resume';
 import User from '@/models/User';
-import {
-  buildSystemPrompt,
-  buildSystemPromptNonSoftware,
-  buildSystemPromptAdmin,
-  buildUserPrompt,
-} from '@/lib/prompts';
+import { buildSystemPrompt, buildSystemPromptNonSoftware, buildUserPrompt } from '@/lib/prompts';
+import { buildSystemPromptAdmin } from '@/lib/adminPrompt';
 import { scrapeJobLink, JobScrapeError } from '@/lib/jobScraper';
 import { repairPrimaryStackCoverage } from '@/lib/resumeRepair';
 import { resumeKey, uploadResume, getSignedDownloadUrl } from '@/lib/storage';
