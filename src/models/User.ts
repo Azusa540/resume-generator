@@ -7,6 +7,7 @@ export interface IUser extends Document {
   is_admin: boolean;
   is_premium: boolean;
   apiKeyHash?: string;
+  anthropicApiKey?: string;
   createdAt: Date;
   updatedAt: Date;
   comparePassword(candidate: string): Promise<boolean>;
@@ -23,6 +24,7 @@ const UserSchema = new Schema<IUser>(
     is_admin: { type: Boolean, default: false },
     is_premium: { type: Boolean, default: false },
     apiKeyHash: { type: String, sparse: true, index: true },
+    anthropicApiKey: { type: String },
   },
   { timestamps: true }
 );

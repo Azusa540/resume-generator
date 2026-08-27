@@ -3,13 +3,12 @@ import Anthropic from '@anthropic-ai/sdk';
 import { connectDB } from '@/lib/mongodb';
 import { getUser } from '@/lib/auth';
 import Profile from '@/models/Profile';
+import User from '@/models/User';
 import { buildSystemPrompt, buildSystemPromptNonSoftware, buildUserPrompt } from '@/lib/prompts';
 import { buildSystemPromptAdmin } from '@/lib/adminPrompt';
 import { repairPrimaryStackCoverage } from '@/lib/resumeRepair';
 import { reviewAuthenticity } from '@/lib/authenticityReview';
 import type { GeneratedResume } from '@/types/resume';
-
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 export async function POST(req: NextRequest) {
   const user = getUser(req);
@@ -21,8 +20,18 @@ export async function POST(req: NextRequest) {
   }
 
   await connectDB();
-  const profile = await Profile.findOne({ _id: profileId, userId: user.id });
+  const [profile, dbUser] = await Promise.all([
+    Profile.findOne({ _id: profileId, userId: user.id }),
+    User.findById(user.id, { anthropicApiKey: 1 }),
+  ]);
   if (!profile) return NextResponse.json({ message: 'Profile not found.' }, { status: 404 });
+  if (!dbUser?.anthropicApiKey) {
+    return NextResponse.json(
+      { message: 'No Claude API key configured for your account. Ask an admin to set one.' },
+      { status: 400 }
+    );
+  }
+  const client = new Anthropic({ apiKey: dbUser.anthropicApiKey });
 
   const systemPrompt = user.isAdmin
     ? buildSystemPromptAdmin()
@@ -51,7 +60,7 @@ export async function POST(req: NextRequest) {
       status === 429
         ? 'The AI service is rate-limited right now. Please wait a moment and try again.'
         : status === 401
-        ? 'AI service authentication failed. Check the ANTHROPIC_API_KEY configuration.'
+        ? 'AI service authentication failed. Your Claude API key may be invalid — ask an admin to check it.'
         : 'The AI service timed out or is unavailable. Please try again.';
     console.error('Anthropic generate failed:', err);
     return NextResponse.json({ message: errorMessage }, { status: 502 });

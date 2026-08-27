@@ -24,6 +24,7 @@ export async function GET(req: NextRequest) {
     is_premium: u.is_premium,
     createdAt: u.createdAt,
     hasApiKey: Boolean(u.apiKeyHash),
+    hasAnthropicKey: Boolean(u.anthropicApiKey),
   }));
   return NextResponse.json(withKeyStatus);
 }
@@ -55,13 +56,14 @@ export async function POST(req: NextRequest) {
 export async function PATCH(req: NextRequest) {
   const auth = adminOnly(req);
   if (auth instanceof NextResponse) return auth;
-  const { id, password, is_admin, is_premium } = await req.json();
+  const { id, password, is_admin, is_premium, anthropicApiKey } = await req.json();
   if (!id) return NextResponse.json({ message: 'User id required.' }, { status: 400 });
   await connectDB();
   const update: Record<string, unknown> = {};
   if (password) update.password = await bcrypt.hash(password, 12);
   if (is_admin !== undefined) update.is_admin = is_admin;
   if (is_premium !== undefined) update.is_premium = is_premium;
+  if (anthropicApiKey !== undefined) update.anthropicApiKey = anthropicApiKey || undefined;
   if (Object.keys(update).length === 0)
     return NextResponse.json({ message: 'Nothing to update.' }, { status: 400 });
   await User.findByIdAndUpdate(id, update);
