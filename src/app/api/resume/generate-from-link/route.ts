@@ -6,6 +6,7 @@ import Resume from '@/models/Resume';
 import User from '@/models/User';
 import { buildSystemPrompt, buildSystemPromptNonSoftware, buildUserPrompt } from '@/lib/prompts';
 import { buildSystemPromptAdmin } from '@/lib/adminPrompt';
+import { buildSystemPromptAdminNonSoftware } from '@/lib/adminPromptNonSoftware';
 import { scrapeJobLink, JobScrapeError } from '@/lib/jobScraper';
 import { repairPrimaryStackCoverage } from '@/lib/resumeRepair';
 import { reviewAuthenticity } from '@/lib/authenticityReview';
@@ -64,7 +65,9 @@ export async function POST(req: NextRequest) {
   // Admin-owned profiles get a dedicated prompt, overriding the software/other split.
   const profileOwner = await User.findById(profile.userId, { is_admin: 1 });
   const systemPrompt = profileOwner?.is_admin
-    ? buildSystemPromptAdmin()
+    ? profile.profileType === 'other'
+      ? buildSystemPromptAdminNonSoftware()
+      : buildSystemPromptAdmin()
     : profile.profileType === 'other'
     ? buildSystemPromptNonSoftware()
     : buildSystemPrompt();

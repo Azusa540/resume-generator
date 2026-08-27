@@ -6,6 +6,7 @@ import Profile from '@/models/Profile';
 import User from '@/models/User';
 import { buildSystemPrompt, buildSystemPromptNonSoftware, buildUserPrompt } from '@/lib/prompts';
 import { buildSystemPromptAdmin } from '@/lib/adminPrompt';
+import { buildSystemPromptAdminNonSoftware } from '@/lib/adminPromptNonSoftware';
 import { repairPrimaryStackCoverage } from '@/lib/resumeRepair';
 import { reviewAuthenticity } from '@/lib/authenticityReview';
 import type { GeneratedResume } from '@/types/resume';
@@ -34,7 +35,9 @@ export async function POST(req: NextRequest) {
   const client = new Anthropic({ apiKey: dbUser.anthropicApiKey });
 
   const systemPrompt = user.isAdmin
-    ? buildSystemPromptAdmin()
+    ? profile.profileType === 'other'
+      ? buildSystemPromptAdminNonSoftware()
+      : buildSystemPromptAdmin()
     : profile.profileType === 'other'
     ? buildSystemPromptNonSoftware()
     : buildSystemPrompt();
