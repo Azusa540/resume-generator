@@ -33,6 +33,9 @@ export async function POST(req: NextRequest) {
   if (!profileId || !jobLink) {
     return NextResponse.json({ message: 'Missing required fields: profileId, jobLink.' }, { status: 400 });
   }
+  if (/linkedin\.com/i.test(jobLink)) {
+    return NextResponse.json({ message: 'not available to generate the resume' }, { status: 400 });
+  }
 
   await connectDB();
   const user = await findUserByApiKey(apiKey);
