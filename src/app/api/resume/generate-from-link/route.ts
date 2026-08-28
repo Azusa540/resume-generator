@@ -37,7 +37,6 @@ export async function POST(req: NextRequest) {
   await connectDB();
   const user = await findUserByApiKey(apiKey);
   if (!user) {
-    console.error('[TEMP DEBUG] Rejected API key:', JSON.stringify(apiKey));
     return NextResponse.json({ message: 'Invalid API key.' }, { status: 401 });
   }
   if (!user.anthropicApiKey) {
