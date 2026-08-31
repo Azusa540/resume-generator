@@ -57,27 +57,11 @@ export async function POST(req: NextRequest) {
     scraped = await scrapeJobLink(jobLink);
   } catch (err) {
     if (err instanceof JobScrapeError) {
+      console.error('[generate-from-link] Job scrape failed:', jobLink, err.status, err.message);
       return NextResponse.json({ message: err.message }, { status: err.status });
     }
+    console.error('[generate-from-link] Job scrape failed unexpectedly:', jobLink, err);
     return NextResponse.json({ message: 'Failed to scrape the job link.' }, { status: 502 });
-  }
-
-  // A scrape that "succeeds" but returns near-empty content gives the model nothing to
-  // work with, which produces garbage output (e.g. literal "<UNKNOWN>" placeholders)
-  // instead of a clean failure. Reject it here instead of paying for a doomed Claude call.
-  if (scraped.jobTitle.trim().length < 2 || scraped.companyName.trim().length < 2 || scraped.jobDescription.trim().length < 50) {
-    console.error('[generate-from-link] Scrape returned insufficient content:', {
-      jobLink,
-      confidence: scraped.confidence,
-      warning: scraped.warning,
-      jobTitleLen: scraped.jobTitle.length,
-      companyNameLen: scraped.companyName.length,
-      jobDescriptionLen: scraped.jobDescription.length,
-    });
-    return NextResponse.json(
-      { message: 'Could not extract enough job details from this link. Try a different link or check that the posting is still live.' },
-      { status: 422 }
-    );
   }
 
   // Any valid API key can target any profile, regardless of which account owns it.

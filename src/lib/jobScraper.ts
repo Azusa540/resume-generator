@@ -40,5 +40,18 @@ export async function scrapeJobLink(url: string): Promise<ScrapedJob> {
     throw new JobScrapeError(body?.message || body?.error || 'Failed to scrape the job link.', res.status);
   }
 
-  return (await res.json()) as ScrapedJob;
+  const scraped = (await res.json()) as ScrapedJob;
+
+  // A "successful" scrape can still return near-empty content (a JS-rendered page the
+  // scraper couldn't parse, a login wall, a dead posting). That gives the resume model
+  // nothing real to work with, so treat it as a scrape failure here rather than letting
+  // empty/garbage content reach the caller.
+  if (scraped.jobTitle.trim().length < 2 || scraped.companyName.trim().length < 2 || scraped.jobDescription.trim().length < 50) {
+    throw new JobScrapeError(
+      'Could not extract enough job details from this link. Try a different link or check that the posting is still live.',
+      422
+    );
+  }
+
+  return scraped;
 }
