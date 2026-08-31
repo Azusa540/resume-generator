@@ -450,8 +450,7 @@ After writing all bullets, perform this three-way check before finalizing:
 ━━━ ATS CHECK & FINAL REORDER ━━━
 STEP 1 — ATS SCORE: Score the output against the JD. If score < 97%, revise bullets and skills until it reaches 97%+. Repeat until passing.
 STEP 2 — REORDER (MANDATORY — do NOT skip): Once ATS score is 97%+, reorder the bullets within each experience block so the strongest, most JD-relevant bullets appear first. Do not change the content — only the order.
-STEP 3 — OUTPUT: After the JSON, append a brief plain-text note confirming: (a) ATS score achieved, (b) that reordering was performed.
-Example note: "ATS Score: 98% | Bullets reordered within each experience block for maximum JD relevance."`;
+STEP 3 — CALL THE TOOL: Call the output_resume tool exactly once with the complete, finalized resume — no text before or after the tool call.`;
 }
 
 export function buildSystemPromptNonSoftware(): string {

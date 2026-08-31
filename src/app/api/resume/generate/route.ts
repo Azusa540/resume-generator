@@ -9,6 +9,7 @@ import { buildSystemPromptAdmin } from '@/lib/adminPrompt';
 import { buildSystemPromptAdminNonSoftware } from '@/lib/adminPromptNonSoftware';
 import { repairPrimaryStackCoverage } from '@/lib/resumeRepair';
 import { reviewAuthenticity } from '@/lib/authenticityReview';
+import { buildResumeTool, extractGeneratedResume } from '@/lib/resumeSchema';
 import type { GeneratedResume } from '@/types/resume';
 
 export async function POST(req: NextRequest) {
@@ -42,6 +43,7 @@ export async function POST(req: NextRequest) {
     ? buildSystemPromptNonSoftware()
     : buildSystemPrompt();
   const userPrompt = buildUserPrompt(profile, title, company, jobDescription, profile.customPrompt, profile.profileType);
+  const tool = buildResumeTool(profile.profileType, user.isAdmin);
 
   let message;
   try {
@@ -50,6 +52,8 @@ export async function POST(req: NextRequest) {
         model: 'claude-haiku-4-5-20251001',
         max_tokens: 16000,
         system: systemPrompt,
+        tools: [tool],
+        tool_choice: { type: 'tool', name: tool.name },
         messages: [
           { role: 'user', content: userPrompt },
         ],
@@ -80,24 +84,21 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const rawText = message.content[0]?.type === 'text' ? message.content[0].text : '';
-  // Strip markdown fences and extract only the JSON object (model may append a plain-text note after the closing brace)
-  const stripped = rawText.replace(/^```(?:json)?\s*/i, '').replace(/\s*```\s*$/i, '').trim();
-  const jsonEnd = stripped.lastIndexOf('}');
-  const raw = jsonEnd !== -1 ? stripped.slice(0, jsonEnd + 1) : stripped;
-
   let generated: GeneratedResume;
+  let toolUse: Anthropic.ToolUseBlock;
   try {
-    generated = JSON.parse(raw) as GeneratedResume;
-  } catch {
-    return NextResponse.json(
-      { message: 'Failed to parse response as JSON.', raw: rawText },
-      { status: 500 }
-    );
+    ({ generated, toolUse } = extractGeneratedResume(message, profile.profileType));
+  } catch (err) {
+    console.error('[generate] Failed to extract/validate resume tool output:', err, JSON.stringify(message.content));
+    return NextResponse.json({ message: 'Failed to parse response as JSON.' }, { status: 500 });
   }
 
-  generated = await repairPrimaryStackCoverage(client, systemPrompt, userPrompt, raw, generated);
-  generated = await reviewAuthenticity(client, systemPrompt, userPrompt, JSON.stringify(generated), generated);
+  ({ generated, toolUse } = await repairPrimaryStackCoverage(
+    client, systemPrompt, userPrompt, tool, toolUse, generated, profile.profileType
+  ));
+  ({ generated } = await reviewAuthenticity(
+    client, systemPrompt, userPrompt, tool, toolUse, generated, profile.profileType
+  ));
 
   return NextResponse.json({
     generated,

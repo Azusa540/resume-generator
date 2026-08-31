@@ -1,4 +1,4 @@
-import type { GeneratedResume, SkillCategories } from '@/types/resume';
+import type { GeneratedResume } from '@/types/resume';
 
 export type PdfTemplate =
   | 'template1'
@@ -292,9 +292,9 @@ function sectionHtml(title: string, body: string, tpl: PdfTemplate, avoidBreak =
 
 function skillsHtml(skills: GeneratedResume['skills']): string {
   if (Array.isArray(skills)) {
-    return `<span class="text-sm text-gray-800 font-semibold">${escapeHtml((skills as unknown as string[]).join(', '))}</span>`;
+    return `<span class="text-sm text-gray-800 font-semibold">${escapeHtml(skills.join(', '))}</span>`;
   }
-  return Object.entries(skills as SkillCategories)
+  return Object.entries(skills)
     .filter(([, items]) => Array.isArray(items) && items.length > 0)
     .map(
       ([category, items]) => `

@@ -19,7 +19,7 @@ export interface GeneratedResume {
   resume_file_name: string;
   target_job_title: string;
   professional_summary: string;
-  skills: SkillCategories;
+  skills: SkillCategories | string[];
   education: GeneratedEducation[];
   experience_bullets: GeneratedExperienceBullet[];
   /** Admin prompt only: the 5-6 JD must-have technologies it identified, for coverage verification. */

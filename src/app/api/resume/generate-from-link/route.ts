@@ -10,6 +10,7 @@ import { buildSystemPromptAdminNonSoftware } from '@/lib/adminPromptNonSoftware'
 import { scrapeJobLink, JobScrapeError } from '@/lib/jobScraper';
 import { repairPrimaryStackCoverage } from '@/lib/resumeRepair';
 import { reviewAuthenticity } from '@/lib/authenticityReview';
+import { buildResumeTool, extractGeneratedResume } from '@/lib/resumeSchema';
 import { resumeKey, uploadResume, getSignedDownloadUrl } from '@/lib/storage';
 import { extractApiKey, findUserByApiKey } from '@/lib/apiKey';
 import {
@@ -67,7 +68,8 @@ export async function POST(req: NextRequest) {
 
   // Admin-owned profiles get a dedicated prompt, overriding the software/other split.
   const profileOwner = await User.findById(profile.userId, { is_admin: 1 });
-  const systemPrompt = profileOwner?.is_admin
+  const isAdmin = Boolean(profileOwner?.is_admin);
+  const systemPrompt = isAdmin
     ? profile.profileType === 'other'
       ? buildSystemPromptAdminNonSoftware()
       : buildSystemPromptAdmin()
@@ -82,6 +84,7 @@ export async function POST(req: NextRequest) {
     profile.customPrompt,
     profile.profileType
   );
+  const tool = buildResumeTool(profile.profileType, isAdmin);
 
   let message;
   try {
@@ -90,6 +93,8 @@ export async function POST(req: NextRequest) {
         model: 'claude-haiku-4-5-20251001',
         max_tokens: 16000,
         system: systemPrompt,
+        tools: [tool],
+        tool_choice: { type: 'tool', name: tool.name },
         messages: [
           { role: 'user', content: userPrompt },
         ],
@@ -118,23 +123,21 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const rawText = message.content[0]?.type === 'text' ? message.content[0].text : '';
-  const stripped = rawText.replace(/^```(?:json)?\s*/i, '').replace(/\s*```\s*$/i, '').trim();
-  const jsonEnd = stripped.lastIndexOf('}');
-  const raw = jsonEnd !== -1 ? stripped.slice(0, jsonEnd + 1) : stripped;
-
   let generated: GeneratedResume;
+  let toolUse: Anthropic.ToolUseBlock;
   try {
-    generated = JSON.parse(raw) as GeneratedResume;
-  } catch {
-    return NextResponse.json(
-      { message: 'Failed to parse response as JSON.', raw: rawText },
-      { status: 500 }
-    );
+    ({ generated, toolUse } = extractGeneratedResume(message, profile.profileType));
+  } catch (err) {
+    console.error('[generate-from-link] Failed to extract/validate resume tool output:', err, JSON.stringify(message.content));
+    return NextResponse.json({ message: 'Failed to parse response as JSON.' }, { status: 500 });
   }
 
-  generated = await repairPrimaryStackCoverage(client, systemPrompt, userPrompt, raw, generated);
-  generated = await reviewAuthenticity(client, systemPrompt, userPrompt, JSON.stringify(generated), generated);
+  ({ generated, toolUse } = await repairPrimaryStackCoverage(
+    client, systemPrompt, userPrompt, tool, toolUse, generated, profile.profileType
+  ));
+  ({ generated } = await reviewAuthenticity(
+    client, systemPrompt, userPrompt, tool, toolUse, generated, profile.profileType
+  ));
 
   const profileContact = {
     fullName: profile.fullName,
@@ -161,6 +164,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ message: err.message }, { status: 503 });
     }
     const msg = err instanceof Error ? err.message : 'PDF generation failed';
+    console.error('[generate-from-link] PDF generation failed:', err);
     return NextResponse.json({ message: msg }, { status: 500 });
   }
 
@@ -184,6 +188,7 @@ export async function POST(req: NextRequest) {
     });
   } catch (err) {
     const msg = err instanceof Error ? err.message : 'Failed to store resume';
+    console.error('[generate-from-link] Failed to store resume:', err);
     return NextResponse.json({ message: msg }, { status: 500 });
   }
 }

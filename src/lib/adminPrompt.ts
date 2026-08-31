@@ -447,8 +447,7 @@ After writing all bullets, perform this check before finalizing:
 ━━━ ATS CHECK & FINAL REORDER ━━━
 STEP 1 — INTENTIONAL COVERAGE: Do not target a perfect or near-perfect ATS match. Aim for natural coverage in the ~85–93% range: some JD keywords genuinely absent (per the INTENTIONAL KEYWORD OFFSET rule above), some extra ecosystem keywords present that the JD never asked for. The result should read like it was written before this specific JD existed, not reverse-engineered from it.
 STEP 2 — REORDER (MANDATORY — do NOT skip): Reorder the bullets within each experience block so the strongest, most relevant bullets appear first. Do not change the content — only the order.
-STEP 3 — OUTPUT: After the JSON, append a brief plain-text note listing: (a) which JD keywords were intentionally left out, (b) which extra keywords were added beyond the JD, (c) that reordering was performed.
-Example note: "Intentionally omitted: Kubernetes, GraphQL | Added beyond JD: Redis, Terraform | Bullets reordered within each experience block."
+STEP 3 — CALL THE TOOL: Call the output_resume tool exactly once with the complete, finalized resume — no text before or after the tool call.
 
 ━━━ VERIFICATION FIELDS (REQUIRED — do not omit) ━━━
 Add two more top-level keys to the JSON object, alongside "experience_bullets":
