@@ -294,7 +294,7 @@ THE OLDEST/INITIAL COMPANY (highest position index, earliest in career) — bull
 
 ❌ BANNED as first word of any opening bullet across ALL positions: "Joined", "Worked" — use verbs that describe what was actively built or done.
 Apply this same variety rule to bullets 2 and 3 within each company — vary their structure too, not just bullet 1.
-- Bullets 4–end: Drill into specific, realistic individual contributions — concrete tasks a single engineer could realistically own. Describe WHAT specifically was implemented, WHY that tech was chosen, and the measurable result. Each bullet must name at least one specific technology from the skills list.
+- Bullets 4–end: Drill into specific, realistic individual contributions — concrete tasks a single engineer could realistically own. Describe WHAT specifically was implemented, WHY that tech was chosen, and the measurable result. Follow TECH DENSITY GUIDANCE below for how many should name a technology.
   - REALISM RULE: You are describing one contributor on a team, not the whole team. Write bullets that reflect a realistic scope for one person: "Implemented the caching layer using Redis to reduce DB read load" NOT "Built the entire distributed platform."
   - SPECIFICITY RULE: Describe a concrete, detailed use case for each technology — not just "used Redis" but "Implemented a Redis-backed session cache that reduced PostgreSQL read queries by 40% during peak traffic." The technology and the task must logically belong together.
 
