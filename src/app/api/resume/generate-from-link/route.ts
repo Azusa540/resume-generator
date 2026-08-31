@@ -62,9 +62,33 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ message: 'Failed to scrape the job link.' }, { status: 502 });
   }
 
+  // A scrape that "succeeds" but returns near-empty content gives the model nothing to
+  // work with, which produces garbage output (e.g. literal "<UNKNOWN>" placeholders)
+  // instead of a clean failure. Reject it here instead of paying for a doomed Claude call.
+  if (scraped.jobTitle.trim().length < 2 || scraped.companyName.trim().length < 2 || scraped.jobDescription.trim().length < 50) {
+    console.error('[generate-from-link] Scrape returned insufficient content:', {
+      jobLink,
+      confidence: scraped.confidence,
+      warning: scraped.warning,
+      jobTitleLen: scraped.jobTitle.length,
+      companyNameLen: scraped.companyName.length,
+      jobDescriptionLen: scraped.jobDescription.length,
+    });
+    return NextResponse.json(
+      { message: 'Could not extract enough job details from this link. Try a different link or check that the posting is still live.' },
+      { status: 422 }
+    );
+  }
+
   // Any valid API key can target any profile, regardless of which account owns it.
   const profile = await Profile.findOne({ _id: profileId });
   if (!profile) return NextResponse.json({ message: 'Profile not found.' }, { status: 404 });
+  if (profile.employment.length === 0) {
+    return NextResponse.json(
+      { message: 'This profile has no work experience yet. Add at least one job before generating a resume.' },
+      { status: 400 }
+    );
+  }
 
   // Admin-owned profiles get a dedicated prompt, overriding the software/other split.
   const profileOwner = await User.findById(profile.userId, { is_admin: 1 });
@@ -128,7 +152,16 @@ export async function POST(req: NextRequest) {
   try {
     ({ generated, toolUse } = extractGeneratedResume(message, profile.profileType));
   } catch (err) {
-    console.error('[generate-from-link] Failed to extract/validate resume tool output:', err, JSON.stringify(message.content));
+    console.error('[generate-from-link] Failed to extract/validate resume tool output:', err, {
+      profileFullName: profile.fullName,
+      employmentCount: profile.employment.length,
+      jobLink,
+      scrapedTitle: scraped.jobTitle,
+      scrapedCompany: scraped.companyName,
+      scrapedDescriptionLen: scraped.jobDescription.length,
+      stopReason: message.stop_reason,
+      rawContent: JSON.stringify(message.content),
+    });
     return NextResponse.json({ message: 'Failed to parse response as JSON.' }, { status: 500 });
   }
 
