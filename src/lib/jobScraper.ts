@@ -31,13 +31,27 @@ export async function scrapeJobLink(url: string): Promise<ScrapedJob> {
       body: JSON.stringify({ url }),
       signal: AbortSignal.timeout(30_000),
     });
-  } catch {
+  } catch (err) {
+    console.error('[jobScraper] Network error reaching scraping service:', { url, endpoint, err });
     throw new JobScrapeError('Could not reach the job scraping service.', 502);
   }
 
   if (!res.ok) {
-    const body = await res.json().catch(() => null);
-    throw new JobScrapeError(body?.message || body?.error || 'Failed to scrape the job link.', res.status);
+    const rawBody = await res.text().catch(() => '');
+    const parsedBody = (() => {
+      try {
+        return JSON.parse(rawBody);
+      } catch {
+        return null;
+      }
+    })();
+    console.error('[jobScraper] Scraping service returned an error:', {
+      url,
+      status: res.status,
+      statusText: res.statusText,
+      rawBody: rawBody.slice(0, 1000),
+    });
+    throw new JobScrapeError(parsedBody?.message || parsedBody?.error || 'Failed to scrape the job link.', res.status);
   }
 
   const scraped = (await res.json()) as ScrapedJob;
@@ -47,6 +61,15 @@ export async function scrapeJobLink(url: string): Promise<ScrapedJob> {
   // nothing real to work with, so treat it as a scrape failure here rather than letting
   // empty/garbage content reach the caller.
   if (scraped.jobTitle.trim().length < 2 || scraped.companyName.trim().length < 2 || scraped.jobDescription.trim().length < 50) {
+    console.error('[jobScraper] Scrape succeeded but returned empty/insufficient content:', {
+      url,
+      source: scraped.source,
+      confidence: scraped.confidence,
+      warning: scraped.warning,
+      jobTitle: scraped.jobTitle,
+      companyName: scraped.companyName,
+      jobDescriptionLen: scraped.jobDescription?.length ?? 0,
+    });
     throw new JobScrapeError(
       'Could not extract enough job details from this link. Try a different link or check that the posting is still live.',
       422
