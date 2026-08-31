@@ -294,7 +294,7 @@ THE OLDEST/INITIAL COMPANY (highest position index, earliest in career) — bull
 
 ❌ BANNED as first word of any opening bullet across ALL positions: "Joined", "Worked" — use verbs that describe what was actively built or done.
 Apply this same variety rule to bullets 2 and 3 within each company — vary their structure too, not just bullet 1.
-- Bullets 4–end: Drill into specific, realistic individual contributions — concrete tasks a single engineer could realistically own. Describe WHAT specifically was implemented, WHY that tech was chosen, and the measurable result. Follow TECH DENSITY GUIDANCE below for how many should name a technology.
+- Bullets 4–end: Drill into specific, realistic individual contributions — concrete tasks a single engineer could realistically own. Describe WHAT specifically was implemented, WHY that tech was chosen, and the measurable result. Follow the TECH DENSITY REQUIREMENT below — every bullet needs a named technology, with one narrow exception.
   - REALISM RULE: You are describing one contributor on a team, not the whole team. Write bullets that reflect a realistic scope for one person: "Implemented the caching layer using Redis to reduce DB read load" NOT "Built the entire distributed platform."
   - SPECIFICITY RULE: Describe a concrete, detailed use case for each technology — not just "used Redis" but "Implemented a Redis-backed session cache that reduced PostgreSQL read queries by 40% during peak traffic." The technology and the task must logically belong together.
 
@@ -408,13 +408,13 @@ RULE 12 — USE SPECIFIC FEATURE/MODULE NAMES, NOT GENERIC LABELS. A real engine
 
 RULE 13 — the rest of the AI-signal phrases this rule used to list are now folded into BANNED WORDS & PHRASES above — never use any of them. Also never use an em dash ("—") anywhere in the output; see SENTENCE STYLE RULES.
 - TECH BOLD HIGHLIGHTING — bold ONLY the 1st and 2nd technology items that are the primary subject of the bullet, plus any numeric result with its unit (e.g. **32%**, **800ms**). Everything else stays unbolded.
-  - Most bullets should bold 1–2 techs. A rare process/mentorship/collaboration bullet (see RULE 10) can have zero bolded tech if it is genuinely about people or process, not tools — don't force a tool name into a sentence that isn't about one.
+  - EVERY bullet should bold 1–2 techs, except a genuine process/mentorship/collaboration bullet (see RULE 10), which can have zero bolded tech if it is genuinely about people or process, not tools — don't force a tool name into a sentence that isn't about one.
   - Maximum: 2 bold techs per bullet — do not exceed 2 tech bolds even if more tools appear
   - Numeric result bold: bold the number AND unit together as one token (e.g. **40%**, **250ms**, **3 days**) — only when a concrete metric is present
   - WRONG (too many tech bolds): "Drove reduction in effort by integrating **Python** services with **AWS**, **Redis**, and **PostgreSQL**"
   - CORRECT (only 1st and 2nd tech bolded, metric bolded): "Drove a measurable reduction in manual effort by integrating **Python** and **FastAPI** services with AWS, Redis, cutting repeated model calls by **35%**"
   - CORRECT (2 co-equal core tools, no metric): "Built agent orchestration patterns with **LangGraph** and **LlamaIndex** so specialized agents could share state and return structured outputs"
-- TECH DENSITY GUIDANCE: Most bullets should name at least 1–2 specific named technologies — that's the default. The examples below show how to do it naturally rather than forcing a tool name where none fits.
+- TECH DENSITY REQUIREMENT: EVERY bullet must name at least 1–2 specific named technologies — this is a hard requirement, not a default, with exactly one exception (see below). The examples below show how to do it naturally rather than forcing a tool name where none fits.
   - If a bullet describes collaboration → name the tool (e.g. **Jira**, **Confluence**, GitHub)
   - If a bullet describes monitoring → name the platform (e.g. **Prometheus**, **Grafana**, CloudWatch)
   - If a bullet describes ML/AI work → name the framework (e.g. **TensorFlow**, **PyTorch**, MLflow)
