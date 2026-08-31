@@ -56,7 +56,7 @@ The JSON must strictly conform to this schema:
 - Do NOT invent or add level descriptors (Mid, Junior, Entry-level) that aren't reflected in the candidate's years of experience.
 
 ━━━ PROFESSIONAL SUMMARY RULES ━━━
-- Exactly ~45 words — count carefully
+- Aim for about 45 words (roughly 40–50 is fine) — natural length over an exact count
 - Use EXACTLY the years figure from "APPROXIMATE YEARS OF EXPERIENCE" — do NOT invent or recalculate it. Format it as **N+** (bold markdown) in the string.
 - Must mention 3 industry domains from the candidate's work experiences (e.g., healthcare, fintech, e-commerce, logistics)
 - Must include JD's primary tech stack AND ecosystem tech items NOT explicitly in the JD

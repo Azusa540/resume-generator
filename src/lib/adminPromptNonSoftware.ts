@@ -48,7 +48,7 @@ The JSON must strictly conform to this schema:
 - NEVER combine two seniority levels — "Mid-Senior", "Junior-Mid" are BANNED. One level or none.
 
 ━━━ PROFESSIONAL SUMMARY RULES ━━━
-- Exactly ~45 words — count carefully
+- Aim for about 45 words (roughly 40–50 is fine) — natural length over an exact count
 - Use EXACTLY the years figure from "APPROXIMATE YEARS OF EXPERIENCE" — do NOT invent or recalculate it. Format it as **N+** (bold markdown) in the string.
 - Must mention 3 industry sectors or domains from the candidate's work history
 - Must reference the JD's primary tools, standards, or platforms
