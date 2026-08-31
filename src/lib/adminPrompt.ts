@@ -160,7 +160,7 @@ NAMING RULES — use canonical product/standard names, not adjective forms:
   (3) Tools from the candidate's work history relevant to this domain
   (4) Closely related ecosystem skills implied by (1)–(3)
   (5) Standard tools expected at this seniority level
-- CROSS-REFERENCE RULE: After writing all experience bullets, every technology bolded with **double asterisks** MUST appear in the skills object. Add any missing ones.
+- CROSS-REFERENCE: see SKILLS ↔ BULLETS CONSISTENCY CHECK below — every bolded bullet technology must also exist in this skills object.
 - Hard skills only: named tools, languages, frameworks, protocols, platforms, libraries, cloud services, databases — must have an official product page or documentation
 - BANNED — these are techniques/practices/concepts, NOT named tools:
   - "Prompt Engineering" (practice) → use specific tools: LangChain, LlamaIndex, OpenAI API
@@ -322,9 +322,11 @@ Quality rules for EVERY sentence:
   - Every sentence must use a DIFFERENT verb from all other sentences in the same experience block
   - GLOBAL VERB CAP — CRITICAL: Track verb usage across the ENTIRE resume, not just within one company block. No single verb (e.g. "Developed", "Built", "Maintained", "Implemented", "Deployed") may be used more than **2 times total** across all experience bullets combined. Resume checkers flag any verb appearing 3+ times as repetitive and penalize the score. Before finalizing, count every opening verb across all companies; if any verb exceeds 2 uses, replace the extra instances with a synonym from the PREFERRED list.
 
-━━━ BANNED BUZZWORDS & CLICHÉS ━━━
-These vague, overused terms must NEVER appear anywhere in the output (summary, skills, or bullets) — resume checkers flag them as clichés that read as filler rather than evidence:
-- "passionate" / "passion for", "problem solving" / "problem-solver" (as a standalone label), "results-driven" / "results oriented", "ninja", "guru", "rockstar", "wizard", "go-getter", "self-starter", "team player", "hard worker", "hardworking", "dynamic", "synergy" / "synergize", "thought leader", "proven track record", "hit the ground running", "out-of-the-box thinker", "excellent communication skills", "detail-oriented" (as a standalone claim with no evidence), "motivated individual", "strategic thinker", "value-add", "wheelhouse", "circle back", "win-win"
+━━━ BANNED WORDS & PHRASES ━━━
+These vague, overused, or AI-signaling terms must NEVER appear anywhere in the output (summary, skills, or bullets) — resume checkers and human reviewers both flag them, either as filler or as a giveaway the text was AI-generated:
+- Soft-skill buzzwords: "passionate" / "passion for", "problem solving" / "problem-solver" (as a standalone label), "results-driven" / "results oriented", "ninja", "guru", "rockstar", "wizard", "go-getter", "self-starter", "team player", "hard worker", "hardworking", "dynamic", "synergy" / "synergize", "thought leader", "proven track record", "hit the ground running", "out-of-the-box thinker", "excellent communication skills", "detail-oriented" (as a standalone claim with no evidence), "motivated individual", "strategic thinker", "value-add", "wheelhouse", "circle back", "win-win"
+- AI-signal phrases: "clean" / "cleaner" (say "more stable", "easier to maintain", "fewer incidents", "less tech debt"), "owned X work" (say what you actually did — "Led the migration of...", "Rewrote the..."), "extended observability" (say "added Prometheus metrics and alerts to..."), "preserved architectural context" (means nothing — delete it), "raised trust in the release process" (say "reduced production incidents" or "gave the team confidence to deploy on Fridays"), "tightened X" (say "fixed", "hardened", "secured", "restricted"), "modernization work" (say "migrated from X to Y" specifically), triple stacks like "optimizing X, refining Y, and trimming Z" (pick ONE specific thing and describe it well)
+- More AI-signal phrases: "focusing on X" (say what you actually did), "keeping X aligned" / "keeping X stable" / "keeping X consistent" (engineers fix, enforce, automate, or monitor — they don't "keep" things aligned), "helping X align" (say what specifically you explained, reviewed, or fixed), "made it easier to" (say what the actual change was), "so that" followed by a benefit (state the outcome directly instead), "client-facing product modules" / "stable integrations" / "predictable release cycles" / "service boundaries" (say the actual feature or system name), "defect spillover" (say "bugs reaching production"), "brittle integration flow" (say "the sync job that kept breaking"), "observability-friendly" (say what you added: logs, metrics, alerts, dashboards), "which shortened investigation time" (name the specific scenario instead)
 - Replace any of these with a concrete, evidenced claim instead — e.g. instead of "results-driven engineer," show the result: "cut deployment time by 40%."
 - Use natural native English — write how a real engineer would describe their work in a conversation, not like a formal report
 
@@ -375,15 +377,7 @@ RULE 7 — VARY BULLET LENGTH. Not every bullet should be 1.5–2 lines. Some bu
   - Longer with explanation (2.5–3 lines): bullets describing a complex problem + solution + result
   A resume where every single bullet is exactly the same length is immediately recognizable as AI output.
 
-RULE 8 — BANNED WORDS AND PHRASES (immediate AI signals):
-  - "clean" / "cleaner" — say "more stable", "easier to maintain", "fewer incidents", "less tech debt" instead
-  - "owned X work" — say what you actually did: "Led the migration of...", "Rewrote the..."
-  - "extended observability" — say "added Prometheus metrics and alerts to..."
-  - "preserved architectural context" — this means nothing, delete it
-  - "raised trust in the release process" — say "reduced production incidents" or "gave the team confidence to deploy on Fridays"
-  - Triple stacks: "optimizing X, refining Y, and trimming Z" — pick ONE specific thing and describe it well
-  - "tightened X" — engineers don't "tighten" things; say "fixed", "hardened", "secured", "restricted"
-  - "modernization work" — say "migrated from X to Y" specifically
+RULE 8 — AVOID THE BANNED WORDS & PHRASES LIST above. Those are the clearest, most immediate AI signals — never use any of them.
 
 RULE 9 — NO STRUCTURAL DUPLICATION. Never write two bullets in the same experience block that describe the same category of work (e.g., two testing bullets, two caching bullets, two deployment bullets). If two bullets cover similar ground, merge them or replace one with a genuinely different contribution. A human reviewer immediately notices when the same idea appears twice with different words.
 
@@ -412,19 +406,7 @@ RULE 12 — USE SPECIFIC FEATURE/MODULE NAMES, NOT GENERIC LABELS. A real engine
   - CORRECT: "deploys without breaking main", "split the auth service into its own repo", "stopped the weekly Friday incident"
   If you don't have a specific name from the profile, invent a believable, concrete one that fits the domain.
 
-RULE 13 — EXPAND THE AI BANNED PHRASES LIST. These specific phrases appear in almost every AI-generated resume. Every instance must be rewritten:
-  - "focusing on X" — say what you actually did, not what you were "focusing on"
-  - "keeping X aligned" / "keeping X stable" / "keeping X consistent" — engineers don't "keep" things aligned; they fix, enforce, automate, or monitor
-  - "helping X align" — vague; say what specifically you explained, reviewed, or fixed
-  - "made it easier to" — overused; say what the actual change was
-  - "so that" followed by a benefit — replace with the outcome directly
-  - "client-facing product modules" — say the actual feature name
-  - "stable integrations" / "predictable release cycles" / "service boundaries" — all forbidden; use concrete descriptions
-  - "defect spillover" — say "bugs reaching production"
-  - "brittle integration flow" — say "the sync job that kept breaking"
-  - "observability-friendly" — say what you added: logs, metrics, alerts, dashboards
-  - "which shortened investigation time" — say "which made it easier to find the root cause" or name the specific scenario
-  - Em dash "—" — NEVER use this character anywhere in any bullet. Replace with a comma, period, or rewrite the clause.
+RULE 13 — the rest of the AI-signal phrases this rule used to list are now folded into BANNED WORDS & PHRASES above — never use any of them. Also never use an em dash ("—") anywhere in the output; see SENTENCE STYLE RULES.
 - TECH BOLD HIGHLIGHTING — bold ONLY the 1st and 2nd technology items that are the primary subject of the bullet, plus any numeric result with its unit (e.g. **32%**, **800ms**). Everything else stays unbolded.
   - Most bullets should bold 1–2 techs. A rare process/mentorship/collaboration bullet (see RULE 10) can have zero bolded tech if it is genuinely about people or process, not tools — don't force a tool name into a sentence that isn't about one.
   - Maximum: 2 bold techs per bullet — do not exceed 2 tech bolds even if more tools appear
@@ -462,8 +444,7 @@ Result-sentence rules:
 - Use modest, believable numbers: 10–25% improvements are typical; avoid claiming 50%+ gains unless clearly implied
 
 ━━━ SENTENCE STYLE RULES ━━━
-- Every bullet sentence MUST start with a past-tense action verb — NEVER a gerund ("-ing" form). Use "Developed, Configured, Secured, Reduced" NOT "Developing, Configuring, Securing".
-- Within a sentence, gerunds ("-ing" continuations) are allowed ONLY as secondary clauses after the main verb: e.g. "Refactored the auth service, reducing login failures by 30%" — the opening word must still be a past-tense verb.
+- Past-tense action verb openers — see HUMAN-SOUNDING WRITING RULE 1 above for the full rule and examples. Gerund ("-ing") continuations are allowed ONLY as secondary clauses after the main verb: e.g. "Refactored the auth service, reducing login failures by 30%" — the opening word must still be a past-tense verb.
 - NEVER use an em dash ("—") anywhere in the output.
 - NEVER prefix a bullet with tech tags or labels. Start directly with the action verb.
   - WRONG: "[Python/FastAPI] Secured the API by implementing OAuth2, cutting unauthorized access by 94%."
@@ -478,15 +459,15 @@ Before finalizing bullets, verify ALL of the following:
 - No em dashes anywhere.
 - Every sentence starts with a past-tense verb.
 - No tech-tag prefixes before the verb.
-- VERB FREQUENCY CHECK: List every opening verb used across ALL experience blocks combined. No verb appears more than 2 times total. If any verb exceeds 2 uses, replace the extras now.
-- BUZZWORD CHECK: Scan the summary and every bullet for any term on the BANNED BUZZWORDS & CLICHÉS list. If found, rewrite that clause with concrete, evidenced language.
+- VERB FREQUENCY CHECK: re-verify the GLOBAL VERB CAP above — no verb used more than 2 times total across all experience bullets combined.
+- BUZZWORD CHECK: Scan the summary and every bullet for any term on the BANNED WORDS & PHRASES list. If found, rewrite that clause with concrete, evidenced language.
 
 ━━━ SKILLS ↔ BULLETS CONSISTENCY CHECK ━━━
 After writing all bullets, perform this check before finalizing:
 1. BULLETS → SKILLS: Every technology bolded in **double asterisks** in any bullet MUST exist in the skills list. Add missing ones.
 2. INTENTIONAL KEYWORD OFFSET: Do NOT force every JD-listed skill into the output. Deliberately leave out 1–4 of the JD's less-central keywords from both the skills list and the bullets — pick secondary or redundant ones, never the JD's top 5–6 must-have skills. The goal is a natural, imperfect match, not a checklist copy of the JD.
 3. ADDITIONAL EXPERIENCE: To balance that, add 2–5 extra skills/technologies that are NOT mentioned in the JD but plausibly belong to this candidate's real background (adjacent ecosystem tools, carryover from prior roles, broader domain tooling). Weave at least 1–2 of these into bullets naturally, same as any other skill.
-4. PRIMARY STACK DISTRIBUTION CHECK: The JD's top 5–6 must-have skills (the PRIMARY STACK, identified in the PRIMARY TECH IDENTIFICATION step) are NOT eligible for the offset in step 2 above. Count how many different bullets and companies each PRIMARY STACK technology is bolded in — if any appears in fewer than 2–3 bullets, or in only 1 company, that is a HARD FAILURE. Revise bullets in position 1 (and position 2 if possible) before outputting.
+4. PRIMARY STACK DISTRIBUTION CHECK: The JD's top 5–6 must-have skills (the PRIMARY STACK) are NOT eligible for the offset in step 2 above. Re-verify each one against the DISTRIBUTION RULES coverage requirement above — falling short of it at this point is a HARD FAILURE. Revise bullets in position 1 (and position 2 if possible) before outputting.
 
 ━━━ ATS CHECK & FINAL REORDER ━━━
 STEP 1 — INTENTIONAL COVERAGE: Do not target a perfect or near-perfect ATS match. Aim for natural coverage in the ~85–93% range: some JD keywords genuinely absent (per the INTENTIONAL KEYWORD OFFSET rule above), some extra ecosystem keywords present that the JD never asked for. The result should read like it was written before this specific JD existed, not reverse-engineered from it.

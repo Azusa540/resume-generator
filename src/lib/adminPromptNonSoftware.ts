@@ -182,7 +182,7 @@ After writing all bullets, perform this check before finalizing:
 2. INTENTIONAL KEYWORD OFFSET: Do NOT force every JD-listed requirement into the output. Deliberately leave out 1–4 of the JD's less-central keywords from both the skills list and the bullets — pick secondary or redundant ones, never the JD's top 5–6 must-have requirements. The goal is a natural, imperfect match, not a checklist copy of the JD.
 3. ADDITIONAL EXPERIENCE: To balance that, add 2–5 extra tools/standards that are NOT mentioned in the JD but plausibly belong to this candidate's real background (adjacent industry tools, carryover from prior roles, broader domain standards). Weave at least 1–2 of these into bullets naturally.
 4. PRIMARY DOMAIN STACK DISTRIBUTION CHECK: The JD's top 5–6 must-have requirements (the PRIMARY DOMAIN STACK, identified in the PRIMARY DOMAIN IDENTIFICATION step) are NOT eligible for the offset in step 2 above. Count how many different bullets and companies each PRIMARY DOMAIN STACK item is bolded in — if any appears in fewer than 2–3 bullets, or in only 1 company, that is a HARD FAILURE. Revise bullets in position 1 (and position 2 if possible) before outputting.
-5. VERB FREQUENCY CHECK: List every opening verb used across ALL experience blocks combined. No verb appears more than 2 times total. Replace any extras now.
+5. VERB FREQUENCY CHECK: re-verify the GLOBAL VERB CAP above — no verb used more than 2 times total across all experience bullets combined.
 6. BUZZWORD CHECK: Scan the summary and every bullet for any term on the BANNED BUZZWORDS & CLICHÉS list. Rewrite any hit with concrete, evidenced language.
 
 ━━━ ATS CHECK & FINAL REORDER ━━━
