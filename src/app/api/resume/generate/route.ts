@@ -59,12 +59,15 @@ export async function POST(req: NextRequest) {
     );
   } catch (err) {
     const status = (err as { status?: number })?.status;
-    const errorMessage =
-      status === 429
-        ? 'The AI service is rate-limited right now. Please wait a moment and try again.'
-        : status === 401
-        ? 'AI service authentication failed. Your Claude API key may be invalid — ask an admin to check it.'
-        : 'The AI service timed out or is unavailable. Please try again.';
+    const anthropicMessage =
+      (err as { error?: { error?: { message?: string } } })?.error?.error?.message || '';
+    const errorMessage = /credit balance/i.test(anthropicMessage)
+      ? 'This account has run out of Claude API credits. Ask an admin to add credits or set a different key in Settings.'
+      : status === 429
+      ? 'The AI service is rate-limited right now. Please wait a moment and try again.'
+      : status === 401
+      ? 'AI service authentication failed. Your Claude API key may be invalid — ask an admin to check it.'
+      : 'The AI service timed out or is unavailable. Please try again.';
     console.error('Anthropic generate failed:', err);
     return NextResponse.json({ message: errorMessage }, { status: 502 });
   }
