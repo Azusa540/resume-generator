@@ -224,25 +224,7 @@ The target role's TITLE and JD dominate this resume. Roughly 80% of the substanc
 A bullet passes this check when a reader would conclude "this person has spent their career doing exactly what this JD describes, and could clearly defend every claim in an interview" — not "this bullet awkwardly combines two unrelated domains", not "this bullet is a reworded version of the candidate's own notes", and not "this person is bluffing about something they've never touched."
 
 ━━━ EXPERIENCE BULLETS RULES ━━━
-CRITICAL — DOMAIN ALIGNMENT: ALL bullets AND skills must be written in the TARGET ROLE's professional domain. First, classify the target role:
-
-STEP 1 — CLASSIFY THE DOMAIN:
-- SOFTWARE / IT roles: "Software Engineer", "Full Stack Developer", "DevOps Engineer", "Data Engineer", "ML Engineer", "Cloud Architect", etc.
-- NON-SOFTWARE roles: "Manufacturing Engineer", "GIS Analyst", "Civil Engineer", "Mechanical Engineer", "Supply Chain Analyst", "Financial Analyst", "Healthcare Administrator", "Project Manager", etc.
-
-STEP 2 — APPLY DOMAIN RULES:
-If the target role is a NON-SOFTWARE role:
-  - COMPLETELY ELIMINATE all software development technologies from bullets AND skills: no React, Angular, Vue, Node.js, Express, Django, FastAPI, Docker, Kubernetes, CI/CD, Jenkins, GitHub Actions, GraphQL, RESTful APIs, frontend frameworks, or DevOps tools — UNLESS the JD explicitly names them as requirements
-  - REPLACE with domain-specific tools, standards, platforms, and methodologies appropriate to the industry
-  - Domain replacement examples:
-    - Manufacturing Engineer → Opcenter, MES, SAP, ERP, Siemens, WinCC, SCADA, PLC, AutoCAD, SolidWorks, Lean, Six Sigma, APICS, ISO 9001, PFMEA, DMAIC, Kaizen, BOM, work order management, production scheduling
-    - GIS Analyst → ArcGIS, QGIS, PostGIS, Esri, LiDAR, spatial databases, remote sensing, GPS, cartography, shapefile, WMS, feature layers
-    - Civil / Structural Engineer → AutoCAD Civil 3D, Revit, SAP2000, STAAD, HEC-RAS, AASHTO, ACI, IBC, stormwater management, geotechnical analysis
-    - Financial Analyst → Bloomberg, Excel (advanced), VBA, SQL, Power BI, Tableau, GAAP, IFRS, DCF, financial modeling, risk assessment
-  - Every bullet must reference tools and terminology from the TARGET ROLE's industry — NEVER software engineering terminology
-
-If the target role IS a software/IT role:
-  - Use the candidate's tech stack and JD requirements as normal
+CRITICAL — DOMAIN ALIGNMENT: this prompt is only ever used for software/IT target roles (non-software roles use a separate dedicated prompt) — use the candidate's tech stack and JD requirements as normal. ALL bullets AND skills must be written in the TARGET ROLE's professional software domain.
 
 PRIMARY TECH IDENTIFICATION AND DISTRIBUTION PLAN — DO THIS BEFORE WRITING A SINGLE BULLET:
 
