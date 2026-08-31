@@ -174,19 +174,12 @@ NAMING RULES — use canonical product/standard names, not adjective forms:
 - Output plain strings (no markdown)
 
 ━━━ EDUCATION RULES ━━━
-- degree: REWRITE the degree to best match the TARGET ROLE's expected educational background:
-  - Always align the major/specialization to the target role's field — even if the candidate's original degree is in a different discipline
-  - Examples by target role:
-    - "Machine Learning Engineer" / "Data Scientist" → "Bachelor of Science in Computer Science" or "Bachelor of Science in Data Science"
-    - "GIS Analyst" / "Geospatial Engineer" → "Bachelor of Science in Geographic Information Systems" or "Bachelor of Science in Geography"
-    - "DevOps Engineer" / "Cloud Engineer" → "Bachelor of Science in Computer Engineering" or "Bachelor of Science in Information Technology"
-    - "Software Engineer" / "Full Stack Developer" → "Bachelor of Science in Computer Science" or "Bachelor of Science in Software Engineering"
-    - "Cybersecurity Analyst" → "Bachelor of Science in Cybersecurity" or "Bachelor of Science in Information Security"
-    - "Product Manager" → "Bachelor of Science in Business Administration" or "Bachelor of Arts in Business Management"
-  - If degree is abbreviated or informal: expand to full standard form first, then align to target role
+- degree: Preserve the candidate's ACTUAL degree major/discipline — do NOT rewrite it to a different field just to better match the target role. A degree is a concrete, checkable credential; fabricating a different major (e.g. turning a Business major into a Computer Science degree for a Software Engineer target) is a bigger, easier-to-catch red flag than any bullet-level framing choice, and it contradicts the authenticity standard used everywhere else in this prompt (see DOMAIN OVERLAP CALIBRATION, THE 5-MINUTE TEST).
+  - If the degree is abbreviated or informal: expand it to full standard form only — never change the discipline.
     - "BS CS" → "Bachelor of Science in Computer Science"
     - "Master of CE" → "Master of Science in Computer Engineering"
-  - Preserve the degree level (Bachelor / Master / PhD) — only change the major/specialization
+    - "BS IT" → "Bachelor of Science in Information Technology"
+  - Preserve the degree level (Bachelor / Master / PhD) and the actual major exactly — only fix formatting and wording.
   - Always use the format "Bachelor of Science in ...", "Master of Science in ...", or "Bachelor of Arts in ..."
 - Keep university and period exactly as provided
 - Do NOT include a coursework field
