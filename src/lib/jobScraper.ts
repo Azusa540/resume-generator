@@ -32,8 +32,14 @@ export async function scrapeJobLink(url: string): Promise<ScrapedJob> {
       signal: AbortSignal.timeout(30_000),
     });
   } catch (err) {
-    console.error('[jobScraper] Network error reaching scraping service:', { url, endpoint, err });
-    throw new JobScrapeError('Could not reach the job scraping service.', 502);
+    const isTimeout = err instanceof Error && err.name === 'TimeoutError';
+    console.error(
+      isTimeout ? '[jobScraper] Timed out reaching scraping service:' : '[jobScraper] Network error reaching scraping service:',
+      { url, endpoint, err }
+    );
+    throw isTimeout
+      ? new JobScrapeError('The job scraping service took too long to respond. Please try again.', 504)
+      : new JobScrapeError('Could not reach the job scraping service.', 502);
   }
 
   if (!res.ok) {
