@@ -7,7 +7,7 @@ import User from '@/models/User';
 import { buildSystemPrompt, buildSystemPromptNonSoftware, buildUserPrompt } from '@/lib/prompts';
 import { buildSystemPromptAdmin } from '@/lib/adminPrompt';
 import { buildSystemPromptAdminNonSoftware } from '@/lib/adminPromptNonSoftware';
-import { repairPrimaryStackCoverage } from '@/lib/resumeRepair';
+import { repairPrimaryStackCoverage, repairPositionZeroBulletCount } from '@/lib/resumeRepair';
 import { reviewAuthenticity } from '@/lib/authenticityReview';
 import { buildResumeTool, extractGeneratedResume } from '@/lib/resumeSchema';
 import type { GeneratedResume } from '@/types/resume';
@@ -110,6 +110,11 @@ export async function POST(req: NextRequest) {
   ({ generated, toolUse } = await repairPrimaryStackCoverage(
     client, systemPrompt, userPrompt, tool, toolUse, generated, profile.profileType
   ));
+  if (user.isAdmin && profile.profileType !== 'other') {
+    ({ generated, toolUse } = await repairPositionZeroBulletCount(
+      client, systemPrompt, userPrompt, tool, toolUse, generated, profile.profileType
+    ));
+  }
   ({ generated } = await reviewAuthenticity(
     client, systemPrompt, userPrompt, tool, toolUse, generated, profile.profileType
   ));

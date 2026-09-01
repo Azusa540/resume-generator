@@ -1,6 +1,7 @@
 import Anthropic from '@anthropic-ai/sdk';
 import type { GeneratedResume } from '@/types/resume';
 import { findMissingPrimaryStack } from '@/lib/verifyPrimaryStack';
+import { positionZeroBulletCount } from '@/lib/verifyBulletCount';
 import { extractGeneratedResume } from '@/lib/resumeSchema';
 
 /**
@@ -57,6 +58,61 @@ export async function repairPrimaryStackCoverage(
     return extractGeneratedResume(message, profileType);
   } catch (err) {
     console.error('[resumeRepair] Repair call failed, keeping original generation:', err);
+    return { generated, toolUse: previousToolUse };
+  }
+}
+
+/**
+ * Admin software prompt only. Position 0 (the most recent company) must have
+ * more than 8 bullets per the Sentence distribution rule. If the model came
+ * in at 8 or fewer, send one corrective follow-up asking it to add more
+ * genuine bullets to that position only. Falls back to the original
+ * generation if the repair call fails, doesn't call the tool, or fails
+ * schema validation.
+ */
+export async function repairPositionZeroBulletCount(
+  client: Anthropic,
+  systemPrompt: string,
+  userPrompt: string,
+  tool: Anthropic.Tool,
+  previousToolUse: Anthropic.ToolUseBlock,
+  generated: GeneratedResume,
+  profileType: 'software' | 'other' | undefined
+): Promise<{ generated: GeneratedResume; toolUse: Anthropic.ToolUseBlock }> {
+  const count = positionZeroBulletCount(generated);
+  if (count > 8) return { generated, toolUse: previousToolUse };
+
+  const company = generated.experience_bullets[0]?.company ?? 'the most recent company';
+
+  try {
+    const message = await client.messages.create(
+      {
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 16000,
+        system: systemPrompt,
+        tools: [tool],
+        tool_choice: { type: 'tool', name: tool.name },
+        messages: [
+          { role: 'user', content: userPrompt },
+          { role: 'assistant', content: [previousToolUse] },
+          {
+            role: 'user',
+            content: [
+              {
+                type: 'tool_result',
+                tool_use_id: previousToolUse.id,
+                content: `Position 0 ("${company}", the most recent role) only has ${count} bullets, but per the Sentence distribution rule it MUST have more than 8 (9-12). Add genuine, specific bullets to position 0 ONLY until it exceeds 8 — draw on more of the candidate's real Role Description detail and more JD-relevant angles per PRIMARY STACK DISTRIBUTION and BULLET ORDER WITHIN EACH COMPANY. Every new bullet must say something true and specific and still follow all the existing rules (tech density, bold highlighting, verb variety, no padding with vague filler). Keep every other position, the professional_summary, education, and primary_stack unchanged. Call the tool again with the complete corrected resume, same schema.`,
+              },
+            ],
+          },
+        ],
+      },
+      { timeout: 120_000 }
+    );
+
+    return extractGeneratedResume(message, profileType);
+  } catch (err) {
+    console.error('[resumeRepair] Position-0 bullet-count repair call failed, keeping original generation:', err);
     return { generated, toolUse: previousToolUse };
   }
 }

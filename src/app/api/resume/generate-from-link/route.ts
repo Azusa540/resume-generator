@@ -8,7 +8,7 @@ import { buildSystemPrompt, buildSystemPromptNonSoftware, buildUserPrompt } from
 import { buildSystemPromptAdmin } from '@/lib/adminPrompt';
 import { buildSystemPromptAdminNonSoftware } from '@/lib/adminPromptNonSoftware';
 import { scrapeJobLink, JobScrapeError } from '@/lib/jobScraper';
-import { repairPrimaryStackCoverage } from '@/lib/resumeRepair';
+import { repairPrimaryStackCoverage, repairPositionZeroBulletCount } from '@/lib/resumeRepair';
 import { reviewAuthenticity } from '@/lib/authenticityReview';
 import { buildResumeTool, extractGeneratedResume } from '@/lib/resumeSchema';
 import { resumeKey, uploadResume, getSignedDownloadUrl } from '@/lib/storage';
@@ -152,6 +152,11 @@ export async function POST(req: NextRequest) {
   ({ generated, toolUse } = await repairPrimaryStackCoverage(
     client, systemPrompt, userPrompt, tool, toolUse, generated, profile.profileType
   ));
+  if (isAdmin && profile.profileType !== 'other') {
+    ({ generated, toolUse } = await repairPositionZeroBulletCount(
+      client, systemPrompt, userPrompt, tool, toolUse, generated, profile.profileType
+    ));
+  }
   ({ generated } = await reviewAuthenticity(
     client, systemPrompt, userPrompt, tool, toolUse, generated, profile.profileType
   ));
