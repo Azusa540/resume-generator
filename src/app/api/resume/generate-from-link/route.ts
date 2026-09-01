@@ -186,7 +186,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ message: err.message }, { status: 503 });
     }
     const msg = err instanceof Error ? err.message : 'PDF generation failed';
-    console.error('[generate-from-link] PDF generation failed:', err);
+    console.error('[generate-from-link] PDF generation failed:', jobLink, err);
     return NextResponse.json({ message: msg }, { status: 500 });
   }
 
@@ -210,7 +210,7 @@ export async function POST(req: NextRequest) {
     });
   } catch (err) {
     const msg = err instanceof Error ? err.message : 'Failed to store resume';
-    console.error('[generate-from-link] Failed to store resume:', err);
+    console.error('[generate-from-link] Failed to store resume:', jobLink, err);
     return NextResponse.json({ message: msg }, { status: 500 });
   }
 }
