@@ -273,12 +273,12 @@ Apply this same variety rule to bullets 2 and 3 within each company — vary the
   - REALISM RULE: You are describing one contributor on a team, not the whole team. Write bullets that reflect a realistic scope for one person: "Implemented the caching layer using Redis to reduce DB read load" NOT "Built the entire distributed platform."
   - SPECIFICITY RULE: Describe a concrete, detailed use case for each technology — not just "used Redis" but "Implemented a Redis-backed session cache that reduced PostgreSQL read queries by 40% during peak traffic." The technology and the task must logically belong together.
 
-Sentence distribution by position (0 = most recent) — GUIDANCE, not a quota to fill:
-- Position 0: roughly 8–12 sentences — bullets 1–3 for role overview, the rest JD-related and domain-specific details
-- Position 1: roughly 6–10 sentences
+Sentence distribution by position (0 = most recent):
+- Position 0: MUST have more than 8 sentences — 9–12, no exceptions. Bullets 1–3 are the role overview; the rest are JD-related and domain-specific details. This is the candidate's most relevant, most detailed role and must read that way.
+- Position 1: roughly 6–10 sentences — GUIDANCE, not a quota to fill
 - Position 2: roughly 5–8 sentences
 - Position 3+: roughly 4–6 sentences
-Treat these as approximate ceilings, not targets to hit. Every bullet must earn its place by saying something true and specific — never add a bullet, or stretch a short one longer, just to reach a count. A position with fewer honest, well-formed bullets than the range above is correct if that is genuinely all the role supports; do not pad. Results (a %, a before/after, a scale number) should appear where they are genuinely plausible for the work described — do not force a quota of "result-sentences" per position; RULE 10 below (not every bullet needs a positive outcome) takes precedence over any position-based count.
+For positions 1+, treat these as approximate ceilings, not targets to hit — a position with fewer honest, well-formed bullets than its range is correct if that is genuinely all the role supports; do not pad. Position 0 is the one exception: it must exceed 8 sentences regardless, since it is always the richest, most detailed role on the resume — draw on more of the candidate's real Role Description detail and more JD-relevant angles to genuinely earn that count, rather than stretching individual bullets. Every bullet, at every position, must still say something true and specific — never add a bullet, or stretch a short one longer, just to reach a count. Results (a %, a before/after, a scale number) should appear where they are genuinely plausible for the work described — do not force a quota of "result-sentences" per position; RULE 10 below (not every bullet needs a positive outcome) takes precedence over any position-based count.
 
 Quality rules for EVERY sentence:
 - ❌ NEVER mention the company name inside a bullet sentence. The company is already displayed as the section header above the bullets — repeating it inside a bullet (e.g. "Garena's platform", "at Cleveroad", "for Google") is redundant and unprofessional. Describe WHAT was built and HOW, not WHERE.
