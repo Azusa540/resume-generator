@@ -1,6 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk';
 import type { GeneratedResume } from '@/types/resume';
-import { extractGeneratedResume } from '@/lib/resumeSchema';
+import { extractGeneratedResume, cachedText } from '@/lib/resumeSchema';
 
 /**
  * Admin prompt only. When the model self-reports domain_overlap as "distant"
@@ -30,11 +30,11 @@ export async function reviewAuthenticity(
       {
         model: 'claude-haiku-4-5-20251001',
         max_tokens: 16000,
-        system: systemPrompt,
+        system: [cachedText(systemPrompt)],
         tools: [tool],
         tool_choice: { type: 'tool', name: tool.name },
         messages: [
-          { role: 'user', content: userPrompt },
+          { role: 'user', content: [cachedText(userPrompt)] },
           { role: 'assistant', content: [previousToolUse] },
           {
             role: 'user',

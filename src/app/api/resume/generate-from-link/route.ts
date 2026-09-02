@@ -10,7 +10,7 @@ import { buildSystemPromptAdminNonSoftware } from '@/lib/adminPromptNonSoftware'
 import { scrapeJobLink, JobScrapeError } from '@/lib/jobScraper';
 import { repairPrimaryStackCoverage, repairPositionZeroBulletCount } from '@/lib/resumeRepair';
 import { reviewAuthenticity } from '@/lib/authenticityReview';
-import { buildResumeTool, extractGeneratedResume } from '@/lib/resumeSchema';
+import { buildResumeTool, extractGeneratedResume, cachedText } from '@/lib/resumeSchema';
 import { resumeKey, uploadResume, getSignedDownloadUrl } from '@/lib/storage';
 import { extractApiKey, findUserByApiKey } from '@/lib/apiKey';
 import {
@@ -100,11 +100,11 @@ export async function POST(req: NextRequest) {
       {
         model: 'claude-haiku-4-5-20251001',
         max_tokens: 16000,
-        system: systemPrompt,
+        system: [cachedText(systemPrompt)],
         tools: [tool],
         tool_choice: { type: 'tool', name: tool.name },
         messages: [
-          { role: 'user', content: userPrompt },
+          { role: 'user', content: [cachedText(userPrompt)] },
         ],
       },
       { timeout: 120_000 }

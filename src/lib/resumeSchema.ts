@@ -15,6 +15,17 @@ import type { GeneratedResume } from '@/types/resume';
 
 export const TOOL_NAME = 'output_resume';
 
+/**
+ * Wraps text as a cacheable content block. The system prompt and the first
+ * user turn (candidate profile + JD) are byte-identical across the initial
+ * generation call and any repair/authenticity-review follow-up calls in the
+ * same request — marking them lets Anthropic serve those (large, expensive)
+ * tokens from cache on calls 2+ instead of re-billing full price each time.
+ */
+export function cachedText(text: string): Anthropic.TextBlockParam {
+  return { type: 'text', text, cache_control: { type: 'ephemeral' } };
+}
+
 const EDUCATION_ITEM_JSON_SCHEMA = {
   type: 'object',
   properties: {
