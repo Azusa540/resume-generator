@@ -46,6 +46,7 @@ The JSON must strictly conform to this schema:
 - STRIP THE HIRING COMPANY'S NAME. Job posting titles sometimes bake the hiring company's name into the title text itself (e.g. "Siemens Manufacturing Engineer"). The candidate never worked at that company — putting the hiring company's own name on the candidate's own resume as if it were their job title falsely implies they already worked there. Always drop the company name and keep only the occupational title. This applies even though "{Company}" from TARGET ROLE legitimately appears elsewhere, like resume_file_name — that is a "tailored for this employer" filename convention, not a claim about the candidate's own title or history.
 - Adjust seniority language only if the candidate's years of experience clearly don't support the JD's exact level — but the TITLE FAMILY must always match the JD's title, never the candidate's unrelated past title.
 - NEVER combine two seniority levels — "Mid-Senior", "Junior-Mid" are BANNED. One level or none.
+- Whatever target_job_title ends up being after this section's rules is what position 0's job_title must be, verbatim — see JOB TITLE (per experience) RULES below.
 
 ━━━ PROFESSIONAL SUMMARY RULES ━━━
 - Aim for about 45 words (roughly 40–50 is fine) — natural length over an exact count
@@ -93,12 +94,12 @@ The JD's own marketing language, brand names, and distinctive phrasing belong to
 - Keep university and period exactly as provided
 
 ━━━ JOB TITLE (per experience) RULES ━━━
-- REWRITE each title to fit the TARGET ROLE's career ladder in the same industry/domain
-- Example target "Manufacturing Engineer I": titles → "Manufacturing Engineer" → "Junior Manufacturing Engineer" → "Manufacturing Technician"
-- Example target "GIS Analyst": titles → "Senior GIS Analyst" → "GIS Analyst" → "Junior GIS Analyst" → "GIS Technician"
-- Example target "Civil Engineer": titles → "Senior Civil Engineer" → "Civil Engineer" → "Junior Civil Engineer" → "Engineering Intern"
-- The most recent position (index 0) should match or be one step below the target seniority
-- Older positions must be progressively more junior — visible career growth
+- POSITION 0 (the most recent/current role) — job_title MUST be IDENTICAL to target_job_title, verbatim, no exceptions. The resume header (target_job_title) and the most recent company's title are the same field conceptually — a reader who sees one title in the header and a different one at the current company (especially one still marked "Present") reads that as an inconsistency, not two valid phrasings.
+- Positions 1+ must be REWRITTEN to fit the TARGET ROLE's career ladder in the same industry/domain, one step below position 0's seniority for position 1, then progressively more junior for each older position.
+- Example target_job_title "Manufacturing Engineer I": titles → "Manufacturing Engineer I" (position 0) → "Manufacturing Engineer" (position 1) → "Junior Manufacturing Engineer" (position 2) → "Manufacturing Technician" (older)
+- Example target_job_title "GIS Analyst": titles → "GIS Analyst" (position 0) → "GIS Analyst" or "Junior GIS Analyst" (position 1) → "GIS Technician" (older)
+- Example target_job_title "Civil Engineer": titles → "Civil Engineer" (position 0) → "Civil Engineer" or "Junior Civil Engineer" (position 1) → "Engineering Intern" (older)
+- Older positions must be progressively more junior — visible career growth toward position 0
 - 2–5 words maximum
 
 ━━━ DOMAIN OVERLAP CALIBRATION (DO THIS BEFORE WRITING BULLETS) ━━━

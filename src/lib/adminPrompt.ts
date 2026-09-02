@@ -54,6 +54,7 @@ The JSON must strictly conform to this schema:
 - Adjust seniority language only if the candidate's years of experience clearly don't support the JD's exact level (e.g. drop "Senior" if the candidate is early-career) — but the TITLE FAMILY must always match the JD's title, never the candidate's unrelated past title.
 - NEVER combine two seniority levels — "Mid-Senior", "Junior-Mid", "Mid-Level Senior" are BANNED. One level or none.
 - Do NOT invent or add level descriptors (Mid, Junior, Entry-level) that aren't reflected in the candidate's years of experience.
+- Whatever target_job_title ends up being after this section's rules is what position 0's job_title must be, verbatim — see JOB TITLE (per experience) RULES below.
 
 ━━━ PROFESSIONAL SUMMARY RULES ━━━
 - Aim for about 45 words (roughly 40–50 is fine) — natural length over an exact count
@@ -185,14 +186,14 @@ NAMING RULES — use canonical product/standard names, not adjective forms:
 - Do NOT include a coursework field
 
 ━━━ JOB TITLE (per experience) RULES ━━━
-- Titles must be REWRITTEN to fit the TARGET ROLE's career ladder — use the target job title's discipline and domain as the title family for all positions
-- Example: if target is "Machine Learning Engineer", titles should be like "Senior ML Engineer" → "ML Engineer" → "Junior ML Engineer" → "Data Engineer", NOT generic "Software Engineer" titles
-- Example: if target is "GIS Analyst", titles should be "Senior GIS Analyst" → "GIS Analyst" → "Junior GIS Analyst" → "GIS Technician"
-- Example: if target is "DevOps Engineer", titles should be "Senior DevOps Engineer" → "DevOps Engineer" → "Junior DevOps / Infrastructure Engineer" → "Systems Engineer"
-- The most recent position (position 0) should match or be one step below the target title's seniority level
-- Older positions (higher index) must be progressively more junior — clear visible career growth toward the target role
-- Do NOT assign the same seniority level to all positions
-- Use "Senior" only for position 0 or position 1 if the candidate has enough years of experience
+- POSITION 0 (the most recent/current role) — job_title MUST be IDENTICAL to target_job_title, verbatim, no exceptions. The resume header (target_job_title) and the most recent company's title are the same field conceptually — a reader who sees "Circuit Engineer II" in the header and "Circuit and Systems Engineer" at the current company (especially one still marked "Present") reads that as an inconsistency, not two valid phrasings.
+- Positions 1+ must be REWRITTEN to fit the TARGET ROLE's career ladder — use target_job_title's discipline and domain as the title family, one step below position 0's seniority for position 1, then progressively more junior for each older position.
+- Example: if target_job_title is "Machine Learning Engineer", titles should be "Machine Learning Engineer" (position 0) → "ML Engineer" (position 1) → "Junior ML Engineer" (position 2) → "Data Engineer" (position 3), NOT generic "Software Engineer" titles
+- Example: if target_job_title is "GIS Analyst", titles should be "GIS Analyst" (position 0) → "GIS Analyst" or "Junior GIS Analyst" (position 1, depending on seniority) → "GIS Technician" (older)
+- Example: if target_job_title is "DevOps Engineer", titles should be "DevOps Engineer" (position 0) → "DevOps Engineer" or "Junior DevOps / Infrastructure Engineer" (position 1) → "Systems Engineer" (older)
+- Older positions (higher index) must be progressively more junior — clear visible career growth toward position 0
+- Do NOT assign the same seniority level to all positions 1+
+- "Senior" may only appear in position 0 (inherited from target_job_title, if it has it) or position 1 — never in older positions, regardless of what target_job_title says
 - 2–5 words maximum
 
 ━━━ DOMAIN OVERLAP CALIBRATION (DO THIS BEFORE WRITING BULLETS) ━━━
