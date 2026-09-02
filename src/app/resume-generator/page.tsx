@@ -108,6 +108,7 @@ export default function ResumeGeneratorPage() {
         company: form.company,
         profile: data.profile,
         jobLink: form.jobLink || undefined,
+        jobDescription: form.jobDescription || undefined,
         pdfTemplate: data.pdfTemplate ?? 'template1',
       };
 

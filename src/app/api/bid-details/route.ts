@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
   const user = getUser(req);
   if (!user) return NextResponse.json({ message: 'Unauthorized.' }, { status: 401 });
 
-  const { profileId, jobTitle, company, jobLink } = await req.json();
+  const { profileId, jobTitle, company, jobLink, jobDescription } = await req.json();
   if (!jobTitle || !company) {
     return NextResponse.json({ message: 'Missing required fields.' }, { status: 400 });
   }
@@ -21,6 +21,7 @@ export async function POST(req: NextRequest) {
     jobTitle,
     company,
     jobLink: jobLink || undefined,
+    jobDescription: jobDescription || undefined,
   });
 
   return NextResponse.json(bid, { status: 201 });

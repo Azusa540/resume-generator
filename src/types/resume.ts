@@ -54,5 +54,6 @@ export interface ResumeReviewData {
     linkedin?: string;
   };
   jobLink?: string;
+  jobDescription?: string;
   pdfTemplate?: PdfTemplateId;
 }

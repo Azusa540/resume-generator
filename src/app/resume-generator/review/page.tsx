@@ -79,6 +79,7 @@ export default function ResumeReviewPage() {
           jobTitle: d.title,
           company: d.company,
           jobLink: d.jobLink ?? '',
+          jobDescription: d.jobDescription ?? '',
         }),
       });
     } catch (err) {

@@ -6,6 +6,7 @@ export interface IBidDetail extends Document {
   jobTitle: string;
   company: string;
   jobLink?: string;
+  jobDescription?: string;
 }
 
 const BidDetailSchema = new Schema<IBidDetail>(
@@ -15,6 +16,7 @@ const BidDetailSchema = new Schema<IBidDetail>(
     jobTitle: { type: String, required: true },
     company: { type: String, required: true },
     jobLink: { type: String },
+    jobDescription: { type: String },
   },
   // Force the collection name; Mongoose would otherwise pluralize to "biddetails"
   { timestamps: true, collection: 'bid_details' }
