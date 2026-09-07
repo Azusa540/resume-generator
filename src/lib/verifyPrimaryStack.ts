@@ -1,7 +1,12 @@
 import type { GeneratedResume } from '@/types/resume';
 
-/** Returns PRIMARY STACK terms (admin prompt only) that don't appear bolded in at least 2 different companies' bullets. */
-export function findMissingPrimaryStack(generated: GeneratedResume): string[] {
+/**
+ * Returns PRIMARY STACK terms (admin prompt only) that don't appear bolded in
+ * at least `minCompanies` different companies' bullets. The software admin
+ * prompt requires 3; the non-software admin prompt still requires 2 — callers
+ * pass the threshold that matches whichever prompt actually generated this.
+ */
+export function findMissingPrimaryStack(generated: GeneratedResume, minCompanies = 2): string[] {
   const primaryStack = generated.primary_stack;
   if (!primaryStack || primaryStack.length === 0) return [];
 
@@ -19,7 +24,7 @@ export function findMissingPrimaryStack(generated: GeneratedResume): string[] {
       if (hasBoldedTerm) companiesWithTerm.add(exp.company);
     }
 
-    if (companiesWithTerm.size < 2) missing.push(term);
+    if (companiesWithTerm.size < minCompanies) missing.push(term);
   }
   return missing;
 }

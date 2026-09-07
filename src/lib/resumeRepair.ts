@@ -6,11 +6,12 @@ import { extractGeneratedResume, cachedText } from '@/lib/resumeSchema';
 
 /**
  * Admin prompt only. If the model's own PRIMARY STACK DISTRIBUTION CHECK failed
- * (a primary_stack term appears in fewer than 2 companies), send one corrective
- * follow-up naming the gap before returning the result. Falls back to the
- * original generation (and its tool_use block, so a later call in the chain
- * can still continue the conversation correctly) if the repair call fails,
- * doesn't call the tool, or fails schema validation.
+ * (a primary_stack term doesn't appear in enough companies — 3 for the software
+ * prompt, 2 for the non-software prompt), send one corrective follow-up naming
+ * the gap before returning the result. Falls back to the original generation
+ * (and its tool_use block, so a later call in the chain can still continue the
+ * conversation correctly) if the repair call fails, doesn't call the tool, or
+ * fails schema validation.
  */
 export async function repairPrimaryStackCoverage(
   client: Anthropic,
@@ -21,9 +22,10 @@ export async function repairPrimaryStackCoverage(
   generated: GeneratedResume,
   profileType: 'software' | 'other' | undefined
 ): Promise<{ generated: GeneratedResume; toolUse: Anthropic.ToolUseBlock }> {
+  const minCompanies = profileType === 'other' ? 2 : 3;
   let missing: string[];
   try {
-    missing = findMissingPrimaryStack(generated);
+    missing = findMissingPrimaryStack(generated, minCompanies);
   } catch {
     return { generated, toolUse: previousToolUse };
   }
@@ -46,7 +48,7 @@ export async function repairPrimaryStackCoverage(
               {
                 type: 'tool_result',
                 tool_use_id: previousToolUse.id,
-                content: `Your PRIMARY STACK DISTRIBUTION CHECK failed: the following technologies are missing or appear in fewer than 2 companies in experience_bullets: ${missing.join(', ')}. Revise ONLY the "experience_bullets" array (and "skills" too, if a term is missing there) so each of these technologies appears bolded in bullets across at least 2 different companies, blended naturally into that company's real domain per the BLEND, DON'T BOLT ON rule. Keep everything else — professional_summary, education, the other bullets' content and order — unchanged. Call the tool again with the complete corrected resume, same schema including "primary_stack".`,
+                content: `Your PRIMARY STACK DISTRIBUTION CHECK failed: the following technologies are missing or appear in fewer than ${minCompanies} companies in experience_bullets: ${missing.join(', ')}. Revise ONLY the "experience_bullets" array (and "skills" too, if a term is missing there) so each of these technologies appears bolded in bullets across at least ${minCompanies} different companies, blended naturally into that company's real domain per the BLEND, DON'T BOLT ON rule. Keep everything else — professional_summary, education, the other bullets' content and order — unchanged. Call the tool again with the complete corrected resume, same schema including "primary_stack".`,
               },
             ],
           },

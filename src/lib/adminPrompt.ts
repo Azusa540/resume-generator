@@ -226,17 +226,17 @@ STEP 1: Extract the TOP 5–6 must-have technologies from the JD. These are the 
 
 DISTANT OVERLAP EXCEPTION TO STEP 1 (do this check first when DOMAIN OVERLAP CALIBRATION above classifies the role as "distant"): prefer JD requirements that are genuinely transferable general software engineering skills — languages, testing, debugging, Linux/OS fundamentals, APIs, scripting — over deep specialist terms that are locked to one industry and have zero plausible connection to any of the candidate's real employers (e.g. ASIC, chip-specific hardware protocols, proprietary silicon/hardware product names). Those deep-specialist terms may still appear in the skills list as a general-familiarity item, but must NOT be selected into the PRIMARY STACK and must NOT be forced into experience bullets — a lower JD match score is the correct tradeoff over fabricating hardware/chip work at a company that has no plausible connection to it, even under DEFENSIBLE ADJACENT FRAMING. The mandatory PRIMARY STACK DISTRIBUTION coverage requirement below only ever applies to the terms you actually selected into primary_stack — pre-filtering out the indefensible ones here is what keeps that requirement from forcing an impossible claim later.
 
-STEP 2: Build a distribution plan. For each PRIMARY STACK technology, decide which 2–3 company positions it will appear in (positions 0 and 1 at minimum, position 2 if it fits naturally). Write this plan mentally before starting:
-  - PRIMARY TECH A → will appear in positions: 0, 1 (and 2 if applicable)
-  - PRIMARY TECH B → will appear in positions: 0, 1 (and 2 if applicable)
-  - PRIMARY TECH C → will appear in positions: 0, 1 (and 2 if applicable)
+STEP 2: Build a distribution plan. For each PRIMARY STACK technology, decide which company positions it will appear in — at least 3 companies (positions 0, 1, and 2 mandatory; position 3 if it fits naturally). Write this plan mentally before starting:
+  - PRIMARY TECH A → will appear in positions: 0, 1, 2 (and 3 if applicable)
+  - PRIMARY TECH B → will appear in positions: 0, 1, 2 (and 3 if applicable)
+  - PRIMARY TECH C → will appear in positions: 0, 1, 2 (and 3 if applicable)
 
 STEP 3: Only start writing bullets after this plan is set. Each company's bullets must be written with the distribution plan in mind — not retrofitted afterward.
 
 DISTRIBUTION RULES:
-- Each PRIMARY STACK technology MUST appear bolded in at least 2–3 bullets, spread across at least 2 companies (positions 0 and 1 are mandatory; position 2 whenever it fits naturally). This is a hard requirement, not a suggestion — the PRIMARY STACK is never part of the intentional keyword offset described elsewhere in this prompt.
+- Each PRIMARY STACK technology MUST appear bolded in at least 3 bullets, spread across at least 3 companies (positions 0, 1, and 2 are mandatory; position 3 whenever it fits naturally). This is a hard requirement, not a suggestion — the PRIMARY STACK is never part of the intentional keyword offset described elsewhere in this prompt.
 - BLEND, DON'T BOLT ON: when a PRIMARY STACK technology doesn't literally match a company's historical domain, integrate it as a believable extension of that company's real product, not a random insertion. A logistics/delivery platform can plausibly have grown a merchant-facing storefront or order-management piece built on the JD's platform; an e-commerce platform can plausibly have adopted the JD's tooling for a checkout or catalog project. Adapt the existing company's real context — never invent an unrelated employer just to justify a keyword. This blending applies for SAME/ADJACENT domain overlap (see DOMAIN OVERLAP CALIBRATION above). For DISTANT overlap, follow DEFENSIBLE ADJACENT FRAMING instead — the PRIMARY STACK terms must still appear bolded per the coverage requirement above, but framed as peripheral/adjacent involvement the candidate could actually defend in an interview, not direct ownership of specialized work they have no real background in.
-- If a PRIMARY STACK technology feels out of place in an older company, find a plausible angle: a related project, a tool they evaluated, a system they integrated with, or a migration they led. Do NOT skip position 1.
+- If a PRIMARY STACK technology feels out of place in an older company, find a plausible angle: a related project, a tool they evaluated, a system they integrated with, or a migration they led. Do NOT skip position 1 or position 2.
 - Do NOT concentrate PRIMARY STACK tech only in position 0. A resume where key skills only appear in the latest company looks like a surface-level match to both ATS and human reviewers.
 - Secondary JD technologies (nice-to-have, preferred) must appear in at least 1–2 companies.
 
