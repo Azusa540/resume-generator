@@ -118,3 +118,52 @@ export async function repairPositionZeroBulletCount(
     return { generated, toolUse: previousToolUse };
   }
 }
+
+/**
+ * Safety net for the INITIAL generation call only. If the model's tool_use
+ * input fails schema validation (even after the local self-heal in
+ * validateGeneratedResume), send one corrective follow-up quoting the exact
+ * validation error before giving up. Observed real failure modes this
+ * catches: "experience_bullets" emitted as a JSON-encoded string instead of
+ * a native array, and a per-entry "bullets" key misspelled (e.g. "buttons").
+ * The model's own knowledge of the content is intact in both cases — it just
+ * needs to be told precisely what to fix and asked to re-emit. Re-throws if
+ * the retry also fails; callers should treat that as a final failure.
+ */
+export async function repairMalformedSchema(
+  client: Anthropic,
+  systemPrompt: string,
+  userPrompt: string,
+  tool: Anthropic.Tool,
+  previousToolUse: Anthropic.ToolUseBlock,
+  validationError: string,
+  profileType: 'software' | 'other' | undefined
+): Promise<{ generated: GeneratedResume; toolUse: Anthropic.ToolUseBlock }> {
+  const message = await client.messages.create(
+    {
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 16000,
+      system: [cachedText(systemPrompt)],
+      tools: [tool],
+      tool_choice: { type: 'tool', name: tool.name },
+      messages: [
+        { role: 'user', content: [cachedText(userPrompt)] },
+        { role: 'assistant', content: [previousToolUse] },
+        {
+          role: 'user',
+          content: [
+            {
+              type: 'tool_result',
+              tool_use_id: previousToolUse.id,
+              content: `Your last output_resume call did not match the required schema: ${validationError}. Two common mistakes: (1) writing "experience_bullets" — or a "bullets" array inside one of its entries — as a JSON-encoded STRING instead of a real, natively-nested array; every field must be actual JSON, never a string containing JSON text. (2) misspelling a key name (e.g. "bullets" spelled as something else) in one entry. Call the tool again with the complete, corrected resume — same content, valid against the schema.`,
+            },
+          ],
+        },
+      ],
+    },
+    { timeout: 120_000 }
+  );
+
+  return extractGeneratedResume(message, profileType);
+}
+

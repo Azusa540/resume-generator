@@ -8,9 +8,9 @@ import { buildSystemPrompt, buildSystemPromptNonSoftware, buildUserPrompt } from
 import { buildSystemPromptAdmin } from '@/lib/adminPrompt';
 import { buildSystemPromptAdminNonSoftware } from '@/lib/adminPromptNonSoftware';
 import { scrapeJobLink, JobScrapeError } from '@/lib/jobScraper';
-import { repairPrimaryStackCoverage, repairPositionZeroBulletCount } from '@/lib/resumeRepair';
+import { repairPrimaryStackCoverage, repairPositionZeroBulletCount, repairMalformedSchema } from '@/lib/resumeRepair';
 import { reviewAuthenticity } from '@/lib/authenticityReview';
-import { buildResumeTool, extractGeneratedResume, cachedText } from '@/lib/resumeSchema';
+import { buildResumeTool, findToolUse, validateGeneratedResume, cachedText } from '@/lib/resumeSchema';
 import { resumeKey, uploadResume, getSignedDownloadUrl } from '@/lib/storage';
 import { extractApiKey, findUserByApiKey } from '@/lib/apiKey';
 import {
@@ -134,19 +134,37 @@ export async function POST(req: NextRequest) {
   let generated: GeneratedResume;
   let toolUse: Anthropic.ToolUseBlock;
   try {
-    ({ generated, toolUse } = extractGeneratedResume(message, profile.profileType));
+    toolUse = findToolUse(message);
   } catch (err) {
-    console.error('[generate-from-link] Failed to extract/validate resume tool output:', err, {
+    console.error('[generate-from-link] Model did not call the tool:', err, {
+      profileFullName: profile.fullName,
+      jobLink,
+      stopReason: message.stop_reason,
+      rawContent: JSON.stringify(message.content),
+    });
+    return NextResponse.json({ message: 'Failed to parse response as JSON.' }, { status: 500 });
+  }
+  try {
+    generated = validateGeneratedResume(toolUse.input, profile.profileType);
+  } catch (err) {
+    console.error('[generate-from-link] Initial tool output failed schema validation, attempting one corrective retry:', err, {
       profileFullName: profile.fullName,
       employmentCount: profile.employment.length,
       jobLink,
       scrapedTitle: scraped.jobTitle,
       scrapedCompany: scraped.companyName,
       scrapedDescriptionLen: scraped.jobDescription.length,
-      stopReason: message.stop_reason,
-      rawContent: JSON.stringify(message.content),
+      rawInput: JSON.stringify(toolUse.input),
     });
-    return NextResponse.json({ message: 'Failed to parse response as JSON.' }, { status: 500 });
+    try {
+      const validationMessage = err instanceof Error ? err.message : String(err);
+      ({ generated, toolUse } = await repairMalformedSchema(
+        client, systemPrompt, userPrompt, tool, toolUse, validationMessage, profile.profileType
+      ));
+    } catch (err2) {
+      console.error('[generate-from-link] Corrective retry also failed:', err2);
+      return NextResponse.json({ message: 'Failed to parse response as JSON.' }, { status: 500 });
+    }
   }
 
   ({ generated, toolUse } = await repairPrimaryStackCoverage(

@@ -150,32 +150,81 @@ const nonSoftwareResumeSchema = z.object({
   skills: z.array(z.string()),
 });
 
-/**
- * Validates a tool call's raw `input` against the schema for this profile
- * type. Throws a ZodError (with a readable `.message`) on any mismatch —
- * callers should treat that exactly like a JSON parse failure.
- */
-export function validateGeneratedResume(input: unknown, profileType: 'software' | 'other' | undefined): GeneratedResume {
-  const schema = isSoftware(profileType) ? softwareResumeSchema : nonSoftwareResumeSchema;
-  return schema.parse(input) as unknown as GeneratedResume;
+function tryParseJson(value: unknown): unknown {
+  if (typeof value !== 'string') return value;
+  try {
+    return JSON.parse(value);
+  } catch {
+    return value;
+  }
 }
 
 /**
- * Pulls the tool_use block out of a Claude response and validates it.
- * Throws with a descriptive message on any failure (no tool call, or a
- * tool call that fails schema validation) — callers should log the error
- * and the raw message content, then return a clean user-facing failure.
+ * Occasionally the model emits a field that should be a native nested
+ * array/object as a JSON-encoded STRING instead (e.g. "experience_bullets"
+ * as a string containing "[{...}]" rather than an actual array) — a real
+ * failure mode observed in production, not a hypothetical. Anthropic's tool
+ * schema doesn't fully prevent this. This is a free, local self-heal: if a
+ * field that should be an array/object comes back as a string, try parsing
+ * it before validation — it's usually well-formed JSON once decoded.
  */
-export function extractGeneratedResume(
-  message: Anthropic.Message,
-  profileType: 'software' | 'other' | undefined
-): { generated: GeneratedResume; toolUse: Anthropic.ToolUseBlock } {
+function coerceToolInput(input: unknown): unknown {
+  if (typeof input !== 'object' || input === null) return input;
+  const obj = { ...(input as Record<string, unknown>) };
+
+  obj.experience_bullets = tryParseJson(obj.experience_bullets);
+  if (Array.isArray(obj.experience_bullets)) {
+    obj.experience_bullets = obj.experience_bullets.map((item) => {
+      if (typeof item !== 'object' || item === null) return item;
+      const entry = { ...(item as Record<string, unknown>) };
+      entry.bullets = tryParseJson(entry.bullets);
+      return entry;
+    });
+  }
+
+  obj.skills = tryParseJson(obj.skills);
+
+  return obj;
+}
+
+/**
+ * Validates a tool call's raw `input` against the schema for this profile
+ * type (after the local self-heal above). Throws a ZodError (with a
+ * readable `.message`) on any remaining mismatch — callers should treat
+ * that exactly like a JSON parse failure.
+ */
+export function validateGeneratedResume(input: unknown, profileType: 'software' | 'other' | undefined): GeneratedResume {
+  const schema = isSoftware(profileType) ? softwareResumeSchema : nonSoftwareResumeSchema;
+  return schema.parse(coerceToolInput(input)) as unknown as GeneratedResume;
+}
+
+/**
+ * Pulls the tool_use block out of a Claude response. Throws only when the
+ * model didn't call the tool at all — a different, unrecoverable failure
+ * from a schema-validation mismatch on its input (see validateGeneratedResume).
+ */
+export function findToolUse(message: Anthropic.Message): Anthropic.ToolUseBlock {
   const toolUse = message.content.find(
     (block): block is Anthropic.ToolUseBlock => block.type === 'tool_use'
   );
   if (!toolUse) {
     throw new Error(`Model did not call the "${TOOL_NAME}" tool (stop_reason: ${message.stop_reason}).`);
   }
+  return toolUse;
+}
+
+/**
+ * Pulls the tool_use block out of a Claude response and validates it.
+ * Throws with a descriptive message on any failure (no tool call, or a
+ * tool call that fails schema validation even after the self-heal) —
+ * callers should log the error and the raw message content, then return a
+ * clean user-facing failure.
+ */
+export function extractGeneratedResume(
+  message: Anthropic.Message,
+  profileType: 'software' | 'other' | undefined
+): { generated: GeneratedResume; toolUse: Anthropic.ToolUseBlock } {
+  const toolUse = findToolUse(message);
   const generated = validateGeneratedResume(toolUse.input, profileType);
   return { generated, toolUse };
 }
