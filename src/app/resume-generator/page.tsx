@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Nav from '@/components/Nav';
 import { useSession } from '@/hooks/useSession';
 import type { ResumeReviewData, GeneratedResume } from '@/types/resume';
@@ -24,6 +24,13 @@ interface Profile {
   profileType?: 'software' | 'other';
 }
 
+interface Bid {
+  _id: string;
+  company: string;
+  profileId?: { _id: string; fullName: string } | string | null;
+  createdAt: string;
+}
+
 interface FormData {
   profileId: string;
   title: string;
@@ -44,6 +51,7 @@ export default function ResumeGeneratorPage() {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [bids, setBids] = useState<Bid[]>([]);
 
   useEffect(() => {
     if (!ready) return;
@@ -56,7 +64,33 @@ export default function ResumeGeneratorPage() {
         const match = saved && data.find((p) => p._id === saved);
         setForm((f) => ({ ...f, profileId: f.profileId || (match ? saved! : data[0]._id) }));
       });
+    fetch('/api/bid-details')
+      .then((r) => (r.ok ? r.json() : []))
+      .then((data: Bid[]) => setBids(data))
+      .catch(() => { /* non-critical: duplicate-bid warning just won't show */ });
   }, [ready]);
+
+  // Same profile + same company (case-insensitive) + same calendar day (local time) already has a bid on record.
+  const duplicateBid = useMemo(() => {
+    const company = form.company.trim().toLowerCase();
+    if (!company || !form.profileId) return null;
+    const today = new Date().toDateString();
+    return (
+      bids.find((b) => {
+        const bidProfileId = typeof b.profileId === 'object' && b.profileId ? b.profileId._id : b.profileId;
+        return (
+          bidProfileId === form.profileId &&
+          b.company.trim().toLowerCase() === company &&
+          new Date(b.createdAt).toDateString() === today
+        );
+      }) ?? null
+    );
+  }, [bids, form.company, form.profileId]);
+
+  const duplicateBidProfileName =
+    duplicateBid && typeof duplicateBid.profileId === 'object' && duplicateBid.profileId
+      ? duplicateBid.profileId.fullName
+      : profiles.find((p) => p._id === form.profileId)?.fullName ?? 'this profile';
 
   function setField(key: keyof FormData, value: string) {
     setForm((f) => {
@@ -189,8 +223,13 @@ export default function ResumeGeneratorPage() {
               onChange={(e) => setField('company', e.target.value)}
               onBlur={(e) => setField('company', e.target.value.trim())}
               required
-              className={inputCls}
+              className={duplicateBid ? `${inputCls} border-red-500 focus:ring-red-500` : inputCls}
             />
+            {duplicateBid && (
+              <p className="mt-1.5 text-sm text-red-600">
+                You already generated a resume for <strong>{form.company}</strong> with <strong>{duplicateBidProfileName}</strong> today.
+              </p>
+            )}
           </div>
 
           {/* Title */}
