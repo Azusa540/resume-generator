@@ -10,6 +10,7 @@ import { buildSystemPromptAdminNonSoftware } from '@/lib/adminPromptNonSoftware'
 import { repairPrimaryStackCoverage, repairPositionZeroBulletCount, repairMalformedSchema } from '@/lib/resumeRepair';
 import { reviewAuthenticity } from '@/lib/authenticityReview';
 import { buildResumeTool, findToolUse, validateGeneratedResume, cachedText } from '@/lib/resumeSchema';
+import { dedupeSkills } from '@/lib/dedupeSkills';
 import type { GeneratedResume } from '@/types/resume';
 
 export async function POST(req: NextRequest) {
@@ -135,6 +136,7 @@ export async function POST(req: NextRequest) {
   ({ generated } = await reviewAuthenticity(
     client, systemPrompt, userPrompt, tool, toolUse, generated, profile.profileType
   ));
+  generated = dedupeSkills(generated);
 
   return NextResponse.json({
     generated,

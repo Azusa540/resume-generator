@@ -10,6 +10,7 @@ import { buildSystemPromptAdminNonSoftware } from '@/lib/adminPromptNonSoftware'
 import { repairPrimaryStackCoverage, repairPositionZeroBulletCount, repairMalformedSchema } from '@/lib/resumeRepair';
 import { reviewAuthenticity } from '@/lib/authenticityReview';
 import { buildResumeTool, findToolUse, validateGeneratedResume, cachedText } from '@/lib/resumeSchema';
+import { dedupeSkills } from '@/lib/dedupeSkills';
 import { resumeKey, uploadResume, getSignedDownloadUrl } from '@/lib/storage';
 import { extractApiKey, findUserByApiKey } from '@/lib/apiKey';
 import {
@@ -175,6 +176,7 @@ export async function POST(req: NextRequest) {
   ({ generated } = await reviewAuthenticity(
     client, systemPrompt, userPrompt, tool, toolUse, generated, profile.profileType
   ));
+  generated = dedupeSkills(generated);
 
   const profileContact = {
     fullName: profile.fullName,
