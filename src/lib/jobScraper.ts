@@ -14,67 +14,120 @@ export class JobScrapeError extends Error {
   }
 }
 
-export async function scrapeJobLink(url: string): Promise<ScrapedJob> {
-  const apiKey = process.env.DEVORA21_API_KEY;
-  if (!apiKey) throw new JobScrapeError('Job scraping is not configured (missing DEVORA21_API_KEY).', 500);
+const ZYTE_EXTRACT_URL = 'https://api.zyte.com/v1/extract';
+const MIN_PROBABILITY = 0.5;
 
-  const endpoint = process.env.DEVORA21_SCRAPE_URL || 'https://api.devora21.com/jobs/scrape';
+interface ZyteJobPosting {
+  jobTitle?: string;
+  description?: string;
+  descriptionHtml?: string;
+  hiringOrganization?: { name?: string };
+  metadata?: { probability?: number };
+}
+
+interface ZyteExtractResponse {
+  status?: number;
+  title?: string;
+  detail?: string;
+  jobPosting?: ZyteJobPosting;
+}
+
+function zyteAuthorization(apiKey: string): string {
+  return `Basic ${Buffer.from(`${apiKey}:`).toString('base64')}`;
+}
+
+function plainDescription(posting: ZyteJobPosting): string {
+  const text = posting.description?.trim() ?? '';
+  if (text.length >= 50) return text;
+  const html = posting.descriptionHtml?.trim();
+  if (!html) return text;
+  const stripped = html
+    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
+    .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&amp;/gi, '&')
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/\s+/g, ' ')
+    .trim();
+  return stripped.length > text.length ? stripped : text;
+}
+
+function confidenceFor(probability: number | undefined): ScrapedJob['confidence'] {
+  if (probability === undefined) return 'medium';
+  if (probability >= 0.8) return 'high';
+  if (probability >= MIN_PROBABILITY) return 'medium';
+  return 'low';
+}
+
+export async function scrapeJobLink(url: string): Promise<ScrapedJob> {
+  const apiKey = process.env.ZYTE_API_KEY;
+  if (!apiKey) throw new JobScrapeError('Job scraping is not configured (missing ZYTE_API_KEY).', 500);
 
   let res: Response;
   try {
-    res = await fetch(endpoint, {
+    res = await fetch(ZYTE_EXTRACT_URL, {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${apiKey}`,
+        Authorization: zyteAuthorization(apiKey),
         'Content-Type': 'application/json',
+        Accept: 'application/json',
       },
-      body: JSON.stringify({ url }),
-      signal: AbortSignal.timeout(30_000),
+      body: JSON.stringify({
+        url,
+        jobPosting: true,
+        jobPostingOptions: { extractFrom: 'browserHtml' },
+      }),
+      signal: AbortSignal.timeout(120_000),
     });
   } catch (err) {
     const isTimeout = err instanceof Error && err.name === 'TimeoutError';
     console.error(
-      isTimeout ? '[jobScraper] Timed out reaching scraping service:' : '[jobScraper] Network error reaching scraping service:',
-      { url, endpoint, err }
+      isTimeout ? '[jobScraper] Timed out reaching Zyte:' : '[jobScraper] Network error reaching Zyte:',
+      { url, err }
     );
     throw isTimeout
       ? new JobScrapeError('The job scraping service took too long to respond. Please try again.', 504)
       : new JobScrapeError('Could not reach the job scraping service.', 502);
   }
 
+  const rawBody = await res.text().catch(() => '');
+  const parsedBody = (() => {
+    try {
+      return JSON.parse(rawBody) as ZyteExtractResponse;
+    } catch {
+      return null;
+    }
+  })();
+
   if (!res.ok) {
-    const rawBody = await res.text().catch(() => '');
-    const parsedBody = (() => {
-      try {
-        return JSON.parse(rawBody);
-      } catch {
-        return null;
-      }
-    })();
-    console.error('[jobScraper] Scraping service returned an error:', {
+    console.error('[jobScraper] Zyte returned an error:', {
       url,
       status: res.status,
       statusText: res.statusText,
+      title: parsedBody?.title,
+      detail: parsedBody?.detail,
       rawBody: rawBody.slice(0, 1000),
     });
-    throw new JobScrapeError(parsedBody?.message || parsedBody?.error || 'Failed to scrape the job link.', res.status);
+    if (res.status === 401 || res.status === 403) {
+      throw new JobScrapeError('Job scraping is misconfigured.', 500);
+    }
+    if (res.status === 429) {
+      throw new JobScrapeError('The job scraping service is rate-limited right now. Please try again.', 429);
+    }
+    throw new JobScrapeError('Failed to scrape the job link.', 502);
   }
 
-  const scraped = (await res.json()) as ScrapedJob;
-
-  // A "successful" scrape can still return near-empty content (a JS-rendered page the
-  // scraper couldn't parse, a login wall, a dead posting). That gives the resume model
-  // nothing real to work with, so treat it as a scrape failure here rather than letting
-  // empty/garbage content reach the caller.
-  if (scraped.jobTitle.trim().length < 2 || scraped.companyName.trim().length < 2 || scraped.jobDescription.trim().length < 50) {
-    console.error('[jobScraper] Scrape succeeded but returned empty/insufficient content:', {
+  const posting = parsedBody?.jobPosting;
+  const probability = posting?.metadata?.probability;
+  if (!posting || (typeof probability === 'number' && probability < MIN_PROBABILITY)) {
+    console.error('[jobScraper] Zyte response was not a usable job posting:', {
       url,
-      source: scraped.source,
-      confidence: scraped.confidence,
-      warning: scraped.warning,
-      jobTitle: scraped.jobTitle,
-      companyName: scraped.companyName,
-      jobDescriptionLen: scraped.jobDescription?.length ?? 0,
+      probability,
+      jobTitle: posting?.jobTitle,
+      companyName: posting?.hiringOrganization?.name,
+      jobDescriptionLen: posting?.description?.length ?? 0,
     });
     throw new JobScrapeError(
       'Could not extract enough job details from this link. Try a different link or check that the posting is still live.',
@@ -82,5 +135,40 @@ export async function scrapeJobLink(url: string): Promise<ScrapedJob> {
     );
   }
 
-  return scraped;
+  const jobTitle = posting.jobTitle?.trim() ?? '';
+  const companyName = posting.hiringOrganization?.name?.trim() ?? '';
+  const jobDescription = plainDescription(posting);
+  const confidence = confidenceFor(probability);
+
+  if (jobTitle.length < 2 || companyName.length < 2 || jobDescription.length < 50) {
+    console.error('[jobScraper] Scrape succeeded but returned empty/insufficient content:', {
+      url,
+      probability,
+      confidence,
+      jobTitle,
+      companyName,
+      jobDescriptionLen: jobDescription.length,
+    });
+    throw new JobScrapeError(
+      'Could not extract enough job details from this link. Try a different link or check that the posting is still live.',
+      422
+    );
+  }
+
+  let source = 'unknown';
+  try {
+    source = new URL(url).hostname;
+  } catch {
+    source = 'unknown';
+  }
+
+  return {
+    url,
+    source,
+    companyName,
+    jobTitle,
+    jobDescription,
+    confidence,
+    warning: confidence === 'medium' ? 'Extraction confidence is only medium.' : undefined,
+  };
 }

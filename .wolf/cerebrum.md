@@ -16,7 +16,7 @@
 - **Core flow:** Profile CRUD → Resume Generator (paste job link or description) → AI generates structured resume → Review page (10 PDF header templates) → download DOCX/PDF → download also fire-and-forgets a `POST /api/bid-details` save (Bids page at `/bids` lists job title/company/profile/link/date — **not** job description, dropped by request).
 - **Profiles:** education[], employment[], optional DOCX template upload, `pdfTemplate` (template1–10; 4–10 are premium/admin-gated), `profileType` software|other, `customPrompt`.
 - **Premium templates:** `User.is_premium` (alongside existing `is_admin`) gates templates 4–10. Embedded in the login JWT (`AuthPayload.isPremium`) and mirrored client-side in `session.ts`'s `Session.isPremium` — same 7-day-JWT staleness tradeoff that `is_admin` already had (admin toggling a user's flag needs a re-login to take effect). `resumeHtml.ts` exports `isPremiumTemplate()` / `FREE_TEMPLATES` as the single source of truth for what's gated; `POST/PUT /api/profiles` enforce it server-side, `ProfileForm.tsx` hides the extra `<option>`s client-side. The PUT route only blocks when the template is actually *changing* to a gated one the user can't use — not on unrelated-field saves of a profile that already has one persisted (e.g. from before a premium downgrade).
-- **Generation:** Large prompts in `src/lib/prompts.ts`; job scrape via `jobScraper.ts` / Devora21 API; endpoints under `/api/resume/*`.
+- **Generation:** Large prompts in `src/lib/prompts.ts`; job scrape via `jobScraper.ts` calling Zyte `POST /v1/extract` (`jobPosting: true`, `extractFrom: browserHtml`); endpoints under `/api/resume/*`. Requires `ZYTE_API_KEY`. LinkedIn links are still rejected in `generate-from-link` before the scrape.
 - **Exports:** docxtemplater for DOCX; Puppeteer HTML→PDF + client html2canvas/jspdf; resumes stored with `s3Key` via `storage.ts`.
 - **Admin:** `/admin/users` + `/api/admin/users` for user CRUD.
 - **Infra:** Docker Compose runs **app only**; DB is **MongoDB Atlas** via `MONGODB_URI` in `.env` (gitignored). DOCX templates on `./uploads`; PDFs in Backblaze B2.
@@ -30,11 +30,14 @@
 
 ## Do-Not-Repeat
 
+- **[2026-10-06]** A push to `master` runs CI, and a green CI run deploys production (`git reset --hard origin/master` on the VPS). Do not commit or merge onto `master` until that is intended. `origin/development` can lag `master`; confirm the second parent with `git log -1 --format=%P` before assuming a pull merged development.
 - **[2026-08-12]** Never hardcode `us-west-004` for B2. Always copy the bucket’s real S3 endpoint/region from the B2 console (or `s3ApiUrl` from `b2_authorize_account`). Wrong region surfaces as `InvalidAccessKeyId` even when the key works on the native B2 API.
 - **[2026-08-12]** For `@aws-sdk/client-s3` + B2, set `requestChecksumCalculation` and `responseChecksumValidation` to `WHEN_REQUIRED` or PutObject can fail on unsupported CRC32 headers.
 
 ## Decision Log
 
+- **[2026-10-06] Job scrape is Zyte, called from this app**
+  - `scrapeJobLink` POSTs to `https://api.zyte.com/v1/extract` with `jobPosting: true` and maps `jobTitle`, `hiringOrganization.name`, and `description` onto `ScrapedJob`. Probability under 0.5 is a 422. No separate scrape service. `ZYTE_API_KEY` replaces `DEVORA21_*`.
 - **[2026-08-12] Resume PDF storage → Backblaze B2 (S3 API)**
   - DOCX templates stay on local disk (`uploads/templates`); only generated PDFs go to B2.
   - Downloads via **presigned B2 URLs** (private bucket), not server-proxy streaming.
