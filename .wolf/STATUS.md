@@ -54,7 +54,7 @@
 
 ## ⚠️ External blockers (don't block coding)
 
-- Needs env: `MONGODB_URI`, `JWT_SECRET`, `ANTHROPIC_API_KEY`, `ZYTE_API_KEY`, `B2_BUCKET`, `B2_ENDPOINT`, `B2_REGION`, `B2_KEY_ID`, `B2_APP_KEY`, optional `CHROMIUM_PATH`
+- Needs env: `MONGODB_URI`, `JWT_SECRET`, `ANTHROPIC_API_KEY`, `ZYTE_API_KEY`, `DEEPSEEK_API_KEY`, `B2_BUCKET`, `B2_ENDPOINT`, `B2_REGION`, `B2_KEY_ID`, `B2_APP_KEY`, optional `CHROMIUM_PATH`
 
 ---
 

@@ -21,3 +21,5 @@
 | 21:50 | Switched scrapeJobLink from Devora to Zyte extract | jobScraper.ts, .env.example, docker-compose.yml | jobPosting browserHtml; probability < 0.5 is 422. typecheck green. Needs ZYTE_API_KEY to run | ~3k |
 | 22:15 | Stored Zyte key in gitignored .env and .env.local | .env, .env.local | Key accepted (HTTP 200). Sample Greenhouse URL returned probability ~0.02 and no company, so scrapeJobLink would 422 that link | ~1k |
 | 22:18 | Tested scrapeJobLink on Recruitee posting | jobScraper.ts | Auditdata / Technical Support Specialist (L2/L3), confidence high, description 5076 chars | ~0.5k |
+| 22:52 | Tested Alpaca Greenhouse URL | jobScraper.ts | Title and 5375-char description extracted at probability 0.999; hiringOrganization.name empty so scrape returns 422 | ~0.5k |
+| 23:36 | Switched scrape to Zyte browserHtml + DeepSeek flash | jobScraper.ts, .env.example, docker-compose.yml | deepseek-flash JSON extract of company/title/description. typecheck green. Needs DEEPSEEK_API_KEY to run | ~4k |

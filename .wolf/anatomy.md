@@ -166,7 +166,7 @@
 - `apiKey.ts` — API routes: GET (2 endpoints) (~268 tok)
 - `auth.ts` — API routes: GET (1 endpoints) (~152 tok)
 - `docxBuilder.ts` — Exports buildTemplateVariables, renderDocx (~1400 tok)
-- `jobScraper.ts` — Zyte jobPosting extract → ScrapedJob; Exports JobScrapeError, scrapeJobLink (~700 tok)
+- `jobScraper.ts` — Zyte browserHtml + DeepSeek flash JSON extract → ScrapedJob (~1100 tok)
 - `mongodb.ts` — Exports connectDB (~304 tok)
 - `pdfFromHtml.ts` — Render resume HTML fragment to PDF using the same pipeline as /api/resume/pdf. (~350 tok)
 - `prompts.ts` — Exports buildSystemPrompt (~18425 tok)

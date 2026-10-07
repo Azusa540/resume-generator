@@ -12,6 +12,18 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-08-12T04:39:00.000Z"
+    },
+    {
+      "id": "bug-002",
+      "timestamp": "2026-10-07T03:36:00.000Z",
+      "error_message": "Greenhouse Alpaca job URL returned 422: companyName empty while title and description were present",
+      "file": "src/lib/jobScraper.ts",
+      "root_cause": "Zyte jobPosting extraction omitted hiringOrganization.name even at probability 0.999.",
+      "fix": "Fetch Zyte browserHtml and extract companyName, jobTitle, and jobDescription with DeepSeek deepseek-flash JSON mode.",
+      "tags": ["zyte", "greenhouse", "deepseek", "job-scrape"],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-10-07T03:36:00.000Z"
     }
   ]
 }
