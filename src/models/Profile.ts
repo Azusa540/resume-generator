@@ -24,7 +24,7 @@ export interface IProfile extends Document {
   linkedin?: string;
   education: IEducation[];
   employment: IEmployment[];
-  pdfTemplate?: 'template1' | 'template2' | 'template3';
+  pdfTemplate?: 'template1' | 'template2' | 'template3' | 'template4' | 'template5' | 'template6' | 'template7' | 'template8' | 'template9' | 'template10';
   profileType?: 'software' | 'other';
   customPrompt?: string;
   templatePath?: string;
@@ -62,7 +62,7 @@ const ProfileSchema = new Schema<IProfile>(
     linkedin: { type: String },
     education: { type: [EducationSchema], default: [] },
     employment: { type: [EmploymentSchema], default: [] },
-    pdfTemplate: { type: String, enum: ['template1', 'template2', 'template3'], default: 'template1' },
+    pdfTemplate: { type: String, enum: ['template1', 'template2', 'template3', 'template4', 'template5', 'template6', 'template7', 'template8', 'template9', 'template10'], default: 'template1' },
     profileType: { type: String, enum: ['software', 'other'], default: 'software' },
     customPrompt: { type: String },
     templatePath: { type: String },

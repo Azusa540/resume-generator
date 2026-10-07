@@ -4,15 +4,16 @@ const TTL = 8 * 60 * 60 * 1000; // 8 hours in ms
 interface Session {
   username: string;
   isAdmin: boolean;
+  isPremium: boolean;
   expiresAt: number;
 }
 
-export function saveSession(username: string, isAdmin = false) {
-  const session: Session = { username, isAdmin, expiresAt: Date.now() + TTL };
+export function saveSession(username: string, isAdmin = false, isPremium = false) {
+  const session: Session = { username, isAdmin, isPremium, expiresAt: Date.now() + TTL };
   localStorage.setItem(KEY, JSON.stringify(session));
 }
 
-export function getSession(): { username: string; isAdmin: boolean } | null {
+export function getSession(): { username: string; isAdmin: boolean; isPremium: boolean } | null {
   try {
     const raw = localStorage.getItem(KEY);
     if (!raw) return null;
@@ -21,7 +22,7 @@ export function getSession(): { username: string; isAdmin: boolean } | null {
       localStorage.removeItem(KEY);
       return null;
     }
-    return { username: session.username, isAdmin: session.isAdmin ?? false };
+    return { username: session.username, isAdmin: session.isAdmin ?? false, isPremium: session.isPremium ?? false };
   } catch {
     return null;
   }

@@ -3,10 +3,15 @@ import Anthropic from '@anthropic-ai/sdk';
 import { connectDB } from '@/lib/mongodb';
 import { getUser } from '@/lib/auth';
 import Profile from '@/models/Profile';
+import User from '@/models/User';
 import { buildSystemPrompt, buildSystemPromptNonSoftware, buildUserPrompt } from '@/lib/prompts';
+import { buildSystemPromptAdmin } from '@/lib/adminPrompt';
+import { buildSystemPromptAdminNonSoftware } from '@/lib/adminPromptNonSoftware';
+import { repairPrimaryStackCoverage, repairPositionZeroBulletCount, repairMalformedSchema } from '@/lib/resumeRepair';
+import { reviewAuthenticity } from '@/lib/authenticityReview';
+import { buildResumeTool, findToolUse, validateGeneratedResume, cachedText } from '@/lib/resumeSchema';
+import { dedupeSkills } from '@/lib/dedupeSkills';
 import type { GeneratedResume } from '@/types/resume';
-
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 export async function POST(req: NextRequest) {
   const user = getUser(req);
@@ -18,13 +23,34 @@ export async function POST(req: NextRequest) {
   }
 
   await connectDB();
-  const profile = await Profile.findOne({ _id: profileId, userId: user.id });
+  const [profile, dbUser] = await Promise.all([
+    Profile.findOne({ _id: profileId, userId: user.id }),
+    User.findById(user.id, { anthropicApiKey: 1 }),
+  ]);
   if (!profile) return NextResponse.json({ message: 'Profile not found.' }, { status: 404 });
+  if (profile.employment.length === 0) {
+    return NextResponse.json(
+      { message: 'This profile has no work experience yet. Add at least one job before generating a resume.' },
+      { status: 400 }
+    );
+  }
+  if (!dbUser?.anthropicApiKey) {
+    return NextResponse.json(
+      { message: 'No Claude API key configured for your account. Ask an admin to set one.' },
+      { status: 400 }
+    );
+  }
+  const client = new Anthropic({ apiKey: dbUser.anthropicApiKey });
 
-  const systemPrompt = profile.profileType === 'other'
+  const systemPrompt = user.isAdmin
+    ? profile.profileType === 'other'
+      ? buildSystemPromptAdminNonSoftware()
+      : buildSystemPromptAdmin()
+    : profile.profileType === 'other'
     ? buildSystemPromptNonSoftware()
     : buildSystemPrompt();
   const userPrompt = buildUserPrompt(profile, title, company, jobDescription, profile.customPrompt, profile.profileType);
+  const tool = buildResumeTool(profile.profileType, user.isAdmin);
 
   let message;
   try {
@@ -32,9 +58,11 @@ export async function POST(req: NextRequest) {
       {
         model: 'claude-haiku-4-5-20251001',
         max_tokens: 16000,
-        system: systemPrompt,
+        system: [cachedText(systemPrompt)],
+        tools: [tool],
+        tool_choice: { type: 'tool', name: tool.name },
         messages: [
-          { role: 'user', content: userPrompt },
+          { role: 'user', content: [cachedText(userPrompt)] },
         ],
       },
       // Cap the upstream call so a stalled/slow generation fails cleanly instead of hanging forever.
@@ -42,12 +70,15 @@ export async function POST(req: NextRequest) {
     );
   } catch (err) {
     const status = (err as { status?: number })?.status;
-    const errorMessage =
-      status === 429
-        ? 'The AI service is rate-limited right now. Please wait a moment and try again.'
-        : status === 401
-        ? 'AI service authentication failed. Check the ANTHROPIC_API_KEY configuration.'
-        : 'The AI service timed out or is unavailable. Please try again.';
+    const anthropicMessage =
+      (err as { error?: { error?: { message?: string } } })?.error?.error?.message || '';
+    const errorMessage = /credit balance/i.test(anthropicMessage)
+      ? 'This account has run out of Claude API credits. Ask an admin to add credits or set a different key in Settings.'
+      : status === 429
+      ? 'The AI service is rate-limited right now. Please wait a moment and try again.'
+      : status === 401
+      ? 'AI service authentication failed. Your Claude API key may be invalid — ask an admin to check it.'
+      : 'The AI service timed out or is unavailable. Please try again.';
     console.error('Anthropic generate failed:', err);
     return NextResponse.json({ message: errorMessage }, { status: 502 });
   }
@@ -60,21 +91,52 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const rawText = message.content[0]?.type === 'text' ? message.content[0].text : '';
-  // Strip markdown fences and extract only the JSON object (model may append a plain-text note after the closing brace)
-  const stripped = rawText.replace(/^```(?:json)?\s*/i, '').replace(/\s*```\s*$/i, '').trim();
-  const jsonEnd = stripped.lastIndexOf('}');
-  const raw = jsonEnd !== -1 ? stripped.slice(0, jsonEnd + 1) : stripped;
-
   let generated: GeneratedResume;
+  let toolUse: Anthropic.ToolUseBlock;
   try {
-    generated = JSON.parse(raw) as GeneratedResume;
-  } catch {
-    return NextResponse.json(
-      { message: 'Failed to parse response as JSON.', raw: rawText },
-      { status: 500 }
-    );
+    toolUse = findToolUse(message);
+  } catch (err) {
+    console.error('[generate] Model did not call the tool:', err, {
+      profileFullName: profile.fullName,
+      stopReason: message.stop_reason,
+      rawContent: JSON.stringify(message.content),
+    });
+    return NextResponse.json({ message: 'Failed to parse response as JSON.' }, { status: 500 });
   }
+  try {
+    generated = validateGeneratedResume(toolUse.input, profile.profileType);
+  } catch (err) {
+    console.error('[generate] Initial tool output failed schema validation, attempting one corrective retry:', err, {
+      profileFullName: profile.fullName,
+      employmentCount: profile.employment.length,
+      title,
+      company,
+      jobDescriptionLen: jobDescription.length,
+      rawInput: JSON.stringify(toolUse.input),
+    });
+    try {
+      const validationMessage = err instanceof Error ? err.message : String(err);
+      ({ generated, toolUse } = await repairMalformedSchema(
+        client, systemPrompt, userPrompt, tool, toolUse, validationMessage, profile.profileType
+      ));
+    } catch (err2) {
+      console.error('[generate] Corrective retry also failed:', err2);
+      return NextResponse.json({ message: 'Failed to parse response as JSON.' }, { status: 500 });
+    }
+  }
+
+  ({ generated, toolUse } = await repairPrimaryStackCoverage(
+    client, systemPrompt, userPrompt, tool, toolUse, generated, profile.profileType
+  ));
+  if (user.isAdmin && profile.profileType !== 'other') {
+    ({ generated, toolUse } = await repairPositionZeroBulletCount(
+      client, systemPrompt, userPrompt, tool, toolUse, generated, profile.profileType
+    ));
+  }
+  ({ generated } = await reviewAuthenticity(
+    client, systemPrompt, userPrompt, tool, toolUse, generated, profile.profileType
+  ));
+  generated = dedupeSkills(generated);
 
   return NextResponse.json({
     generated,

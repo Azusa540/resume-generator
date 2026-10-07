@@ -7,6 +7,7 @@ export interface AuthPayload {
   id: string;
   username: string;
   isAdmin: boolean;
+  isPremium: boolean;
 }
 
 export function getUser(req: NextRequest): AuthPayload | null {

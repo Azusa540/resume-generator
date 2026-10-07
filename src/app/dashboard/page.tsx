@@ -12,12 +12,44 @@ export default function DashboardPage() {
   const [generatedKey, setGeneratedKey] = useState<string | null>(null);
   const [generating, setGenerating] = useState(false);
 
+  const [hasAnthropicKey, setHasAnthropicKey] = useState(false);
+  const [anthropicKeyInput, setAnthropicKeyInput] = useState('');
+  const [showAnthropicKeyInput, setShowAnthropicKeyInput] = useState(false);
+  const [savingAnthropicKey, setSavingAnthropicKey] = useState(false);
+  const [anthropicKeyError, setAnthropicKeyError] = useState('');
+  const [anthropicKeySaved, setAnthropicKeySaved] = useState(false);
+
   useEffect(() => {
     if (!ready) return;
     fetch('/api/auth/api-key')
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => { if (d) setHasApiKey(d.hasApiKey); });
+    fetch('/api/auth/anthropic-key')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => { if (d) setHasAnthropicKey(d.hasAnthropicKey); });
   }, [ready]);
+
+  async function handleSaveAnthropicKey() {
+    if (!anthropicKeyInput.trim()) return;
+    setSavingAnthropicKey(true);
+    setAnthropicKeyError('');
+    setAnthropicKeySaved(false);
+    const res = await fetch('/api/auth/anthropic-key', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ apiKey: anthropicKeyInput.trim() }),
+    });
+    const data = await res.json();
+    setSavingAnthropicKey(false);
+    if (res.ok) {
+      setHasAnthropicKey(true);
+      setAnthropicKeyInput('');
+      setShowAnthropicKeyInput(false);
+      setAnthropicKeySaved(true);
+    } else {
+      setAnthropicKeyError(data.message || 'Failed to save Claude API key.');
+    }
+  }
 
   async function handleGenerateApiKey() {
     const msg = hasApiKey
@@ -77,6 +109,47 @@ export default function DashboardPage() {
               {generating ? 'Generating…' : hasApiKey ? 'Regenerate API Key' : 'Generate API Key'}
             </button>
           </div>
+        </section>
+
+        <section className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 max-w-2xl mt-6">
+          <h2 className="text-base font-semibold text-gray-900 mb-1">Claude API Key</h2>
+          <p className="text-sm text-gray-500 mb-4">
+            Your own Anthropic API key, used to generate resumes on your account. Get one at{' '}
+            <code className="text-xs bg-gray-100 px-1 rounded">console.anthropic.com</code>.
+          </p>
+          <div className="flex items-center gap-3 mb-3">
+            {hasAnthropicKey ? (
+              <span className="text-xs text-green-700 bg-green-50 px-2 py-1 rounded-full">Key configured</span>
+            ) : (
+              <span className="text-xs text-gray-500 bg-gray-50 px-2 py-1 rounded-full">No key set</span>
+            )}
+            <button
+              onClick={() => { setShowAnthropicKeyInput((v) => !v); setAnthropicKeyError(''); setAnthropicKeySaved(false); }}
+              className="text-sm font-medium text-blue-600 border border-blue-200 hover:border-blue-400 rounded-lg py-1.5 px-3"
+            >
+              {hasAnthropicKey ? 'Update Key' : 'Set Key'}
+            </button>
+            {anthropicKeySaved && <span className="text-xs text-green-700">Saved.</span>}
+          </div>
+          {showAnthropicKeyInput && (
+            <div className="flex items-center gap-2">
+              <input
+                type="password"
+                placeholder="sk-ant-..."
+                value={anthropicKeyInput}
+                onChange={(e) => setAnthropicKeyInput(e.target.value)}
+                className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <button
+                onClick={handleSaveAnthropicKey}
+                disabled={savingAnthropicKey || !anthropicKeyInput.trim()}
+                className="text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 rounded-lg py-2 px-4"
+              >
+                {savingAnthropicKey ? 'Saving…' : 'Save'}
+              </button>
+            </div>
+          )}
+          {anthropicKeyError && <p className="mt-2 text-sm text-red-600">{anthropicKeyError}</p>}
         </section>
 
         {generatedKey && (

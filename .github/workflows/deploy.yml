@@ -1,0 +1,88 @@
+name: Deploy
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    branches: [master]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Git ref to deploy (branch, tag, or commit SHA). Leave empty to deploy latest master — use this to roll back to a known-good commit.'
+        required: false
+        default: ''
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy to VPS
+    runs-on: ubuntu-latest
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'master')
+    steps:
+      - name: Resolve deploy ref
+        id: ref
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ -n "${{ github.event.inputs.ref }}" ]; then
+            echo "ref=${{ github.event.inputs.ref }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "ref=origin/master" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1.2.0
+        env:
+          DEPLOY_REF: ${{ steps.ref.outputs.ref }}
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          port: 22
+          envs: DEPLOY_REF
+          script_stop: true
+          script: |
+            set -e
+            cd /var/www/resume-generator
+
+            echo "== Deploying $DEPLOY_REF =="
+            PREV_SHA=$(git rev-parse HEAD)
+            echo "Previous commit: $PREV_SHA"
+
+            git fetch origin master --tags
+            git reset --hard "$DEPLOY_REF"
+
+            echo "Now at: $(git rev-parse HEAD)"
+
+            npm ci
+            npm run build
+
+            pm2 restart resume-generator --update-env
+            pm2 save
+
+            echo "== Health check =="
+            ok=""
+            for i in 1 2 3 4 5 6 7 8; do
+              sleep 3
+              if curl -fsS http://127.0.0.1:3000/ -o /dev/null; then
+                ok=1
+                break
+              fi
+              echo "Attempt $i: not ready yet, retrying..."
+            done
+
+            if [ -z "$ok" ]; then
+              echo "Health check failed — rolling back to $PREV_SHA"
+              git reset --hard "$PREV_SHA"
+              npm ci
+              npm run build
+              pm2 restart resume-generator --update-env
+              pm2 save
+              echo "Rolled back to $PREV_SHA"
+              exit 1
+            fi
+
+            echo "Deploy succeeded: $(git rev-parse HEAD)"

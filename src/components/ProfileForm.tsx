@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { getSession } from '@/lib/session';
 
 export interface EducationEntry {
   university: string;
@@ -26,7 +27,7 @@ export interface ProfileFormData {
   linkedin: string;
   education: EducationEntry[];
   employment: EmploymentEntry[];
-  pdfTemplate?: 'template1' | 'template2' | 'template3';
+  pdfTemplate?: 'template1' | 'template2' | 'template3' | 'template4' | 'template5' | 'template6' | 'template7' | 'template8' | 'template9' | 'template10';
   profileType?: 'software' | 'other';
   customPrompt?: string;
 }
@@ -61,6 +62,12 @@ export default function ProfileForm({ initial, profileId }: Props) {
   });
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
+  const [canUsePremiumTemplates, setCanUsePremiumTemplates] = useState(false);
+
+  useEffect(() => {
+    const session = getSession();
+    setCanUsePremiumTemplates(Boolean(session?.isAdmin || session?.isPremium));
+  }, []);
 
   // ── per-entry edit state ─────────────────────────────────────────────────
   const [editingEduIdx, setEditingEduIdx] = useState<number | null>(null);
@@ -147,6 +154,16 @@ export default function ProfileForm({ initial, profileId }: Props) {
     if (editingEmpIdx === i) setEditingEmpIdx(null);
   }
 
+  function moveEmp(i: number, direction: -1 | 1) {
+    const target = i + direction;
+    setForm((f) => {
+      if (target < 0 || target >= f.employment.length) return f;
+      const employment = [...f.employment];
+      [employment[i], employment[target]] = [employment[target], employment[i]];
+      return { ...f, employment };
+    });
+  }
+
   // ── submit ────────────────────────────────────────────────────────────────
   async function handleSubmit(e: { preventDefault(): void }) {
     e.preventDefault();
@@ -211,9 +228,25 @@ export default function ProfileForm({ initial, profileId }: Props) {
               className={inputCls}
             >
               <option value="template1">Template 1 – Clean Minimal</option>
-              <option value="template2">Template 2 – Classic Professional</option>
-              <option value="template3">Template 3 – Sidebar Layout</option>
+              <option value="template2">Template 2 – Classic Serif</option>
+              <option value="template3">Template 3 – Contemporary</option>
+              {canUsePremiumTemplates && (
+                <>
+                  <option value="template4">Template 4 – Modern Accent</option>
+                  <option value="template5">Template 5 – Executive</option>
+                  <option value="template6">Template 6 – Compact Pro</option>
+                  <option value="template7">Template 7 – Elegant Serif</option>
+                  <option value="template8">Template 8 – Bold Impact</option>
+                  <option value="template9">Template 9 – Open Professional</option>
+                  <option value="template10">Template 10 – Minimalist</option>
+                </>
+              )}
             </select>
+            {!canUsePremiumTemplates && (
+              <p className="mt-1 text-xs text-gray-400">
+                7 more templates are available on a premium account.
+              </p>
+            )}
           </Field>
           <Field label="Custom AI Prompt (optional)" className="sm:col-span-2">
             <textarea
@@ -340,6 +373,12 @@ export default function ProfileForm({ initial, profileId }: Props) {
                   {emp.desc && <p className="text-xs text-gray-500 mt-1 line-clamp-2">{emp.desc}</p>}
                 </div>
                 <div className="flex gap-1.5 shrink-0">
+                  <button type="button" onClick={() => moveEmp(i, -1)} className={moveIconBtnCls} disabled={editingEmpIdx !== null || i === 0} title="Move up">
+                    <ArrowUpIcon />
+                  </button>
+                  <button type="button" onClick={() => moveEmp(i, 1)} className={moveIconBtnCls} disabled={editingEmpIdx !== null || i === form.employment.length - 1} title="Move down">
+                    <ArrowDownIcon />
+                  </button>
                   <button type="button" onClick={() => startEditEmp(i)} className={editIconBtnCls} disabled={editingEmpIdx !== null} title="Edit">
                     <PencilIcon />
                   </button>
@@ -390,6 +429,8 @@ const editIconBtnCls =
   'p-1.5 rounded-md text-blue-500 hover:text-blue-700 hover:bg-blue-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed';
 const removeIconBtnCls =
   'p-1.5 rounded-md text-red-400 hover:text-red-600 hover:bg-red-50 transition-colors';
+const moveIconBtnCls =
+  'p-1.5 rounded-md text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent';
 const addBtnCls =
   'text-xs font-medium text-blue-600 hover:text-blue-800 border border-blue-200 hover:border-blue-400 rounded-md px-2.5 py-1 transition-colors disabled:opacity-40 disabled:cursor-not-allowed';
 const saveBtnCls =
@@ -406,6 +447,24 @@ function PencilIcon() {
     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
       <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+    </svg>
+  );
+}
+
+function ArrowUpIcon() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="12" y1="19" x2="12" y2="5" />
+      <polyline points="5 12 12 5 19 12" />
+    </svg>
+  );
+}
+
+function ArrowDownIcon() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="12" y1="5" x2="12" y2="19" />
+      <polyline points="19 12 12 19 5 12" />
     </svg>
   );
 }

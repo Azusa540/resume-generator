@@ -47,6 +47,9 @@ export default function Nav() {
           <Link href="/resume-generator" className={linkClass('/resume-generator')}>
             Resume Generator
           </Link>
+          <Link href="/bids" className={linkClass('/bids')}>
+            Bids
+          </Link>
           {isAdmin && (
             <Link href="/admin/users" className={linkClass('/admin/users')}>
               Users

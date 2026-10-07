@@ -36,7 +36,7 @@ export default function LoginPage() {
         return;
       }
 
-      saveSession(data.username, data.isAdmin ?? false);
+      saveSession(data.username, data.isAdmin ?? false, data.isPremium ?? false);
       router.push('/dashboard');
     } catch {
       setError('Something went wrong. Please try again.');

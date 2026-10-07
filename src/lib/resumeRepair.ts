@@ -1,0 +1,169 @@
+import Anthropic from '@anthropic-ai/sdk';
+import type { GeneratedResume } from '@/types/resume';
+import { findMissingPrimaryStack } from '@/lib/verifyPrimaryStack';
+import { positionZeroBulletCount } from '@/lib/verifyBulletCount';
+import { extractGeneratedResume, cachedText } from '@/lib/resumeSchema';
+
+/**
+ * Admin prompt only. If the model's own PRIMARY STACK DISTRIBUTION CHECK failed
+ * (a primary_stack term doesn't appear in enough companies — 3 for the software
+ * prompt, 2 for the non-software prompt), send one corrective follow-up naming
+ * the gap before returning the result. Falls back to the original generation
+ * (and its tool_use block, so a later call in the chain can still continue the
+ * conversation correctly) if the repair call fails, doesn't call the tool, or
+ * fails schema validation.
+ */
+export async function repairPrimaryStackCoverage(
+  client: Anthropic,
+  systemPrompt: string,
+  userPrompt: string,
+  tool: Anthropic.Tool,
+  previousToolUse: Anthropic.ToolUseBlock,
+  generated: GeneratedResume,
+  profileType: 'software' | 'other' | undefined
+): Promise<{ generated: GeneratedResume; toolUse: Anthropic.ToolUseBlock }> {
+  const minCompanies = profileType === 'other' ? 2 : 3;
+  let missing: string[];
+  try {
+    missing = findMissingPrimaryStack(generated, minCompanies);
+  } catch {
+    return { generated, toolUse: previousToolUse };
+  }
+  if (missing.length === 0) return { generated, toolUse: previousToolUse };
+
+  try {
+    const message = await client.messages.create(
+      {
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 16000,
+        system: [cachedText(systemPrompt)],
+        tools: [tool],
+        tool_choice: { type: 'tool', name: tool.name },
+        messages: [
+          { role: 'user', content: [cachedText(userPrompt)] },
+          { role: 'assistant', content: [previousToolUse] },
+          {
+            role: 'user',
+            content: [
+              {
+                type: 'tool_result',
+                tool_use_id: previousToolUse.id,
+                content: `Your PRIMARY STACK DISTRIBUTION CHECK failed: the following technologies are missing or appear in fewer than ${minCompanies} companies in experience_bullets: ${missing.join(', ')}. Revise ONLY the "experience_bullets" array (and "skills" too, if a term is missing there) so each of these technologies appears bolded in bullets across at least ${minCompanies} different companies, blended naturally into that company's real domain per the BLEND, DON'T BOLT ON rule. Keep everything else — professional_summary, education, the other bullets' content and order — unchanged. Call the tool again with the complete corrected resume, same schema including "primary_stack".`,
+              },
+            ],
+          },
+        ],
+      },
+      { timeout: 120_000 }
+    );
+
+    return extractGeneratedResume(message, profileType);
+  } catch (err) {
+    console.error('[resumeRepair] Repair call failed, keeping original generation:', err);
+    return { generated, toolUse: previousToolUse };
+  }
+}
+
+/**
+ * Admin software prompt only. Position 0 (the most recent company) must have
+ * more than 8 bullets per the Sentence distribution rule. If the model came
+ * in at 8 or fewer, send one corrective follow-up asking it to add more
+ * genuine bullets to that position only. Falls back to the original
+ * generation if the repair call fails, doesn't call the tool, or fails
+ * schema validation.
+ */
+export async function repairPositionZeroBulletCount(
+  client: Anthropic,
+  systemPrompt: string,
+  userPrompt: string,
+  tool: Anthropic.Tool,
+  previousToolUse: Anthropic.ToolUseBlock,
+  generated: GeneratedResume,
+  profileType: 'software' | 'other' | undefined
+): Promise<{ generated: GeneratedResume; toolUse: Anthropic.ToolUseBlock }> {
+  const count = positionZeroBulletCount(generated);
+  if (count > 8) return { generated, toolUse: previousToolUse };
+
+  const company = generated.experience_bullets[0]?.company ?? 'the most recent company';
+
+  try {
+    const message = await client.messages.create(
+      {
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 16000,
+        system: [cachedText(systemPrompt)],
+        tools: [tool],
+        tool_choice: { type: 'tool', name: tool.name },
+        messages: [
+          { role: 'user', content: [cachedText(userPrompt)] },
+          { role: 'assistant', content: [previousToolUse] },
+          {
+            role: 'user',
+            content: [
+              {
+                type: 'tool_result',
+                tool_use_id: previousToolUse.id,
+                content: `Position 0 ("${company}", the most recent role) only has ${count} bullets, but per the Sentence distribution rule it MUST have more than 8 (9-12). Add genuine, specific bullets to position 0 ONLY until it exceeds 8 — draw on more of the candidate's real Role Description detail and more JD-relevant angles per PRIMARY STACK DISTRIBUTION and BULLET ORDER WITHIN EACH COMPANY. Every new bullet must say something true and specific and still follow all the existing rules (tech density, bold highlighting, verb variety, no padding with vague filler). Keep every other position, the professional_summary, education, and primary_stack unchanged. Call the tool again with the complete corrected resume, same schema.`,
+              },
+            ],
+          },
+        ],
+      },
+      { timeout: 120_000 }
+    );
+
+    return extractGeneratedResume(message, profileType);
+  } catch (err) {
+    console.error('[resumeRepair] Position-0 bullet-count repair call failed, keeping original generation:', err);
+    return { generated, toolUse: previousToolUse };
+  }
+}
+
+/**
+ * Safety net for the INITIAL generation call only. If the model's tool_use
+ * input fails schema validation (even after the local self-heal in
+ * validateGeneratedResume), send one corrective follow-up quoting the exact
+ * validation error before giving up. Observed real failure modes this
+ * catches: "experience_bullets" emitted as a JSON-encoded string instead of
+ * a native array, and a per-entry "bullets" key misspelled (e.g. "buttons").
+ * The model's own knowledge of the content is intact in both cases — it just
+ * needs to be told precisely what to fix and asked to re-emit. Re-throws if
+ * the retry also fails; callers should treat that as a final failure.
+ */
+export async function repairMalformedSchema(
+  client: Anthropic,
+  systemPrompt: string,
+  userPrompt: string,
+  tool: Anthropic.Tool,
+  previousToolUse: Anthropic.ToolUseBlock,
+  validationError: string,
+  profileType: 'software' | 'other' | undefined
+): Promise<{ generated: GeneratedResume; toolUse: Anthropic.ToolUseBlock }> {
+  const message = await client.messages.create(
+    {
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 16000,
+      system: [cachedText(systemPrompt)],
+      tools: [tool],
+      tool_choice: { type: 'tool', name: tool.name },
+      messages: [
+        { role: 'user', content: [cachedText(userPrompt)] },
+        { role: 'assistant', content: [previousToolUse] },
+        {
+          role: 'user',
+          content: [
+            {
+              type: 'tool_result',
+              tool_use_id: previousToolUse.id,
+              content: `Your last output_resume call did not match the required schema: ${validationError}. Two common mistakes: (1) writing "experience_bullets" — or a "bullets" array inside one of its entries — as a JSON-encoded STRING instead of a real, natively-nested array; every field must be actual JSON, never a string containing JSON text. (2) misspelling a key name (e.g. "bullets" spelled as something else) in one entry. Call the tool again with the complete, corrected resume — same content, valid against the schema.`,
+            },
+          ],
+        },
+      ],
+    },
+    { timeout: 120_000 }
+  );
+
+  return extractGeneratedResume(message, profileType);
+}
+

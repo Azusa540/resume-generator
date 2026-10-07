@@ -7,7 +7,6 @@ import User from '@/models/User';
 import { buildSystemPrompt, buildSystemPromptNonSoftware, buildUserPrompt } from '@/lib/prompts';
 import { buildSystemPromptAdmin } from '@/lib/adminPrompt';
 import { buildSystemPromptAdminNonSoftware } from '@/lib/adminPromptNonSoftware';
-import { scrapeJobLink, JobScrapeError } from '@/lib/jobScraper';
 import { repairPrimaryStackCoverage, repairPositionZeroBulletCount, repairMalformedSchema } from '@/lib/resumeRepair';
 import { reviewAuthenticity } from '@/lib/authenticityReview';
 import { buildResumeTool, findToolUse, validateGeneratedResume, cachedText } from '@/lib/resumeSchema';
@@ -22,6 +21,10 @@ import {
 import { pdfFromHtml, PdfBusyError } from '@/lib/pdfFromHtml';
 import type { GeneratedResume } from '@/types/resume';
 
+// Same generation pipeline as generate-from-link, but the caller already has
+// the job details (company name, title, description) in hand — no scraping
+// step, no job link at all. Used when the job details come from somewhere
+// other than a scrapeable URL (e.g. pasted or entered directly upstream).
 export async function POST(req: NextRequest) {
   const apiKey = extractApiKey(req);
   if (!apiKey) {
@@ -31,12 +34,18 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const { profileId, jobLink } = await req.json();
-  if (!profileId || !jobLink) {
-    return NextResponse.json({ message: 'Missing required fields: profileId, jobLink.' }, { status: 400 });
+  const { profileId, companyName, jobTitle, jobDescription } = await req.json();
+  if (!profileId || !companyName || !jobTitle || !jobDescription) {
+    return NextResponse.json(
+      { message: 'Missing required fields: profileId, companyName, jobTitle, jobDescription.' },
+      { status: 400 }
+    );
   }
-  if (/linkedin\.com/i.test(jobLink)) {
-    return NextResponse.json({ message: 'not available to generate the resume' }, { status: 400 });
+  if (String(jobTitle).trim().length < 2 || String(companyName).trim().length < 2 || String(jobDescription).trim().length < 50) {
+    return NextResponse.json(
+      { message: 'companyName/jobTitle must be non-empty and jobDescription must be at least 50 characters.' },
+      { status: 422 }
+    );
   }
 
   await connectDB();
@@ -52,18 +61,6 @@ export async function POST(req: NextRequest) {
   }
   const client = new Anthropic({ apiKey: user.anthropicApiKey });
   const userId = String(user._id);
-
-  let scraped;
-  try {
-    scraped = await scrapeJobLink(jobLink);
-  } catch (err) {
-    if (err instanceof JobScrapeError) {
-      console.error('[generate-from-link] Job scrape failed:', jobLink, err.status, err.message);
-      return NextResponse.json({ message: err.message }, { status: err.status });
-    }
-    console.error('[generate-from-link] Job scrape failed unexpectedly:', jobLink, err);
-    return NextResponse.json({ message: 'Failed to scrape the job link.' }, { status: 502 });
-  }
 
   // Any valid API key can target any profile, regardless of which account owns it.
   const profile = await Profile.findOne({ _id: profileId });
@@ -87,9 +84,9 @@ export async function POST(req: NextRequest) {
     : buildSystemPrompt();
   const userPrompt = buildUserPrompt(
     profile,
-    scraped.jobTitle,
-    scraped.companyName,
-    scraped.jobDescription,
+    jobTitle,
+    companyName,
+    jobDescription,
     profile.customPrompt,
     profile.profileType
   );
@@ -121,7 +118,7 @@ export async function POST(req: NextRequest) {
       : status === 401
       ? 'AI service authentication failed. Your Claude API key may be invalid — ask an admin to check it.'
       : 'The AI service timed out or is unavailable. Please try again.';
-    console.error('Anthropic generate failed:', err);
+    console.error('[generate-from-details] Anthropic generate failed:', err);
     return NextResponse.json({ message: errorMessage }, { status: 502 });
   }
 
@@ -137,9 +134,10 @@ export async function POST(req: NextRequest) {
   try {
     toolUse = findToolUse(message);
   } catch (err) {
-    console.error('[generate-from-link] Model did not call the tool:', err, {
+    console.error('[generate-from-details] Model did not call the tool:', err, {
       profileFullName: profile.fullName,
-      jobLink,
+      companyName,
+      jobTitle,
       stopReason: message.stop_reason,
       rawContent: JSON.stringify(message.content),
     });
@@ -148,13 +146,12 @@ export async function POST(req: NextRequest) {
   try {
     generated = validateGeneratedResume(toolUse.input, profile.profileType);
   } catch (err) {
-    console.error('[generate-from-link] Initial tool output failed schema validation, attempting one corrective retry:', err, {
+    console.error('[generate-from-details] Initial tool output failed schema validation, attempting one corrective retry:', err, {
       profileFullName: profile.fullName,
       employmentCount: profile.employment.length,
-      jobLink,
-      scrapedTitle: scraped.jobTitle,
-      scrapedCompany: scraped.companyName,
-      scrapedDescriptionLen: scraped.jobDescription.length,
+      companyName,
+      jobTitle,
+      jobDescriptionLen: String(jobDescription).length,
       rawInput: JSON.stringify(toolUse.input),
     });
     try {
@@ -163,7 +160,7 @@ export async function POST(req: NextRequest) {
         client, systemPrompt, userPrompt, tool, toolUse, validationMessage, profile.profileType
       ));
     } catch (err2) {
-      console.error('[generate-from-link] Corrective retry also failed:', err2);
+      console.error('[generate-from-details] Corrective retry also failed:', err2);
       return NextResponse.json({ message: 'Failed to parse response as JSON.' }, { status: 500 });
     }
   }
@@ -193,7 +190,7 @@ export async function POST(req: NextRequest) {
   const fileName = buildResumeFileName(
     profile.fullName,
     generated.target_job_title,
-    scraped.companyName
+    companyName
   ) || 'resume';
 
   const html = buildResumeDocHtml(generated, profileContact, tpl);
@@ -206,7 +203,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ message: err.message }, { status: 503 });
     }
     const msg = err instanceof Error ? err.message : 'PDF generation failed';
-    console.error('[generate-from-link] PDF generation failed:', jobLink, err);
+    console.error('[generate-from-details] PDF generation failed:', { companyName, jobTitle }, err);
     return NextResponse.json({ message: msg }, { status: 500 });
   }
 
@@ -223,14 +220,14 @@ export async function POST(req: NextRequest) {
     const resumeDownloadLink = await getSignedDownloadUrl(key);
 
     return NextResponse.json({
-      company: scraped.companyName,
-      jobTitle: scraped.jobTitle,
+      company: companyName,
+      jobTitle,
       fileName,
       resumeDownloadLink,
     });
   } catch (err) {
     const msg = err instanceof Error ? err.message : 'Failed to store resume';
-    console.error('[generate-from-link] Failed to store resume:', jobLink, err);
+    console.error('[generate-from-details] Failed to store resume:', { companyName, jobTitle }, err);
     return NextResponse.json({ message: msg }, { status: 500 });
   }
 }

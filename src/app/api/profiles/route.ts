@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectDB } from '@/lib/mongodb';
 import { getUser } from '@/lib/auth';
+import { isPremiumTemplate } from '@/lib/resumeHtml';
 import Profile from '@/models/Profile';
 
 export async function GET(req: NextRequest) {
@@ -18,6 +19,9 @@ export async function POST(req: NextRequest) {
 
   await connectDB();
   const body = await req.json();
+  if (body.pdfTemplate && isPremiumTemplate(body.pdfTemplate) && !user.isAdmin && !user.isPremium) {
+    return NextResponse.json({ message: 'That PDF template requires a premium account.' }, { status: 403 });
+  }
   const profile = await Profile.create({ ...body, userId: user.id });
   return NextResponse.json(profile, { status: 201 });
 }
