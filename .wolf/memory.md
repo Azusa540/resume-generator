@@ -23,3 +23,6 @@
 | 22:18 | Tested scrapeJobLink on Recruitee posting | jobScraper.ts | Auditdata / Technical Support Specialist (L2/L3), confidence high, description 5076 chars | ~0.5k |
 | 22:52 | Tested Alpaca Greenhouse URL | jobScraper.ts | Title and 5375-char description extracted at probability 0.999; hiringOrganization.name empty so scrape returns 422 | ~0.5k |
 | 23:36 | Switched scrape to Zyte browserHtml + DeepSeek flash | jobScraper.ts, .env.example, docker-compose.yml | deepseek-flash JSON extract of company/title/description. typecheck green. Needs DEEPSEEK_API_KEY to run | ~4k |
+| 23:44 | Verified Zyte HTML + DeepSeek scrape | jobScraper.ts | Alpaca Greenhouse: Senior Sales Engineer, company Alpaca, 5434 chars, high. Recruitee: Auditdata title ok, description 2440 chars, medium because HTML truncated at 120k | ~1k |
+| 19:21 | Diagnosed Hyland iCIMS 422 | jobScraper.ts | Title and company extracted; description length 0 because iCIMS puts the posting in an iframe and browserHtml omits iframe bodies unless includeIframes | ~1k |
+| 19:26 | Enabled Zyte includeIframes | jobScraper.ts | Hyland retest: title, company Hyland, description 6626 chars. Confidence medium because HTML still truncated at 120k | ~1k |

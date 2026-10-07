@@ -24,6 +24,18 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-10-07T03:36:00.000Z"
+    },
+    {
+      "id": "bug-003",
+      "timestamp": "2026-10-07T23:26:00.000Z",
+      "error_message": "Hyland iCIMS job URL returned 422: title and company present, jobDescription length 0",
+      "file": "src/lib/jobScraper.ts",
+      "root_cause": "iCIMS embeds the posting in an iframe. Zyte browserHtml leaves iframe bodies empty unless includeIframes is true, so DeepSeek had no description to extract.",
+      "fix": "Set includeIframes: true on the Zyte browserHtml request. Retest returned Hyland / Platform Infrastructure Engineer with a 6626-character description.",
+      "tags": ["zyte", "icims", "iframe", "job-scrape"],
+      "related_bugs": ["bug-002"],
+      "occurrences": 1,
+      "last_seen": "2026-10-07T23:26:00.000Z"
     }
   ]
 }

@@ -85,7 +85,7 @@ async function fetchBrowserHtml(url: string, apiKey: string): Promise<string> {
         'Content-Type': 'application/json',
         Accept: 'application/json',
       },
-      body: JSON.stringify({ url, browserHtml: true }),
+      body: JSON.stringify({ url, browserHtml: true, includeIframes: true }),
       signal: AbortSignal.timeout(120_000),
     });
   } catch (err) {
