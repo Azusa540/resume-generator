@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Nav from '@/components/Nav';
 import { useSession } from '@/hooks/useSession';
 import PizZip from 'pizzip';
-import { enableResumeNotifications, notificationBlockedMessage, notifyResumeReady } from '@/lib/resumeNotification';
+import { enableResumeNotifications, notificationBlockedMessage, notifyBulkFinished, notifyResumeReady } from '@/lib/resumeNotification';
 
 const MAX_ITEMS = 20;
 
@@ -174,8 +174,8 @@ export default function BulkResumePage() {
       });
   }
 
-  async function runOne(item: ResultItem, selectedProfileId: string) {
-    if (!item.request) return;
+  async function runOne(item: ResultItem, selectedProfileId: string): Promise<'ready' | 'failed'> {
+    if (!item.request) return 'failed';
     setResults((rows) => rows.map((row) => (
       row.id === item.id ? { ...row, status: 'running', error: undefined } : row
     )));
@@ -219,6 +219,7 @@ export default function BulkResumePage() {
           jobDescription: 'jobDescription' in item.request ? item.request.jobDescription : '',
         }),
       }).catch(() => { /* bid tracking is best-effort */ });
+      return 'ready';
     } catch (err) {
       const message = (err as Error)?.name === 'AbortError'
         ? 'This resume took too long and timed out. Try it again.'
@@ -226,6 +227,7 @@ export default function BulkResumePage() {
       setResults((rows) => rows.map((row) => (
         row.id === item.id ? { ...row, status: 'failed', error: message } : row
       )));
+      return 'failed';
     } finally {
       clearTimeout(timer);
     }
@@ -249,13 +251,15 @@ export default function BulkResumePage() {
     }
     setResults(queue);
     setRunning(true);
+    let readyCount = 0;
     try {
       for (const item of queue) {
         if (item.status === 'failed') continue;
-        await runOne(item, profileId);
+        if (await runOne(item, profileId) === 'ready') readyCount += 1;
       }
     } finally {
       setRunning(false);
+      await notifyBulkFinished(readyCount, queue.length);
     }
   }
 

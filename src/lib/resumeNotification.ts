@@ -19,19 +19,28 @@ export function notificationBlockedMessage(permission: NotificationPermission | 
   return 'Chrome did not allow notifications. Click the lock icon in the address bar, set Notifications to Allow, then generate again.';
 }
 
+export async function notifyBulkFinished(ready: number, total: number): Promise<void> {
+  const skipped = Math.max(0, total - ready);
+  const readyLabel = ready === 1 ? '1 resume ready' : `${ready} resumes ready`;
+  const body = skipped === 0
+    ? `${readyLabel}.`
+    : `${readyLabel}. ${skipped === 1 ? '1 skipped' : `${skipped} skipped`}.`;
+  await showNotification('All resumes finished', body, `bulk-${Date.now()}`);
+}
+
 export async function notifyResumeReady(company: string, jobTitle: string): Promise<void> {
+  const body = [company, jobTitle].filter(Boolean).join(' · ') || 'A resume finished generating.';
+  await showNotification('Resume ready', body, `resume-${Date.now()}`);
+}
+
+async function showNotification(title: string, body: string, tag: string): Promise<void> {
   if (typeof window === 'undefined' || !('Notification' in window)) return;
   if (Notification.permission !== 'granted') return;
 
-  const body = [company, jobTitle].filter(Boolean).join(' · ') || 'A resume finished generating.';
-  const title = 'Resume ready';
   try {
     const registration = await notificationRegistration();
     if (registration) {
-      await registration.showNotification(title, {
-        body,
-        tag: `resume-${Date.now()}`,
-      });
+      await registration.showNotification(title, { body, tag });
       return;
     }
   } catch {

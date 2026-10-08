@@ -31,3 +31,4 @@
 | 21:40 | Bulk duplicate alert on paste | bulk/page.tsx | Dialog when pasted company or job link already has a bid today. Removed standing result-row warning | ~1k |
 | 09:38 | Desktop notification when a resume finishes | resumeNotification.ts, bulk/page.tsx, resume-generator/page.tsx | Notification API, permission on Generate, only if the tab is in the background | ~1k |
 | 09:49 | Notifications never appeared | resumeNotification.ts, notification-sw.js | Skipped when the tab was focused. Now always notify via the service worker, and show a note if Chrome blocked permission | ~1k |
+| 10:02 | Final notification when a bulk batch ends | resumeNotification.ts, bulk/page.tsx | One more alert after the last job: ready count and skipped count | ~1k |

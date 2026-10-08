@@ -7,7 +7,7 @@
 ## User Preferences
 
 - **Bulk duplicate warning:** Show the “already generated today” note under the company field (and under a matching job link). Do not use a browser dialog, and do not put that warning on result rows.
-- **Resume notifications:** Desktop notification every time a resume finishes, including while the Resume Builder tab is focused. Ask permission on Generate. Use the service worker at `public/notification-sw.js`. If permission is not granted, show the amber note under the button.
+- **Resume notifications:** Desktop notification every time a resume finishes, including while the Resume Builder tab is focused. After a bulk run, send one more notification that the batch is finished, with ready and skipped counts. Ask permission on Generate. Use the service worker at `public/notification-sw.js`. If permission is not granted, show the amber note under the button.
 
 ## Key Learnings
 
