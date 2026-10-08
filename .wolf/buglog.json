@@ -36,6 +36,18 @@
       "related_bugs": ["bug-002"],
       "occurrences": 1,
       "last_seen": "2026-10-07T23:26:00.000Z"
+    },
+    {
+      "id": "bug-004",
+      "timestamp": "2026-10-08T01:37:00.000Z",
+      "error_message": "Bulk results showed Already generated for this company today on resumes that had just succeeded",
+      "file": "src/app/resume-generator/bulk/page.tsx",
+      "root_cause": "After each success the page added that company to the local bids list, then the result row checked that same list.",
+      "fix": "Stop showing the duplicate warning on result rows. The input form still warns from bids loaded when the page opened.",
+      "tags": ["bulk", "duplicate-bid"],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-10-08T01:37:00.000Z"
     }
   ]
 }

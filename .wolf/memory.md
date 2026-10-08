@@ -26,3 +26,5 @@
 | 23:44 | Verified Zyte HTML + DeepSeek scrape | jobScraper.ts | Alpaca Greenhouse: Senior Sales Engineer, company Alpaca, 5434 chars, high. Recruitee: Auditdata title ok, description 2440 chars, medium because HTML truncated at 120k | ~1k |
 | 19:21 | Diagnosed Hyland iCIMS 422 | jobScraper.ts | Title and company extracted; description length 0 because iCIMS puts the posting in an iframe and browserHtml omits iframe bodies unless includeIframes | ~1k |
 | 19:26 | Enabled Zyte includeIframes | jobScraper.ts | Hyland retest: title, company Hyland, description 6626 chars. Confidence medium because HTML still truncated at 120k | ~1k |
+| 19:37 | Diagnosed Gorilla Logic BambooHR 422 | jobScraper.ts | /careers/188 renders the openings list; id 188 is absent. Company Gorilla Logic, LLC; title and description empty | ~1k |
+| 20:59 | Added bulk resume page | bulk/page.tsx, bulk-item/route.ts, generateResume.ts | One profile, links or detail rows, sequential PDFs, per-file and zip download. Single generate route now calls generateTailoredResume | ~6k |

@@ -30,12 +30,15 @@
 
 ## Do-Not-Repeat
 
+- **[2026-10-07]** A BambooHR URL like `/careers/188?source=linkedin` can render the company openings list when that id is closed. `source=linkedin` does not match the LinkedIn reject (`linkedin.com`). Empty title plus empty description is a 422 even when the company name is present.
 - **[2026-10-06]** A push to `master` runs CI, and a green CI run deploys production (`git reset --hard origin/master` on the VPS). Do not commit or merge onto `master` until that is intended. `origin/development` can lag `master`; confirm the second parent with `git log -1 --format=%P` before assuming a pull merged development.
 - **[2026-08-12]** Never hardcode `us-west-004` for B2. Always copy the bucket’s real S3 endpoint/region from the B2 console (or `s3ApiUrl` from `b2_authorize_account`). Wrong region surfaces as `InvalidAccessKeyId` even when the key works on the native B2 API.
 - **[2026-08-12]** For `@aws-sdk/client-s3` + B2, set `requestChecksumCalculation` and `responseChecksumValidation` to `WHEN_REQUIRED` or PutObject can fail on unsupported CRC32 headers.
 
 ## Decision Log
 
+- **[2026-10-07] Timeout fix is a worker, not a microservice split (discussed)**
+  - `POST /api/resume/generate-from-link` is one request: Zyte browser HTML → DeepSeek → Claude → PDF → B2. nginx ~60s `proxy_read_timeout` returns 504 while that chain is still running. Splitting auth/profiles/bids into services does not shorten it. The useful boundary is a background worker for that chain, with the HTTP handler returning a job id. Not built.
 - **[2026-10-06] Job scrape is Zyte HTML plus DeepSeek V4.1 Flash**
   - Zyte `jobPosting` extraction left `hiringOrganization.name` empty on Greenhouse (Alpaca, probability 0.999, title and description present), so `scrapeJobLink` returned 422. Replaced that with `browserHtml: true`, then `deepseek-flash` JSON extraction of company, title, and description. Needs `DEEPSEEK_API_KEY` as well as `ZYTE_API_KEY`.
 - **[2026-08-12] Resume PDF storage → Backblaze B2 (S3 API)**

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import Link from 'next/link';
 import Nav from '@/components/Nav';
 import { useSession } from '@/hooks/useSession';
 import type { ResumeReviewData, GeneratedResume } from '@/types/resume';
@@ -180,7 +181,10 @@ export default function ResumeGeneratorPage() {
       <Nav />
 
       <div className="max-w-2xl mx-auto px-4 py-10">
-        <h1 className="text-2xl font-semibold text-gray-900 mb-1">Resume Generator</h1>
+        <div className="flex items-baseline justify-between gap-4 mb-1">
+          <h1 className="text-2xl font-semibold text-gray-900">Resume Generator</h1>
+          <Link href="/resume-generator/bulk" className="text-sm text-blue-600 hover:underline">Bulk generate</Link>
+        </div>
         <p className="text-sm text-gray-500 mb-8">Fill in the job details and generate a tailored resume.</p>
 
         <form onSubmit={handleGenerate} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-5">

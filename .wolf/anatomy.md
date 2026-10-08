@@ -108,6 +108,10 @@
 
 - `route.ts` — Next.js API route: POST (~681 tok)
 
+## src/app/api/resume/bulk-item/
+
+- `route.ts` — Session POST: one job link or title/company/description → PDF base64 (~900 tok)
+
 ## src/app/api/resume/generate-from-link/
 
 - `route.ts` — Next.js API route: POST (~1543 tok)
@@ -148,6 +152,10 @@
 
 - `page.tsx` — isCompleteGenerated — renders form — uses useState, useEffect (~2876 tok)
 
+## src/app/resume-generator/bulk/
+
+- `page.tsx` — Bulk generate: job links or detail rows, one-at-a-time PDFs, zip download (~2200 tok)
+
 ## src/app/resume-generator/review/
 
 - `page.tsx` — T1 — left-aligned, contacts as horizontal dot-separated row (~6737 tok)
@@ -166,6 +174,7 @@
 - `apiKey.ts` — API routes: GET (2 endpoints) (~268 tok)
 - `auth.ts` — API routes: GET (1 endpoints) (~152 tok)
 - `docxBuilder.ts` — Exports buildTemplateVariables, renderDocx (~1400 tok)
+- `generateResume.ts` — Shared Claude resume generation used by generate and bulk-item (~900 tok)
 - `jobScraper.ts` — Zyte browserHtml + DeepSeek flash JSON extract → ScrapedJob (~1100 tok)
 - `mongodb.ts` — Exports connectDB (~304 tok)
 - `pdfFromHtml.ts` — Render resume HTML fragment to PDF using the same pipeline as /api/resume/pdf. (~350 tok)
