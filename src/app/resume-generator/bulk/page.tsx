@@ -16,6 +16,7 @@ interface Profile {
 
 interface Bid {
   company: string;
+  jobLink?: string;
   profileId?: { _id: string; fullName: string } | string | null;
   createdAt: string;
 }
@@ -61,6 +62,17 @@ function pdfBlob(b64: string): Blob {
   return new Blob([bytes], { type: 'application/pdf' });
 }
 
+function normalizeLink(value: string): string {
+  const trimmed = value.trim();
+  try {
+    const url = new URL(trimmed);
+    const path = url.pathname.replace(/\/$/, '') || '/';
+    return `${url.host}${path}`.toLowerCase();
+  } catch {
+    return trimmed.toLowerCase().replace(/\/$/, '');
+  }
+}
+
 export default function BulkResumePage() {
   const { ready } = useSession();
   const [profiles, setProfiles] = useState<Profile[]>([]);
@@ -95,19 +107,34 @@ export default function BulkResumePage() {
     [linksText]
   );
 
+  function bidsToday(): Bid[] {
+    if (!profileId) return [];
+    const today = new Date().toDateString();
+    return bids.filter((b) => {
+      const bidProfileId = typeof b.profileId === 'object' && b.profileId ? b.profileId._id : b.profileId;
+      return bidProfileId === profileId && new Date(b.createdAt).toDateString() === today;
+    });
+  }
+
   function companyHasBidToday(company: string): boolean {
     const name = company.trim().toLowerCase();
-    if (!name || !profileId) return false;
+    if (!name) return false;
+    return bidsToday().some((b) => b.company.trim().toLowerCase() === name);
+  }
+
+  const duplicateLinks = useMemo(() => {
     const today = new Date().toDateString();
-    return bids.some((b) => {
+    const links = linksText.split(/\r?\n/).map((s) => s.trim()).filter(Boolean);
+    return links.filter((link) => bids.some((b) => {
       const bidProfileId = typeof b.profileId === 'object' && b.profileId ? b.profileId._id : b.profileId;
       return (
         bidProfileId === profileId &&
-        b.company.trim().toLowerCase() === name &&
-        new Date(b.createdAt).toDateString() === today
+        new Date(b.createdAt).toDateString() === today &&
+        !!b.jobLink &&
+        normalizeLink(b.jobLink) === normalizeLink(link)
       );
-    });
-  }
+    }));
+  }, [bids, linksText, profileId]);
 
   function buildQueue(): ResultItem[] {
     if (mode === 'links') {
@@ -277,7 +304,6 @@ export default function BulkResumePage() {
   }
 
   const readyCount = results.filter((item) => item.status === 'ready').length;
-  const profileName = profiles.find((p) => p._id === profileId)?.fullName ?? 'this profile';
 
   if (!ready) return null;
 
@@ -347,18 +373,30 @@ export default function BulkResumePage() {
                 className={`${inputCls} resize-y`}
               />
               <p className="mt-1.5 text-sm text-gray-500">{linkCount} link{linkCount === 1 ? '' : 's'}</p>
+              {duplicateLinks.map((link) => (
+                <p key={link} className="mt-1 text-sm text-red-600 break-all">
+                  Already generated today: {link}
+                </p>
+              ))}
             </div>
           ) : (
             <div className="space-y-3" onPaste={pasteDetails}>
               {details.map((row, index) => (
                 <div key={row.id} className="grid grid-cols-1 sm:grid-cols-2 gap-2 border border-gray-100 rounded-xl p-3">
-                  <input
-                    value={row.company}
-                    onChange={(e) => setDetails((rows) => rows.map((r) => r.id === row.id ? { ...r, company: e.target.value } : r))}
-                    disabled={running}
-                    placeholder="Company"
-                    className={inputCls}
-                  />
+                  <div>
+                    <input
+                      value={row.company}
+                      onChange={(e) => setDetails((rows) => rows.map((r) => r.id === row.id ? { ...r, company: e.target.value } : r))}
+                      disabled={running}
+                      placeholder="Company"
+                      className={inputCls}
+                    />
+                    {companyHasBidToday(row.company) && (
+                      <p className="mt-1 text-sm text-red-600">
+                        Already generated for {row.company} today.
+                      </p>
+                    )}
+                  </div>
                   <input
                     value={row.title}
                     onChange={(e) => setDetails((rows) => rows.map((r) => r.id === row.id ? { ...r, title: e.target.value } : r))}
@@ -374,11 +412,6 @@ export default function BulkResumePage() {
                     placeholder="Job description"
                     className={`${inputCls} sm:col-span-2 resize-y`}
                   />
-                  {companyHasBidToday(row.company) && (
-                    <p className="sm:col-span-2 text-sm text-red-600">
-                      You already generated a resume for <strong>{row.company}</strong> with <strong>{profileName}</strong> today.
-                    </p>
-                  )}
                   {details.length > 1 && (
                     <button
                       type="button"

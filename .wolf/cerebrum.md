@@ -6,7 +6,7 @@
 
 ## User Preferences
 
-<!-- How the user likes things done. Code style, tools, patterns, communication. -->
+- **Bulk duplicate warning:** Show the “already generated today” note under the company field (and under a matching job link). Do not use a browser dialog, and do not put that warning on result rows.
 
 ## Key Learnings
 

@@ -28,3 +28,4 @@
 | 19:26 | Enabled Zyte includeIframes | jobScraper.ts | Hyland retest: title, company Hyland, description 6626 chars. Confidence medium because HTML still truncated at 120k | ~1k |
 | 19:37 | Diagnosed Gorilla Logic BambooHR 422 | jobScraper.ts | /careers/188 renders the openings list; id 188 is absent. Company Gorilla Logic, LLC; title and description empty | ~1k |
 | 20:59 | Added bulk resume page | bulk/page.tsx, bulk-item/route.ts, generateResume.ts | One profile, links or detail rows, sequential PDFs, per-file and zip download. Single generate route now calls generateTailoredResume | ~6k |
+| 21:40 | Bulk duplicate alert on paste | bulk/page.tsx | Dialog when pasted company or job link already has a bid today. Removed standing result-row warning | ~1k |
