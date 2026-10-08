@@ -180,6 +180,7 @@
 - `pdfFromHtml.ts` — Render resume HTML fragment to PDF using the same pipeline as /api/resume/pdf. (~350 tok)
 - `prompts.ts` — Exports buildSystemPrompt (~18425 tok)
 - `resumeHtml.ts` — template1–3 are free; template4–10 require admin or premium. (~4634 tok)
+- `resumeNotification.ts` — Service-worker desktop notification when a resume finishes (~400 tok)
 - `session.ts` — Exports saveSession, getSession, clearSession (~284 tok)
 - `storage.ts` — Exports resumeKey, uploadResume, getSignedDownloadUrl, downloadResume (~646 tok)
 

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Nav from '@/components/Nav';
 import { useSession } from '@/hooks/useSession';
 import type { ResumeReviewData, GeneratedResume } from '@/types/resume';
+import { enableResumeNotifications, notificationBlockedMessage, notifyResumeReady } from '@/lib/resumeNotification';
 
 function isCompleteGenerated(g: unknown): g is GeneratedResume {
   if (!g || typeof g !== 'object') return false;
@@ -52,6 +53,7 @@ export default function ResumeGeneratorPage() {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [notifyNote, setNotifyNote] = useState('');
   const [bids, setBids] = useState<Bid[]>([]);
 
   useEffect(() => {
@@ -103,6 +105,7 @@ export default function ResumeGeneratorPage() {
 
   async function handleGenerate(e: { preventDefault(): void }) {
     e.preventDefault();
+    setNotifyNote(notificationBlockedMessage(await enableResumeNotifications()));
     setError('');
     setLoading(true);
 
@@ -158,6 +161,7 @@ export default function ResumeGeneratorPage() {
       }
       try { sessionStorage.removeItem('resume_generator_draft'); } catch { /* ignore */ }
 
+      await notifyResumeReady(form.company, form.title);
       // Hard navigation avoids App Router soft-nav hangs that leave "Rendering…" stuck.
       navigating = true;
       window.location.assign('/resume-generator/review');
@@ -282,6 +286,7 @@ export default function ResumeGeneratorPage() {
           </div>
 
           {error && <p className="text-red-500 text-sm">{error}</p>}
+          {notifyNote && <p className="text-sm text-amber-700">{notifyNote}</p>}
 
           <button
             type="submit"

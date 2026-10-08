@@ -29,3 +29,5 @@
 | 19:37 | Diagnosed Gorilla Logic BambooHR 422 | jobScraper.ts | /careers/188 renders the openings list; id 188 is absent. Company Gorilla Logic, LLC; title and description empty | ~1k |
 | 20:59 | Added bulk resume page | bulk/page.tsx, bulk-item/route.ts, generateResume.ts | One profile, links or detail rows, sequential PDFs, per-file and zip download. Single generate route now calls generateTailoredResume | ~6k |
 | 21:40 | Bulk duplicate alert on paste | bulk/page.tsx | Dialog when pasted company or job link already has a bid today. Removed standing result-row warning | ~1k |
+| 09:38 | Desktop notification when a resume finishes | resumeNotification.ts, bulk/page.tsx, resume-generator/page.tsx | Notification API, permission on Generate, only if the tab is in the background | ~1k |
+| 09:49 | Notifications never appeared | resumeNotification.ts, notification-sw.js | Skipped when the tab was focused. Now always notify via the service worker, and show a note if Chrome blocked permission | ~1k |

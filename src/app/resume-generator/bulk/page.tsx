@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Nav from '@/components/Nav';
 import { useSession } from '@/hooks/useSession';
 import PizZip from 'pizzip';
+import { enableResumeNotifications, notificationBlockedMessage, notifyResumeReady } from '@/lib/resumeNotification';
 
 const MAX_ITEMS = 20;
 
@@ -84,6 +85,7 @@ export default function BulkResumePage() {
   const [results, setResults] = useState<ResultItem[]>([]);
   const [running, setRunning] = useState(false);
   const [formError, setFormError] = useState('');
+  const [notifyNote, setNotifyNote] = useState('');
 
   useEffect(() => {
     if (!ready) return;
@@ -190,6 +192,7 @@ export default function BulkResumePage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || 'Generation failed.');
 
+      await notifyResumeReady(data.company, data.jobTitle);
       setResults((rows) => rows.map((row) => (
         row.id === item.id
           ? {
@@ -229,6 +232,7 @@ export default function BulkResumePage() {
   }
 
   async function generateAll() {
+    setNotifyNote(notificationBlockedMessage(await enableResumeNotifications()));
     setFormError('');
     if (!profileId) {
       setFormError('Select a profile.');
@@ -257,6 +261,7 @@ export default function BulkResumePage() {
 
   async function retry(item: ResultItem) {
     if (running || !item.request) return;
+    setNotifyNote(notificationBlockedMessage(await enableResumeNotifications()));
     setRunning(true);
     try {
       await runOne(item, profileId);
@@ -437,6 +442,7 @@ export default function BulkResumePage() {
           )}
 
           {formError && <p className="text-red-500 text-sm">{formError}</p>}
+          {notifyNote && <p className="text-sm text-amber-700">{notifyNote}</p>}
 
           <button
             type="button"
