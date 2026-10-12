@@ -53,13 +53,6 @@ export async function POST(req: NextRequest) {
   if (!user) {
     return NextResponse.json({ message: 'Invalid API key.' }, { status: 401 });
   }
-  if (!user.anthropicApiKey) {
-    return NextResponse.json(
-      { message: 'No Claude API key configured for this account. Ask an admin to set one.' },
-      { status: 400 }
-    );
-  }
-  const client = new Anthropic({ apiKey: user.anthropicApiKey });
   const userId = String(user._id);
 
   // Any valid API key can target any profile, regardless of which account owns it.
@@ -72,9 +65,16 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Admin-owned profiles get a dedicated prompt, overriding the software/other split.
-  const profileOwner = await User.findById(profile.userId, { is_admin: 1 });
-  const isAdmin = Boolean(profileOwner?.is_admin);
+  // X-API-Key only authenticates the caller. Claude is billed to the profile owner.
+  const profileOwner = await User.findById(profile.userId, { is_admin: 1, anthropicApiKey: 1 });
+  if (!profileOwner?.anthropicApiKey) {
+    return NextResponse.json(
+      { message: "No Claude API key configured for this profile's owner." },
+      { status: 400 }
+    );
+  }
+  const client = new Anthropic({ apiKey: profileOwner.anthropicApiKey });
+  const isAdmin = Boolean(profileOwner.is_admin);
   const systemPrompt = isAdmin
     ? profile.profileType === 'other'
       ? buildSystemPromptAdminNonSoftware()
@@ -112,11 +112,11 @@ export async function POST(req: NextRequest) {
     const anthropicMessage =
       (err as { error?: { error?: { message?: string } } })?.error?.error?.message || '';
     const errorMessage = /credit balance/i.test(anthropicMessage)
-      ? 'This account has run out of Claude API credits. Ask an admin to add credits or set a different key in Settings.'
+      ? "This profile's owner has run out of Claude API credits. Ask an admin to add credits or set a different key."
       : status === 429
       ? 'The AI service is rate-limited right now. Please wait a moment and try again.'
       : status === 401
-      ? 'AI service authentication failed. Your Claude API key may be invalid — ask an admin to check it.'
+      ? "AI service authentication failed. The profile owner's Claude API key may be invalid."
       : 'The AI service timed out or is unavailable. Please try again.';
     console.error('[generate-from-details] Anthropic generate failed:', err);
     return NextResponse.json({ message: errorMessage }, { status: 502 });
