@@ -33,3 +33,4 @@
 | 09:49 | Notifications never appeared | resumeNotification.ts, notification-sw.js | Skipped when the tab was focused. Now always notify via the service worker, and show a note if Chrome blocked permission | ~1k |
 | 10:02 | Final notification when a bulk batch ends | resumeNotification.ts, bulk/page.tsx | One more alert after the last job: ready count and skipped count | ~1k |
 | 09:30 | Claude key follows the profile owner | generate-from-link/route.ts, generate-from-details/route.ts | X-API-Key authenticates only. Claude uses profile.userId's anthropicApiKey | ~1k |
+| 10:04 | Model picker for Claude and OpenAI | llmModels.ts, resumeModel.ts, dashboard, admin users | User.llmModel plus openaiApiKey. Default stays Claude Haiku 4.5 | ~4k |

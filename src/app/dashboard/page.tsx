@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Nav from '@/components/Nav';
 import { useSession } from '@/hooks/useSession';
+import { DEFAULT_LLM_MODEL, LLM_MODELS } from '@/lib/llmModels';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -19,6 +20,17 @@ export default function DashboardPage() {
   const [anthropicKeyError, setAnthropicKeyError] = useState('');
   const [anthropicKeySaved, setAnthropicKeySaved] = useState(false);
 
+  const [llmModel, setLlmModel] = useState(DEFAULT_LLM_MODEL);
+  const [savingModel, setSavingModel] = useState(false);
+  const [modelError, setModelError] = useState('');
+
+  const [hasOpenaiKey, setHasOpenaiKey] = useState(false);
+  const [openaiKeyInput, setOpenaiKeyInput] = useState('');
+  const [showOpenaiKeyInput, setShowOpenaiKeyInput] = useState(false);
+  const [savingOpenaiKey, setSavingOpenaiKey] = useState(false);
+  const [openaiKeyError, setOpenaiKeyError] = useState('');
+  const [openaiKeySaved, setOpenaiKeySaved] = useState(false);
+
   useEffect(() => {
     if (!ready) return;
     fetch('/api/auth/api-key')
@@ -27,7 +39,53 @@ export default function DashboardPage() {
     fetch('/api/auth/anthropic-key')
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => { if (d) setHasAnthropicKey(d.hasAnthropicKey); });
+    fetch('/api/auth/openai-key')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => { if (d) setHasOpenaiKey(d.hasOpenaiKey); });
+    fetch('/api/auth/llm-model')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => { if (d?.llmModel) setLlmModel(d.llmModel); });
   }, [ready]);
+
+  async function handleModelChange(next: string) {
+    const previous = llmModel;
+    setLlmModel(next);
+    setSavingModel(true);
+    setModelError('');
+    const res = await fetch('/api/auth/llm-model', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ llmModel: next }),
+    });
+    const data = await res.json();
+    setSavingModel(false);
+    if (!res.ok) {
+      setLlmModel(previous);
+      setModelError(data.message || 'Failed to save model.');
+    }
+  }
+
+  async function handleSaveOpenaiKey() {
+    if (!openaiKeyInput.trim()) return;
+    setSavingOpenaiKey(true);
+    setOpenaiKeyError('');
+    setOpenaiKeySaved(false);
+    const res = await fetch('/api/auth/openai-key', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ apiKey: openaiKeyInput.trim() }),
+    });
+    const data = await res.json();
+    setSavingOpenaiKey(false);
+    if (res.ok) {
+      setHasOpenaiKey(true);
+      setOpenaiKeyInput('');
+      setShowOpenaiKeyInput(false);
+      setOpenaiKeySaved(true);
+    } else {
+      setOpenaiKeyError(data.message || 'Failed to save OpenAI API key.');
+    }
+  }
 
   async function handleSaveAnthropicKey() {
     if (!anthropicKeyInput.trim()) return;
@@ -112,6 +170,31 @@ export default function DashboardPage() {
         </section>
 
         <section className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 max-w-2xl mt-6">
+          <h2 className="text-base font-semibold text-gray-900 mb-1">Model</h2>
+          <p className="text-sm text-gray-500 mb-4">
+            Resumes you generate use this model and the matching API key below.
+          </p>
+          <select
+            value={llmModel}
+            onChange={(e) => handleModelChange(e.target.value)}
+            disabled={savingModel}
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <optgroup label="Claude">
+              {LLM_MODELS.filter((model) => model.vendor === 'claude').map((model) => (
+                <option key={model.id} value={model.id}>{model.label}</option>
+              ))}
+            </optgroup>
+            <optgroup label="OpenAI">
+              {LLM_MODELS.filter((model) => model.vendor === 'openai').map((model) => (
+                <option key={model.id} value={model.id}>{model.label}</option>
+              ))}
+            </optgroup>
+          </select>
+          {modelError && <p className="mt-2 text-sm text-red-600">{modelError}</p>}
+        </section>
+
+        <section className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 max-w-2xl mt-6">
           <h2 className="text-base font-semibold text-gray-900 mb-1">Claude API Key</h2>
           <p className="text-sm text-gray-500 mb-4">
             Your own Anthropic API key, used to generate resumes on your account. Get one at{' '}
@@ -150,6 +233,47 @@ export default function DashboardPage() {
             </div>
           )}
           {anthropicKeyError && <p className="mt-2 text-sm text-red-600">{anthropicKeyError}</p>}
+        </section>
+
+        <section className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 max-w-2xl mt-6">
+          <h2 className="text-base font-semibold text-gray-900 mb-1">OpenAI API Key</h2>
+          <p className="text-sm text-gray-500 mb-4">
+            Your own OpenAI API key, used when the selected model is an OpenAI model. Get one at{' '}
+            <code className="text-xs bg-gray-100 px-1 rounded">platform.openai.com</code>.
+          </p>
+          <div className="flex items-center gap-3 mb-3">
+            {hasOpenaiKey ? (
+              <span className="text-xs text-green-700 bg-green-50 px-2 py-1 rounded-full">Key configured</span>
+            ) : (
+              <span className="text-xs text-gray-500 bg-gray-50 px-2 py-1 rounded-full">No key set</span>
+            )}
+            <button
+              onClick={() => { setShowOpenaiKeyInput((v) => !v); setOpenaiKeyError(''); setOpenaiKeySaved(false); }}
+              className="text-sm font-medium text-blue-600 border border-blue-200 hover:border-blue-400 rounded-lg py-1.5 px-3"
+            >
+              {hasOpenaiKey ? 'Update Key' : 'Set Key'}
+            </button>
+            {openaiKeySaved && <span className="text-xs text-green-700">Saved.</span>}
+          </div>
+          {showOpenaiKeyInput && (
+            <div className="flex items-center gap-2">
+              <input
+                type="password"
+                placeholder="sk-..."
+                value={openaiKeyInput}
+                onChange={(e) => setOpenaiKeyInput(e.target.value)}
+                className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <button
+                onClick={handleSaveOpenaiKey}
+                disabled={savingOpenaiKey || !openaiKeyInput.trim()}
+                className="text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 rounded-lg py-2 px-4"
+              >
+                {savingOpenaiKey ? 'Saving…' : 'Save'}
+              </button>
+            </div>
+          )}
+          {openaiKeyError && <p className="mt-2 text-sm text-red-600">{openaiKeyError}</p>}
         </section>
 
         {generatedKey && (

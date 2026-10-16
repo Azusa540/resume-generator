@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import { connectDB } from '@/lib/mongodb';
 import { getUser } from '@/lib/auth';
 import User from '@/models/User';
+import { DEFAULT_LLM_MODEL, isKnownLlmModel } from '@/lib/llmModels';
 
 function adminOnly(req: NextRequest) {
   const user = getUser(req);
@@ -25,6 +26,8 @@ export async function GET(req: NextRequest) {
     createdAt: u.createdAt,
     hasApiKey: Boolean(u.apiKeyHash),
     hasAnthropicKey: Boolean(u.anthropicApiKey),
+    hasOpenaiKey: Boolean(u.openaiApiKey),
+    llmModel: u.llmModel || DEFAULT_LLM_MODEL,
   }));
   return NextResponse.json(withKeyStatus);
 }
@@ -56,14 +59,19 @@ export async function POST(req: NextRequest) {
 export async function PATCH(req: NextRequest) {
   const auth = adminOnly(req);
   if (auth instanceof NextResponse) return auth;
-  const { id, password, is_admin, is_premium, anthropicApiKey } = await req.json();
+  const { id, password, is_admin, is_premium, anthropicApiKey, openaiApiKey, llmModel } = await req.json();
   if (!id) return NextResponse.json({ message: 'User id required.' }, { status: 400 });
+  if (llmModel !== undefined && !isKnownLlmModel(llmModel)) {
+    return NextResponse.json({ message: 'Unknown model.' }, { status: 400 });
+  }
   await connectDB();
   const update: Record<string, unknown> = {};
   if (password) update.password = await bcrypt.hash(password, 12);
   if (is_admin !== undefined) update.is_admin = is_admin;
   if (is_premium !== undefined) update.is_premium = is_premium;
   if (anthropicApiKey !== undefined) update.anthropicApiKey = anthropicApiKey || undefined;
+  if (openaiApiKey !== undefined) update.openaiApiKey = openaiApiKey || undefined;
+  if (llmModel !== undefined) update.llmModel = llmModel;
   if (Object.keys(update).length === 0)
     return NextResponse.json({ message: 'Nothing to update.' }, { status: 400 });
   await User.findByIdAndUpdate(id, update);

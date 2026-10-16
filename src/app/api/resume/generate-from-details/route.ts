@@ -1,16 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import Anthropic from '@anthropic-ai/sdk';
 import { connectDB } from '@/lib/mongodb';
 import Profile from '@/models/Profile';
 import Resume from '@/models/Resume';
 import User from '@/models/User';
-import { buildSystemPrompt, buildSystemPromptNonSoftware, buildUserPrompt } from '@/lib/prompts';
-import { buildSystemPromptAdmin } from '@/lib/adminPrompt';
-import { buildSystemPromptAdminNonSoftware } from '@/lib/adminPromptNonSoftware';
-import { repairPrimaryStackCoverage, repairPositionZeroBulletCount, repairMalformedSchema } from '@/lib/resumeRepair';
-import { reviewAuthenticity } from '@/lib/authenticityReview';
-import { buildResumeTool, findToolUse, validateGeneratedResume, cachedText } from '@/lib/resumeSchema';
-import { dedupeSkills } from '@/lib/dedupeSkills';
+import { generateTailoredResume, ResumeGenerateError } from '@/lib/generateResume';
+import { openResumeModel } from '@/lib/resumeModel';
 import { resumeKey, uploadResume, getSignedDownloadUrl } from '@/lib/storage';
 import { extractApiKey, findUserByApiKey } from '@/lib/apiKey';
 import {
@@ -19,7 +13,6 @@ import {
   type PdfTemplate,
 } from '@/lib/resumeHtml';
 import { pdfFromHtml, PdfBusyError } from '@/lib/pdfFromHtml';
-import type { GeneratedResume } from '@/types/resume';
 
 // Same generation pipeline as generate-from-link, but the caller already has
 // the job details (company name, title, description) in hand — no scraping
@@ -65,118 +58,31 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // X-API-Key only authenticates the caller. Claude is billed to the profile owner.
-  const profileOwner = await User.findById(profile.userId, { is_admin: 1, anthropicApiKey: 1 });
-  if (!profileOwner?.anthropicApiKey) {
-    return NextResponse.json(
-      { message: "No Claude API key configured for this profile's owner." },
-      { status: 400 }
-    );
+  // X-API-Key only authenticates the caller. The profile owner's model and key are billed.
+  const profileOwner = await User.findById(profile.userId, { is_admin: 1, anthropicApiKey: 1, openaiApiKey: 1, llmModel: 1 });
+  const opened = openResumeModel(profileOwner, 'owner');
+  if ('message' in opened) {
+    return NextResponse.json({ message: opened.message }, { status: 400 });
   }
-  const client = new Anthropic({ apiKey: profileOwner.anthropicApiKey });
-  const isAdmin = Boolean(profileOwner.is_admin);
-  const systemPrompt = isAdmin
-    ? profile.profileType === 'other'
-      ? buildSystemPromptAdminNonSoftware()
-      : buildSystemPromptAdmin()
-    : profile.profileType === 'other'
-    ? buildSystemPromptNonSoftware()
-    : buildSystemPrompt();
-  const userPrompt = buildUserPrompt(
-    profile,
-    jobTitle,
-    companyName,
-    jobDescription,
-    profile.customPrompt,
-    profile.profileType
-  );
-  const tool = buildResumeTool(profile.profileType, isAdmin);
 
-  let message;
+  let generated;
   try {
-    message = await client.messages.create(
-      {
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 16000,
-        system: [cachedText(systemPrompt)],
-        tools: [tool],
-        tool_choice: { type: 'tool', name: tool.name },
-        messages: [
-          { role: 'user', content: [cachedText(userPrompt)] },
-        ],
-      },
-      { timeout: 120_000 }
-    );
-  } catch (err) {
-    const status = (err as { status?: number })?.status;
-    const anthropicMessage =
-      (err as { error?: { error?: { message?: string } } })?.error?.error?.message || '';
-    const errorMessage = /credit balance/i.test(anthropicMessage)
-      ? "This profile's owner has run out of Claude API credits. Ask an admin to add credits or set a different key."
-      : status === 429
-      ? 'The AI service is rate-limited right now. Please wait a moment and try again.'
-      : status === 401
-      ? "AI service authentication failed. The profile owner's Claude API key may be invalid."
-      : 'The AI service timed out or is unavailable. Please try again.';
-    console.error('[generate-from-details] Anthropic generate failed:', err);
-    return NextResponse.json({ message: errorMessage }, { status: 502 });
-  }
-
-  if (message.stop_reason === 'max_tokens') {
-    return NextResponse.json(
-      { message: 'The resume was too long to finish generating. Try a shorter job description.' },
-      { status: 502 }
-    );
-  }
-
-  let generated: GeneratedResume;
-  let toolUse: Anthropic.ToolUseBlock;
-  try {
-    toolUse = findToolUse(message);
-  } catch (err) {
-    console.error('[generate-from-details] Model did not call the tool:', err, {
-      profileFullName: profile.fullName,
-      companyName,
-      jobTitle,
-      stopReason: message.stop_reason,
-      rawContent: JSON.stringify(message.content),
+    generated = await generateTailoredResume({
+      model: opened.model,
+      profile,
+      isAdmin: Boolean(profileOwner?.is_admin),
+      title: jobTitle,
+      company: companyName,
+      jobDescription,
     });
-    return NextResponse.json({ message: 'Failed to parse response as JSON.' }, { status: 500 });
-  }
-  try {
-    generated = validateGeneratedResume(toolUse.input, profile.profileType);
   } catch (err) {
-    console.error('[generate-from-details] Initial tool output failed schema validation, attempting one corrective retry:', err, {
-      profileFullName: profile.fullName,
-      employmentCount: profile.employment.length,
-      companyName,
-      jobTitle,
-      jobDescriptionLen: String(jobDescription).length,
-      rawInput: JSON.stringify(toolUse.input),
-    });
-    try {
-      const validationMessage = err instanceof Error ? err.message : String(err);
-      ({ generated, toolUse } = await repairMalformedSchema(
-        client, systemPrompt, userPrompt, tool, toolUse, validationMessage, profile.profileType
-      ));
-    } catch (err2) {
-      console.error('[generate-from-details] Corrective retry also failed:', err2);
-      return NextResponse.json({ message: 'Failed to parse response as JSON.' }, { status: 500 });
+    if (err instanceof ResumeGenerateError) {
+      return NextResponse.json({ message: err.message }, { status: err.status });
     }
+    console.error('[generate-from-details] Unexpected failure:', err);
+    return NextResponse.json({ message: 'Failed to generate the resume.' }, { status: 500 });
   }
 
-  ({ generated, toolUse } = await repairPrimaryStackCoverage(
-    client, systemPrompt, userPrompt, tool, toolUse, generated, profile.profileType
-  ));
-  if (isAdmin && profile.profileType !== 'other') {
-    ({ generated, toolUse } = await repairPositionZeroBulletCount(
-      client, systemPrompt, userPrompt, tool, toolUse, generated, profile.profileType
-    ));
-  }
-  ({ generated } = await reviewAuthenticity(
-    client, systemPrompt, userPrompt, tool, toolUse, generated, profile.profileType
-  ));
-  generated = dedupeSkills(generated);
 
   const profileContact = {
     fullName: profile.fullName,

@@ -1,8 +1,9 @@
-import Anthropic from '@anthropic-ai/sdk';
+import type Anthropic from '@anthropic-ai/sdk';
 import type { GeneratedResume } from '@/types/resume';
 import { findMissingPrimaryStack } from '@/lib/verifyPrimaryStack';
 import { positionZeroBulletCount } from '@/lib/verifyBulletCount';
-import { extractGeneratedResume, cachedText } from '@/lib/resumeSchema';
+import { validateGeneratedResume } from '@/lib/resumeSchema';
+import type { ResumeModelRunner } from '@/lib/resumeModel';
 
 /**
  * Admin prompt only. If the model's own PRIMARY STACK DISTRIBUTION CHECK failed
@@ -14,7 +15,7 @@ import { extractGeneratedResume, cachedText } from '@/lib/resumeSchema';
  * fails schema validation.
  */
 export async function repairPrimaryStackCoverage(
-  client: Anthropic,
+  model: ResumeModelRunner,
   systemPrompt: string,
   userPrompt: string,
   tool: Anthropic.Tool,
@@ -32,32 +33,9 @@ export async function repairPrimaryStackCoverage(
   if (missing.length === 0) return { generated, toolUse: previousToolUse };
 
   try {
-    const message = await client.messages.create(
-      {
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 16000,
-        system: [cachedText(systemPrompt)],
-        tools: [tool],
-        tool_choice: { type: 'tool', name: tool.name },
-        messages: [
-          { role: 'user', content: [cachedText(userPrompt)] },
-          { role: 'assistant', content: [previousToolUse] },
-          {
-            role: 'user',
-            content: [
-              {
-                type: 'tool_result',
-                tool_use_id: previousToolUse.id,
-                content: `Your PRIMARY STACK DISTRIBUTION CHECK failed: the following technologies are missing or appear in fewer than ${minCompanies} companies in experience_bullets: ${missing.join(', ')}. Revise ONLY the "experience_bullets" array (and "skills" too, if a term is missing there) so each of these technologies appears bolded in bullets across at least ${minCompanies} different companies, blended naturally into that company's real domain per the BLEND, DON'T BOLT ON rule. Keep everything else — professional_summary, education, the other bullets' content and order — unchanged. Call the tool again with the complete corrected resume, same schema including "primary_stack".`,
-              },
-            ],
-          },
-        ],
-      },
-      { timeout: 120_000 }
-    );
-
-    return extractGeneratedResume(message, profileType);
+    const instruction = `Your PRIMARY STACK DISTRIBUTION CHECK failed: the following technologies are missing or appear in fewer than ${minCompanies} companies in experience_bullets: ${missing.join(', ')}. Revise ONLY the "experience_bullets" array (and "skills" too, if a term is missing there) so each of these technologies appears bolded in bullets across at least ${minCompanies} different companies, blended naturally into that company's real domain per the BLEND, DON'T BOLT ON rule. Keep everything else — professional_summary, education, the other bullets' content and order — unchanged. Call the tool again with the complete corrected resume, same schema including "primary_stack".`;
+    const { toolUse } = await model.run(systemPrompt, userPrompt, tool, { previous: previousToolUse, instruction });
+    return { generated: validateGeneratedResume(toolUse.input, profileType), toolUse };
   } catch (err) {
     console.error('[resumeRepair] Repair call failed, keeping original generation:', err);
     return { generated, toolUse: previousToolUse };
@@ -73,7 +51,7 @@ export async function repairPrimaryStackCoverage(
  * schema validation.
  */
 export async function repairPositionZeroBulletCount(
-  client: Anthropic,
+  model: ResumeModelRunner,
   systemPrompt: string,
   userPrompt: string,
   tool: Anthropic.Tool,
@@ -87,32 +65,9 @@ export async function repairPositionZeroBulletCount(
   const company = generated.experience_bullets[0]?.company ?? 'the most recent company';
 
   try {
-    const message = await client.messages.create(
-      {
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 16000,
-        system: [cachedText(systemPrompt)],
-        tools: [tool],
-        tool_choice: { type: 'tool', name: tool.name },
-        messages: [
-          { role: 'user', content: [cachedText(userPrompt)] },
-          { role: 'assistant', content: [previousToolUse] },
-          {
-            role: 'user',
-            content: [
-              {
-                type: 'tool_result',
-                tool_use_id: previousToolUse.id,
-                content: `Position 0 ("${company}", the most recent role) only has ${count} bullets, but per the Sentence distribution rule it MUST have more than 8 (9-12). Add genuine, specific bullets to position 0 ONLY until it exceeds 8 — draw on more of the candidate's real Role Description detail and more JD-relevant angles per PRIMARY STACK DISTRIBUTION and BULLET ORDER WITHIN EACH COMPANY. Every new bullet must say something true and specific and still follow all the existing rules (tech density, bold highlighting, verb variety, no padding with vague filler). Keep every other position, the professional_summary, education, and primary_stack unchanged. Call the tool again with the complete corrected resume, same schema.`,
-              },
-            ],
-          },
-        ],
-      },
-      { timeout: 120_000 }
-    );
-
-    return extractGeneratedResume(message, profileType);
+    const instruction = `Position 0 ("${company}", the most recent role) only has ${count} bullets, but per the Sentence distribution rule it MUST have more than 8 (9-12). Add genuine, specific bullets to position 0 ONLY until it exceeds 8 — draw on more of the candidate's real Role Description detail and more JD-relevant angles per PRIMARY STACK DISTRIBUTION and BULLET ORDER WITHIN EACH COMPANY. Every new bullet must say something true and specific and still follow all the existing rules (tech density, bold highlighting, verb variety, no padding with vague filler). Keep every other position, the professional_summary, education, and primary_stack unchanged. Call the tool again with the complete corrected resume, same schema.`;
+    const { toolUse } = await model.run(systemPrompt, userPrompt, tool, { previous: previousToolUse, instruction });
+    return { generated: validateGeneratedResume(toolUse.input, profileType), toolUse };
   } catch (err) {
     console.error('[resumeRepair] Position-0 bullet-count repair call failed, keeping original generation:', err);
     return { generated, toolUse: previousToolUse };
@@ -131,7 +86,7 @@ export async function repairPositionZeroBulletCount(
  * the retry also fails; callers should treat that as a final failure.
  */
 export async function repairMalformedSchema(
-  client: Anthropic,
+  model: ResumeModelRunner,
   systemPrompt: string,
   userPrompt: string,
   tool: Anthropic.Tool,
@@ -139,31 +94,8 @@ export async function repairMalformedSchema(
   validationError: string,
   profileType: 'software' | 'other' | undefined
 ): Promise<{ generated: GeneratedResume; toolUse: Anthropic.ToolUseBlock }> {
-  const message = await client.messages.create(
-    {
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 16000,
-      system: [cachedText(systemPrompt)],
-      tools: [tool],
-      tool_choice: { type: 'tool', name: tool.name },
-      messages: [
-        { role: 'user', content: [cachedText(userPrompt)] },
-        { role: 'assistant', content: [previousToolUse] },
-        {
-          role: 'user',
-          content: [
-            {
-              type: 'tool_result',
-              tool_use_id: previousToolUse.id,
-              content: `Your last output_resume call did not match the required schema: ${validationError}. Two common mistakes: (1) writing "experience_bullets" — or a "bullets" array inside one of its entries — as a JSON-encoded STRING instead of a real, natively-nested array; every field must be actual JSON, never a string containing JSON text. (2) misspelling a key name (e.g. "bullets" spelled as something else) in one entry. Call the tool again with the complete, corrected resume — same content, valid against the schema.`,
-            },
-          ],
-        },
-      ],
-    },
-    { timeout: 120_000 }
-  );
-
-  return extractGeneratedResume(message, profileType);
+  const instruction = `Your last output_resume call did not match the required schema: ${validationError}. Two common mistakes: (1) writing "experience_bullets" — or a "bullets" array inside one of its entries — as a JSON-encoded STRING instead of a real, natively-nested array; every field must be actual JSON, never a string containing JSON text. (2) misspelling a key name (e.g. "bullets" spelled as something else) in one entry. Call the tool again with the complete, corrected resume — same content, valid against the schema.`;
+  const { toolUse } = await model.run(systemPrompt, userPrompt, tool, { previous: previousToolUse, instruction });
+  return { generated: validateGeneratedResume(toolUse.input, profileType), toolUse };
 }
 

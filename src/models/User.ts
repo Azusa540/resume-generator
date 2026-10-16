@@ -8,6 +8,8 @@ export interface IUser extends Document {
   is_premium: boolean;
   apiKeyHash?: string;
   anthropicApiKey?: string;
+  openaiApiKey?: string;
+  llmModel?: string;
   createdAt: Date;
   updatedAt: Date;
   comparePassword(candidate: string): Promise<boolean>;
@@ -25,6 +27,8 @@ const UserSchema = new Schema<IUser>(
     is_premium: { type: Boolean, default: false },
     apiKeyHash: { type: String, sparse: true, index: true },
     anthropicApiKey: { type: String },
+    openaiApiKey: { type: String },
+    llmModel: { type: String, default: 'claude-haiku-4-5' },
   },
   { timestamps: true }
 );

@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import Anthropic from '@anthropic-ai/sdk';
 import { connectDB } from '@/lib/mongodb';
 import { getUser } from '@/lib/auth';
 import Profile from '@/models/Profile';
 import User from '@/models/User';
 import { generateTailoredResume, ResumeGenerateError } from '@/lib/generateResume';
+import { openResumeModel } from '@/lib/resumeModel';
 
 export async function POST(req: NextRequest) {
   const user = getUser(req);
@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
   await connectDB();
   const [profile, dbUser] = await Promise.all([
     Profile.findOne({ _id: profileId, userId: user.id }),
-    User.findById(user.id, { anthropicApiKey: 1 }),
+    User.findById(user.id, { anthropicApiKey: 1, openaiApiKey: 1, llmModel: 1 }),
   ]);
   if (!profile) return NextResponse.json({ message: 'Profile not found.' }, { status: 404 });
   if (profile.employment.length === 0) {
@@ -27,17 +27,14 @@ export async function POST(req: NextRequest) {
       { status: 400 }
     );
   }
-  if (!dbUser?.anthropicApiKey) {
-    return NextResponse.json(
-      { message: 'No Claude API key configured for your account. Ask an admin to set one.' },
-      { status: 400 }
-    );
+  const opened = openResumeModel(dbUser, 'account');
+  if ('message' in opened) {
+    return NextResponse.json({ message: opened.message }, { status: 400 });
   }
-  const client = new Anthropic({ apiKey: dbUser.anthropicApiKey });
 
   try {
     const generated = await generateTailoredResume({
-      client,
+      model: opened.model,
       profile,
       isAdmin: user.isAdmin,
       title,

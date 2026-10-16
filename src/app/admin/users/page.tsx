@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Nav from '@/components/Nav';
 import { getSession } from '@/lib/session';
+import { DEFAULT_LLM_MODEL, LLM_MODELS, llmModelLabel } from '@/lib/llmModels';
 
 interface UserRow {
   _id: string;
@@ -13,6 +14,8 @@ interface UserRow {
   createdAt: string;
   hasApiKey?: boolean;
   hasAnthropicKey?: boolean;
+  hasOpenaiKey?: boolean;
+  llmModel?: string;
 }
 
 export default function AdminUsersPage() {
@@ -36,9 +39,12 @@ export default function AdminUsersPage() {
   const [editIsAdmin, setEditIsAdmin] = useState(false);
   const [editIsPremium, setEditIsPremium] = useState(false);
   const [editAnthropicKey, setEditAnthropicKey] = useState('');
+  const [editOpenaiKey, setEditOpenaiKey] = useState('');
+  const [editLlmModel, setEditLlmModel] = useState(DEFAULT_LLM_MODEL);
   const [saving, setSaving] = useState(false);
   const [showEditPassword, setShowEditPassword] = useState(false);
   const [showEditAnthropicKey, setShowEditAnthropicKey] = useState(false);
+  const [showEditOpenaiKey, setShowEditOpenaiKey] = useState(false);
 
   // API key modal
   const [generatedKey, setGeneratedKey] = useState<string | null>(null);
@@ -48,6 +54,9 @@ export default function AdminUsersPage() {
   const [anthropicKeyCache, setAnthropicKeyCache] = useState<Record<string, string>>({});
   const [visibleAnthropicKeyIds, setVisibleAnthropicKeyIds] = useState<Set<string>>(new Set());
   const [revealingFor, setRevealingFor] = useState<string | null>(null);
+  const [openaiKeyCache, setOpenaiKeyCache] = useState<Record<string, string>>({});
+  const [visibleOpenaiKeyIds, setVisibleOpenaiKeyIds] = useState<Set<string>>(new Set());
+  const [revealingOpenaiFor, setRevealingOpenaiFor] = useState<string | null>(null);
 
   useEffect(() => {
     const session = getSession();
@@ -82,7 +91,7 @@ export default function AdminUsersPage() {
   }
 
   function startEdit(u: UserRow) {
-    setEditId(u._id); setEditPassword(''); setEditIsAdmin(u.is_admin); setEditIsPremium(u.is_premium); setEditAnthropicKey('');
+    setEditId(u._id); setEditPassword(''); setEditIsAdmin(u.is_admin); setEditIsPremium(u.is_premium); setEditAnthropicKey(''); setEditOpenaiKey(''); setEditLlmModel(u.llmModel || DEFAULT_LLM_MODEL);
   }
 
   async function handleSave(id: string) {
@@ -90,6 +99,8 @@ export default function AdminUsersPage() {
     const body: Record<string, unknown> = { id, is_admin: editIsAdmin, is_premium: editIsPremium };
     if (editPassword) body.password = editPassword;
     if (editAnthropicKey) body.anthropicApiKey = editAnthropicKey;
+    if (editOpenaiKey) body.openaiApiKey = editOpenaiKey;
+    body.llmModel = editLlmModel;
     const res = await fetch('/api/admin/users', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
@@ -154,6 +165,30 @@ export default function AdminUsersPage() {
       setAnthropicKeyCache((prev) => ({ ...prev, [userId]: data.anthropicApiKey }));
     }
     setVisibleAnthropicKeyIds((prev) => new Set(prev).add(userId));
+  }
+
+  async function toggleRevealOpenaiKey(userId: string) {
+    if (visibleOpenaiKeyIds.has(userId)) {
+      setVisibleOpenaiKeyIds((prev) => {
+        const next = new Set(prev);
+        next.delete(userId);
+        return next;
+      });
+      return;
+    }
+    if (!openaiKeyCache[userId]) {
+      setRevealingOpenaiFor(userId);
+      const res = await fetch(`/api/admin/users/${userId}/openai-key`);
+      setRevealingOpenaiFor(null);
+      if (!res.ok) {
+        alert('Failed to load OpenAI API key.');
+        return;
+      }
+      const data = await res.json();
+      if (!data.openaiApiKey) return;
+      setOpenaiKeyCache((prev) => ({ ...prev, [userId]: data.openaiApiKey }));
+    }
+    setVisibleOpenaiKeyIds((prev) => new Set(prev).add(userId));
   }
 
   const inputCls = 'w-full border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500';
@@ -231,7 +266,9 @@ export default function AdminUsersPage() {
                   <th className="px-6 py-3 text-left">Role</th>
                   <th className="px-6 py-3 text-left">Premium</th>
                   <th className="px-6 py-3 text-left">API Key</th>
+                  <th className="px-6 py-3 text-left">Model</th>
                   <th className="px-6 py-3 text-left">Claude Key</th>
+                  <th className="px-6 py-3 text-left">OpenAI Key</th>
                   <th className="px-6 py-3 text-left">Created</th>
                   <th className="px-6 py-3 text-right">Actions</th>
                 </tr>
@@ -264,6 +301,17 @@ export default function AdminUsersPage() {
                         </td>
                         <td className="px-6 py-3 text-gray-500">—</td>
                         <td className="px-6 py-3">
+                          <select
+                            value={editLlmModel}
+                            onChange={(e) => setEditLlmModel(e.target.value)}
+                            className="w-44 border border-gray-300 rounded-lg px-2 py-1 text-sm text-gray-900 bg-white"
+                          >
+                            {LLM_MODELS.map((model) => (
+                              <option key={model.id} value={model.id}>{model.label}</option>
+                            ))}
+                          </select>
+                        </td>
+                        <td className="px-6 py-3">
                           <div className="relative w-52">
                             <input
                               type={showEditAnthropicKey ? 'text' : 'password'} placeholder="New Claude API key (optional)"
@@ -273,6 +321,22 @@ export default function AdminUsersPage() {
                             <button type="button" onClick={() => setShowEditAnthropicKey((v) => !v)}
                               className="absolute inset-y-0 right-0 flex items-center px-2 text-gray-400 hover:text-gray-600" tabIndex={-1}>
                               {showEditAnthropicKey
+                                ? <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 4.411m0 0L21 21" /></svg>
+                                : <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                              }
+                            </button>
+                          </div>
+                        </td>
+                        <td className="px-6 py-3">
+                          <div className="relative w-52">
+                            <input
+                              type={showEditOpenaiKey ? 'text' : 'password'} placeholder="New OpenAI API key (optional)"
+                              value={editOpenaiKey} onChange={(e) => setEditOpenaiKey(e.target.value)}
+                              className="w-full border border-gray-300 rounded-lg px-2 py-1 pr-8 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                            <button type="button" onClick={() => setShowEditOpenaiKey((v) => !v)}
+                              className="absolute inset-y-0 right-0 flex items-center px-2 text-gray-400 hover:text-gray-600" tabIndex={-1}>
+                              {showEditOpenaiKey
                                 ? <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 4.411m0 0L21 21" /></svg>
                                 : <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
                               }
@@ -340,6 +404,7 @@ export default function AdminUsersPage() {
                             </button>
                           </div>
                         </td>
+                        <td className="px-6 py-3 text-gray-700">{llmModelLabel(u.llmModel)}</td>
                         <td className="px-6 py-3">
                           {u.hasAnthropicKey ? (
                             <div className="space-y-1">
@@ -373,6 +438,46 @@ export default function AdminUsersPage() {
                               {visibleAnthropicKeyIds.has(u._id) && anthropicKeyCache[u._id] && (
                                 <code className="block text-[11px] text-gray-700 bg-gray-50 border border-gray-200 rounded px-1.5 py-0.5 break-all max-w-[200px]">
                                   {anthropicKeyCache[u._id]}
+                                </code>
+                              )}
+                            </div>
+                          ) : (
+                            <span className="text-xs text-gray-500 bg-gray-50 px-2 py-0.5 rounded-full">None</span>
+                          )}
+                        </td>
+                        <td className="px-6 py-3">
+                          {u.hasOpenaiKey ? (
+                            <div className="space-y-1">
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs text-green-700 bg-green-50 px-2 py-0.5 rounded-full">Active</span>
+                                <button
+                                  type="button"
+                                  onClick={() => toggleRevealOpenaiKey(u._id)}
+                                  disabled={revealingOpenaiFor === u._id}
+                                  className="text-gray-400 hover:text-gray-600 disabled:opacity-50"
+                                  title={visibleOpenaiKeyIds.has(u._id) ? 'Hide key' : 'Reveal key'}
+                                >
+                                  {revealingOpenaiFor === u._id ? (
+                                    <span className="text-xs">…</span>
+                                  ) : visibleOpenaiKeyIds.has(u._id) ? (
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 4.411m0 0L21 21" /></svg>
+                                  ) : (
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                                  )}
+                                </button>
+                                {visibleOpenaiKeyIds.has(u._id) && openaiKeyCache[u._id] && (
+                                  <button
+                                    type="button"
+                                    onClick={() => navigator.clipboard.writeText(openaiKeyCache[u._id])}
+                                    className="text-xs text-blue-600 hover:text-blue-800 font-medium"
+                                  >
+                                    Copy
+                                  </button>
+                                )}
+                              </div>
+                              {visibleOpenaiKeyIds.has(u._id) && openaiKeyCache[u._id] && (
+                                <code className="block text-[11px] text-gray-700 bg-gray-50 border border-gray-200 rounded px-1.5 py-0.5 break-all max-w-[200px]">
+                                  {openaiKeyCache[u._id]}
                                 </code>
                               )}
                             </div>
